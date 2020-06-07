@@ -11,7 +11,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rm -rf ./dist && rollup -c",
     "prettier:write": "prettier --write '{src,examples}/**/*'",
-    "prettier:check": "prettier --check '{src,examples}/**/*'"
+    "prettier:check": "prettier --check '{src,examples}/**/*'",
+    "release": "npx standard-version"
   },
   "keywords": [
     "text-editor",
