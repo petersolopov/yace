@@ -20,6 +20,12 @@
     "code-editor"
   ],
   "author": "Peter Solopov <peter@solopov.dev>",
+  "homepage": "https://github.com/petersolopov/code-editor",
+  "bugs": "https://github.com/petersolopov/code-editor/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/petersolopov/code-editor"
+  },
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.3",
