@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>markdown</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="//unpkg.com/mdhl@0.0.1/mdhl.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <div id="editor"></div>
+    </div>
+
+    <script type="module">
+      import { highlight } from "https://unpkg.com/mdhl@0.0.1/dist/mdhl.esm.js";
+      import CodeEditor from "../src/index.js";
+
+      const editor = new CodeEditor("#editor", {
+        value:
+          '# Markdown Editor\n\n- syntax highlighting\n- small as mush as possible\n- faster than popular highlighters\n\n```js\nconst hello = "world";\n```\n\nThere are **bold** and *italic* style and much more.',
+        styles: {
+          fontSize: "20px",
+        },
+        highlighter: highlight,
+        lineNumbers: true,
+      });
+
+      editor.onUpdate(() => {
+        console.log("updated!");
+      });
+
+      editor.textarea.focus();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "name": "code-editor",
+  "version": "0.0.1",
+  "description": "tiny text editor with plugins",
+  "main": "dist/index.js",
+  "module": "dist/esm/index.esm.js",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf ./dist && rollup -c",
+    "prettier:write": "prettier --write '{src,examples}/**/*'",
+    "prettier:check": "prettier --check '{src,examples}/**/*'"
+  },
+  "keywords": [
+    "text-editor",
+    "editor",
+    "code-editor"
+  ],
+  "author": "Peter Solopov <peter@solopov.dev>",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-buble": "^0.21.3",
+    "prettier": "^2.0.5",
+    "rollup": "^2.14.0",
+    "rollup-plugin-multi-input": "^1.1.1",
+    "rollup-plugin-terser": "^6.1.0"
+  },
+  "dependencies": {}
+}

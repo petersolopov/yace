@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>highlightjs</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/styles/github-gist.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/languages/javascript.min.js"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <div id="editor"></div>
+    </div>
+
+    <script type="module">
+      import CodeEditor from "../src/index.js";
+
+      const highlighter = (value) => hljs.highlight("javascript", value).value;
+
+      const editor = new CodeEditor("#editor", {
+        value:
+          "// highlight code with highlightjs\n\nfunction sum(a, b) {\n  return a + b\n}\n\nlet hello = 'world'\n",
+        styles: {
+          fontSize: "20px",
+        },
+        highlighter,
+        lineNumbers: true,
+      });
+
+      editor.onUpdate(() => {
+        console.log("updated!");
+      });
+
+      editor.textarea.focus();
+      editor.textarea.spellcheck = false;
+    </script>
+  </body>
+</html>

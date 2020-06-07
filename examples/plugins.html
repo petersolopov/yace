@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>plugins</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="https://unpkg.com/mdhl@0.0.1/mdhl.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <div id="editor"></div>
+    </div>
+
+    <script type="module">
+      import { highlight } from "https://unpkg.com/mdhl@0.0.1/dist/mdhl.esm.js";
+      import CodeEditor from "../src/index.js";
+      import tab from "../src/plugins/tab.js";
+      import cutLine from "../src/plugins/cutLine.js";
+      import isKey from "../src/plugins/isKey.js";
+
+      const editor = new CodeEditor("#editor", {
+        value:
+          "# Example with plugins\n\nThere are two active plugins\n\n## Tab plugin\n\ntry select this three lines\n1. press tab\n2. press shift + tab\n\nOr just press tab for indent\n\n## Cut line plugin\n\nPut cursor to this line and press ctrl/cmd + x to cut line",
+        styles: {
+          fontSize: "20px",
+        },
+        highlighter: highlight,
+        plugins: [tab("  "), cutLine(isKey("ctrl/cmd+x"))],
+        lineNumbers: true,
+      });
+
+      editor.onUpdate(() => {
+        console.log("updated!");
+      });
+
+      editor.textarea.focus();
+    </script>
+  </body>
+</html>

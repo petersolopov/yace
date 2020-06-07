@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>prismjs</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="//unpkg.com/prismjs@1.20.0/themes/prism.css" />
+    <script src="//unpkg.com/prismjs@1.20.0/components/prism-core.min.js"></script>
+    <script src="//unpkg.com/prismjs@1.20.0/components/prism-clike.min.js"></script>
+    <script src="//unpkg.com/prismjs@1.20.0/components/prism-javascript.min.js"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <div id="editor"></div>
+    </div>
+
+    <script type="module">
+      import CodeEditor from "../src/index.js";
+
+      const highlighter = (value) =>
+        Prism.highlight(value, Prism.languages.javascript, "javascript");
+
+      const editor = new CodeEditor("#editor", {
+        value:
+          "// highlight code with prismjs\n\nfunction sum(a, b) {\n  return a + b\n}\n\nlet hello = 'world'\n",
+        styles: {
+          fontSize: "20px",
+        },
+        highlighter,
+        lineNumbers: true,
+      });
+
+      editor.onUpdate(() => {
+        console.log("updated!");
+      });
+
+      editor.textarea.focus();
+      editor.textarea.spellcheck = false;
+    </script>
+  </body>
+</html>
