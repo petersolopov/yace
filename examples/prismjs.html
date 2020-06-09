@@ -20,12 +20,12 @@
     </div>
 
     <script type="module">
-      import CodeEditor from "../src/index.js";
+      import Yace from "../src/index.js";
 
       const highlighter = (value) =>
         Prism.highlight(value, Prism.languages.javascript, "javascript");
 
-      const editor = new CodeEditor("#editor", {
+      const editor = new Yace("#editor", {
         value:
           "// highlight code with prismjs\n\nfunction sum(a, b) {\n  return a + b\n}\n\nlet hello = 'world'\n",
         styles: {

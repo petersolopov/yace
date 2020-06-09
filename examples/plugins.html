@@ -18,12 +18,12 @@
 
     <script type="module">
       import { highlight } from "https://unpkg.com/mdhl@0.0.1/dist/mdhl.esm.js";
-      import CodeEditor from "../src/index.js";
+      import Yace from "../src/index.js";
       import tab from "../src/plugins/tab.js";
       import cutLine from "../src/plugins/cutLine.js";
       import isKey from "../src/plugins/isKey.js";
 
-      const editor = new CodeEditor("#editor", {
+      const editor = new Yace("#editor", {
         value:
           "# Example with plugins\n\nThere are two active plugins\n\n## Tab plugin\n\ntry select this three lines\n1. press tab\n2. press shift + tab\n\nOr just press tab for indent\n\n## Cut line plugin\n\nPut cursor to this line and press ctrl/cmd + x to cut line",
         styles: {

@@ -1,3 +1,3 @@
-# Code Editor
+# YACE
 
 Tiny text editor with plugins

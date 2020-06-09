@@ -1,5 +1,5 @@
 {
-  "name": "code-editor",
+  "name": "yace",
   "version": "0.0.1",
   "description": "tiny text editor with plugins",
   "main": "dist/index.js",
@@ -20,11 +20,11 @@
     "code-editor"
   ],
   "author": "Peter Solopov <peter@solopov.dev>",
-  "homepage": "https://github.com/petersolopov/code-editor",
-  "bugs": "https://github.com/petersolopov/code-editor/issues",
+  "homepage": "https://github.com/petersolopov/yace",
+  "bugs": "https://github.com/petersolopov/yace/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/petersolopov/code-editor"
+    "url": "https://github.com/petersolopov/yace"
   },
   "license": "MIT",
   "devDependencies": {

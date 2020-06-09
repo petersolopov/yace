@@ -18,9 +18,9 @@
 
     <script type="module">
       import { highlight } from "https://unpkg.com/mdhl@0.0.1/dist/mdhl.esm.js";
-      import CodeEditor from "../src/index.js";
+      import Yace from "../src/index.js";
 
-      const editor = new CodeEditor("#editor", {
+      const editor = new Yace("#editor", {
         value:
           '# Markdown Editor\n\n- syntax highlighting\n- small as mush as possible\n- faster than popular highlighters\n\n```js\nconst hello = "world";\n```\n\nThere are **bold** and *italic* style and much more.',
         styles: {

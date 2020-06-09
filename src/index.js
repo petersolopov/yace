@@ -7,7 +7,7 @@ import {
 
 import composePlugins from "./plugins/composePlugins.js";
 
-class CodeEditor {
+class Yace {
   constructor(selector, options = {}) {
     if (!selector) {
       throw new Error("selector is not defined");
@@ -127,4 +127,4 @@ class CodeEditor {
   }
 }
 
-export default CodeEditor;
+export default Yace;
