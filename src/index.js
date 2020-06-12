@@ -109,7 +109,7 @@ class Yace {
 
     this.lines.innerHTML = lines
       .map((line, number) => {
-        return `<span class="tte-line" style="position: absolute; opacity: .3; left: 0">${
+        return `<span class="yace-line" style="position: absolute; opacity: .3; left: 0">${
           1 + number
         }</span><span style="color: transparent; pointer-events: none">${line}</span>`;
       })
