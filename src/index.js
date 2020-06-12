@@ -59,8 +59,7 @@ class Yace {
     this.handleKeydown = (event) => {
       const { value, selectionStart, selectionEnd } = composePlugins(
         this.options.plugins,
-        event,
-        this.options
+        event
       );
       this.update({ value, selectionStart, selectionEnd });
     };
