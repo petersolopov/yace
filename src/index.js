@@ -70,12 +70,14 @@ class Yace {
 
   update({ value, selectionStart, selectionEnd }) {
     // should be before updating selection otherwise selection will be lost
-    this.textarea.value = value;
+    if (value != null) {
+      this.textarea.value = value;
+    }
 
     this.textarea.selectionStart = selectionStart;
     this.textarea.selectionEnd = selectionEnd;
 
-    if (value === this.value) {
+    if (value === this.value || value == null) {
       return;
     }
 
