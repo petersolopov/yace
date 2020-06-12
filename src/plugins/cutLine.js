@@ -11,9 +11,9 @@ const cutLine = (predicate) => (acc, event) => {
     const newValue =
       value.substring(0, selectionStart) + value.substring(selectionEnd);
 
-    navigator.clipboard.writeText(
-      value.substring(selectionStart, selectionEnd)
-    );
+    navigator.clipboard
+      .writeText(value.substring(selectionStart, selectionEnd))
+      .catch(() => {}); // prevent any clipboard error. useful for iframe
 
     return {
       value: newValue,
@@ -41,7 +41,9 @@ const cutLine = (predicate) => (acc, event) => {
     .filter((line) => line != null)
     .join("\n");
 
-  navigator.clipboard.writeText(value.split("\n")[currentLineNumber]);
+  navigator.clipboard
+    .writeText(value.split("\n")[currentLineNumber])
+    .catch(() => {}); // prevent any clipboard error. useful for iframe
 
   return {
     value: newValue,
