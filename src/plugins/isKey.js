@@ -54,8 +54,8 @@ function toKeyCode(name) {
   return CODES[name] || name.toUpperCase().charCodeAt(0);
 }
 
-const isKey = (string) => (event) => {
-  const a = string.split("+").reduce(
+function isKey(string, event) {
+  const keys = string.split("+").reduce(
     (acc, key) => {
       if (MODIFIERS[key]) {
         acc.modifiers[MODIFIERS[key]] = true;
@@ -78,11 +78,12 @@ const isKey = (string) => (event) => {
     }
   );
 
-  const hasModifiers = Object.entries(a.modifiers).every(([key, value]) => {
+  const hasModifiers = Object.keys(keys.modifiers).every((key) => {
+    const value = keys.modifiers[key];
     return value ? event[key] : !event[key];
   });
 
-  const hasKey = a.keyCode ? event.which === a.keyCode : true;
+  const hasKey = keys.keyCode ? event.which === keys.keyCode : true;
 
   return hasModifiers && hasKey;
 };

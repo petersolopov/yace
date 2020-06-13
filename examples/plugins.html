@@ -21,7 +21,6 @@
       import Yace from "../src/index.js";
       import tab from "../src/plugins/tab.js";
       import cutLine from "../src/plugins/cutLine.js";
-      import isKey from "../src/plugins/isKey.js";
 
       const editor = new Yace("#editor", {
         value:
@@ -30,7 +29,7 @@
           fontSize: "20px",
         },
         highlighter: highlight,
-        plugins: [tab("  "), cutLine(isKey("ctrl/cmd+x"))],
+        plugins: [tab(), cutLine()],
         lineNumbers: true,
       });
 

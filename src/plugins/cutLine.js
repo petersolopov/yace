@@ -1,11 +1,19 @@
-const cutLine = (predicate) => (acc, event) => {
-  if (!predicate(event)) {
+import isKey from './isKey.js';
+
+const cutLine = (predicate) => (textareaProps, event) => {
+  if (event.type !== 'keydown') {
+    return;
+  }
+
+  const predicateFn = predicate ? predicate : (event) => isKey("ctrl/cmd+x", event)
+
+  if (!predicateFn(event)) {
     return;
   }
 
   event.preventDefault();
 
-  const { value, selectionStart, selectionEnd } = acc;
+  const { value, selectionStart, selectionEnd } = textareaProps;
 
   if (selectionEnd !== selectionStart) {
     const newValue =

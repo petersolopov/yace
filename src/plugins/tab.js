@@ -1,13 +1,13 @@
-import isKey from "./isKey.js";
+import isKey from './isKey.js';
 
-const isTab = isKey("tab");
-const isShiftTab = isKey("shift+tab");
+const tab = (tabCharacter = '  ') => (textareaProps, event) => {
+  const { value, selectionStart, selectionEnd } = textareaProps;
 
-const tab = (tabCharacter) => (
-  { value, selectionStart, selectionEnd },
-  event
-) => {
-  if (isShiftTab(event)) {
+  if (event.type !== 'keydown') {
+    return;
+  }
+
+  if (isKey("shift+tab", event)) {
     event.preventDefault();
     const linesBeforeCaret = value.substring(0, selectionStart).split("\n");
     const startLine = linesBeforeCaret.length - 1;
@@ -41,7 +41,7 @@ const tab = (tabCharacter) => (
     return;
   }
 
-  if (isTab(event)) {
+  if (isKey("tab", event)) {
     event.preventDefault();
     if (selectionStart === selectionEnd) {
       const updatedSelection = selectionStart + tabCharacter.length;

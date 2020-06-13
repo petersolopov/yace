@@ -50,23 +50,21 @@ class Yace {
 
   addTextareaEvents() {
     this.handleInput = (event) => {
-      const { value, selectionStart, selectionEnd } = event.target;
-      this.update({ value, selectionStart, selectionEnd });
+      const textareaProps = runPlugins(this.options.plugins, event);
+      this.update(textareaProps);
     };
 
     this.handleKeydown = (event) => {
-      const { value, selectionStart, selectionEnd } = composePlugins(
-        this.options.plugins,
-        event
-      );
-      this.update({ value, selectionStart, selectionEnd });
+      const textareaProps = runPlugins(this.options.plugins, event);
+      this.update(textareaProps);
     };
 
     this.textarea.addEventListener("input", this.handleInput);
     this.textarea.addEventListener("keydown", this.handleKeydown);
   }
 
-  update({ value, selectionStart, selectionEnd }) {
+  update(textareaProps) {
+    const { value, selectionStart, selectionEnd } = textareaProps;
     // should be before updating selection otherwise selection will be lost
     if (value != null) {
       this.textarea.value = value;
