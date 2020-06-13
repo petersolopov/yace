@@ -38,6 +38,7 @@ export const preStyles = {
   pointerEvents: "none",
   boxSizing: "border-box",
   overflowWrap: "break-word",
+  fontFamily: "inherit",
 };
 
 export const linesStyles = {
@@ -53,4 +54,5 @@ export const linesStyles = {
   pointerEvents: "none",
   boxSizing: "border-box",
   overflowWrap: "break-word",
+  fontFamily: "inherit",
 };
