@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>markdown</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="//unpkg.com/mdhl@0.0.1/mdhl.css" />
+    <style>
+      .content {
+        margin: 60px 0 80px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Y A C E</h1>
+    <small>yet anoter code editor</small>
+    <div class="wrap content">
+      <div id="editor"></div>
+    </div>
+    <small>
+      <a href="https://github.com/petersolopov/yace">github</a> ·
+      <a href="https://twitter.com/petersolopov">twitter</a>
+    </small>
+
+    <script type="module">
+      import { highlight } from "https://unpkg.com/mdhl@0.0.1/dist/mdhl.esm.js";
+      import Yace from "../src/index.js";
+      import cutLine from "../src/plugins/cutLine.js";
+      import tab from "../src/plugins/tab.js";
+      import history from "../src/plugins/history.js";
+
+      const value = `## Features
+
+- ~1KB gzipped, with zero dependencies.
+- binding hotkey and enhance with plugins.
+- adding any highlighter.
+
+## Getting started
+
+1. Install via npm \`npm i yace\`
+2. Create DOM node \`<div id="editor"></div>\`
+3. Initializing editor:
+
+\`\`\`js
+import Yace from "yace";
+
+const editor = new Yace("#editor", {
+  value: "your awesome code",
+  lineNumbers: true,
+});
+\`\`\`
+`;
+
+      const editor = new Yace("#editor", {
+        value,
+        styles: {
+          fontSize: "16px",
+        },
+        highlighter: highlight,
+        lineNumbers: true,
+        plugins: [
+          cutLine(),
+          tab(),
+          history()
+        ],
+      });
+
+      editor.textarea.focus();
+      editor.textarea.spellcheck = false;
+    </script>
+  </body>
+</html>
