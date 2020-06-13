@@ -6,6 +6,7 @@ import {
 } from "./styles.js";
 
 import composePlugins from "./plugins/composePlugins.js";
+import escape from "./plugins/escape.js";
 
 class Yace {
   constructor(selector, options = {}) {
@@ -113,7 +114,7 @@ class Yace {
       .map((line, number) => {
         return `<span class="yace-line" style="position: absolute; opacity: .3; left: 0">${
           1 + number
-        }</span><span style="color: transparent; pointer-events: none">${line}</span>`;
+        }</span><span style="color: transparent; pointer-events: none">${escape(line)}</span>`;
       })
       .join("\n");
   }
