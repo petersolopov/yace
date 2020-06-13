@@ -5,9 +5,6 @@ import {
   linesStyles,
 } from "./styles.js";
 
-import composePlugins from "./plugins/composePlugins.js";
-import escape from "./plugins/escape.js";
-
 class Yace {
   constructor(selector, options = {}) {
     if (!selector) {
@@ -129,6 +126,29 @@ class Yace {
   onUpdate(callback) {
     this.updateCallback = callback;
   }
+}
+
+function runPlugins(plugins, event) {
+  const { value, selectionStart, selectionEnd } = event.target;
+
+  return plugins.reduce(
+    (acc, plugin) => {
+      return {
+        ...acc,
+        ...plugin(acc, event),
+      };
+    },
+    { value, selectionStart, selectionEnd }
+  );
+}
+
+function escape(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 export default Yace;
