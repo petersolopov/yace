@@ -1,9 +1,6 @@
-<br><br><br><br>
+# Y A C E [![npm](https://badgen.net/npm/v/yace/?color=gray&cache=300)](https://www.npmjs.com/package/yace)
 
-<h1 align="center">Y&nbsp;&nbsp;A&nbsp;&nbsp;C&nbsp;&nbsp;E</h1>
-<p align="center">yet another code editor</p>
-<p align="center"><img src="https://badgen.net/npm/v/yace/?color=gray"></p>
-<br><br><br><br>
+yet another code editor
 
 ## Features
 
