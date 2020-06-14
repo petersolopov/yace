@@ -21,7 +21,7 @@ class Yace {
       value: "",
       styles: {},
       plugins: [],
-      highlighter: (value) => value,
+      highlighter: (value) => escape(value),
     };
 
     this.options = {
