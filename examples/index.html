@@ -7,25 +7,61 @@
       content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>markdown</title>
+    <title>yace</title>
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="//unpkg.com/mdhl@0.0.2/mdhl.css" />
     <style>
-      .content {
+      main {
         margin: 60px 0 80px 0;
+        min-height: 410px;
+        box-sizing: border-box;
       }
     </style>
   </head>
   <body>
     <h1>Y A C E</h1>
     <small>yet anoter code editor</small>
-    <div class="wrap content">
-      <div id="editor"></div>
-    </div>
-    <small>
+    <main>
+      <div class="wrap">
+        <div id="editor"></div>
+      </div>
+    </main>
+
+    <h3>Live Demo</h3>
+    <ul>
+      <li>
+        <a href="https://codesandbox.io/s/yace-highlightjs-jvqp0" rel="nofollow"
+          >Using <code>highlight.js</code> as highlighter</a
+        >
+      </li>
+      <li>
+        <a href="https://codesandbox.io/s/yace-prismjs-gnjty" rel="nofollow"
+          >Using <code>prismjs</code> as highlighter</a
+        >
+      </li>
+      <li>
+        <a href="https://codesandbox.io/s/yace-mdhl-ftdr4" rel="nofollow"
+          >Building tiny ~2KB markdown editor</a
+        >
+      </li>
+      <li>
+        <a href="https://codesandbox.io/s/yace-plugins-m3uzv" rel="nofollow"
+          >Using plugins</a
+        >
+      </li>
+      <li>
+        <a href="https://codesandbox.io/s/yace-react-4cwly" rel="nofollow"
+          >Using with react</a
+        >
+      </li>
+    </ul>
+    <br /><br /><br />
+    <h3>Links</h3>
+    <div>
       <a href="https://github.com/petersolopov/yace">github</a> ·
+      <a href="https://www.npmjs.com/package/yace">npm</a> ·
       <a href="https://twitter.com/petersolopov">twitter</a>
-    </small>
+    </div>
 
     <script type="module">
       import { highlight } from "https://unpkg.com/mdhl@0.0.2/dist/mdhl.esm.js";
