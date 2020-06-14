@@ -1,17 +1,22 @@
 body {
-  font-family: monospace;
-  margin-top: 40px;
+  margin-top: 20px;
   display: flex;
   align-items: center;
   flex-direction: column;
+  font-family: Menlo, Consolas, "Liberation Mono", Monaco, "Lucida Console", monospace;
 }
 
 .wrap {
   padding: 4px;
-  width: 600px;
-  max-height: 400px;
+  max-width: 600px;
   border: 1px #e0e0e0 solid;
   overflow: auto;
+  transition-property: box-shadow;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
+}
+
+.wrap:focus-within {
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.08), 0 8px 8px rgba(0, 0, 0, 0.08),
-    0 16px 16px rgba(0, 0, 0, 0.08), 0 32px 32px rgba(0, 0, 0, 0.08);
+  0 16px 16px rgba(0, 0, 0, 0.08), 0 32px 32px rgba(0, 0, 0, 0.08);
 }
