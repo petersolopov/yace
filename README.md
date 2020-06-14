@@ -1,34 +1,41 @@
-<p align="center" >
-  <img src="https://image.flaticon.com/icons/svg/876/876020.svg" alt="" width="180" />
-</p>
-<p align="center">
-  Yet Another Code Editor
-</p>
-<br><br>
+<br><br><br><br>
 
-[![build](https://github.com/petersolopov/yace/workflows/build/badge.svg)](https://github.com/petersolopov/yace/actions) [![npm version](https://badgen.net/npm/v/yace)](https://www.npmjs.com/package/yace)
+<h1 align="center">Y&nbsp;&nbsp;A&nbsp;&nbsp;C&nbsp;&nbsp;E</h1>
+<p align="center">yet another code editor</p>
+<p align="center"><img src="https://badgen.net/npm/v/yace/?color=gray"></p>
+<br><br><br><br>
 
 ## Features
 
-- pretty small, [~1KB gzipped](https://bundlephobia.com/result?p=yace) with zero dependencies.
-- adding any highlighter, hotkey, or whatever you want via plugins.
-- working with any framework
+- ~1KB gzipped with zero dependencies.
+- binding hotkey and enhance with plugins.
+- adding any highlighter.
 
 ## Installation
 
-via [npm](https://www.npmjs.com/package/yace):
+`yace` is published to npm, and accessible via the unpkg.com CDN:
+
+**via npm:**
 
 ```bash
 npm i yace
 ```
 
-hotlinking from unpkg:
+**hotlinking from unpkg:** _(no build tool needed!)_
 
 ```js
 import Yace from "https://unpkg.com/yace?module";
 ```
 
 ## Usage
+
+`yace` is working in browser and need DOM node e.g.:
+
+```html
+<div id="editor"></div>
+```
+
+Initializing editor passing css selector and options:
 
 ```js
 import Yace from "yace";
@@ -41,9 +48,11 @@ const editor = new Yace("#editor", {
 
 ## Examples
 
+Live demo with codesandbox:
+
 - [Using `highlight.js` as highlighter](https://codesandbox.io/s/yace-highlightjs-jvqp0)
 - [Using `prismjs` as highlighter](https://codesandbox.io/s/yace-prismjs-gnjty)
-- [Building tiny ~3KB markdown editor](https://codesandbox.io/s/yace-mdhl-ftdr4)
+- [Building tiny ~2KB markdown editor](https://codesandbox.io/s/yace-mdhl-ftdr4)
 - [Using plugins](https://codesandbox.io/s/yace-plugins-m3uzv)
 - [Using with react](https://codesandbox.io/s/yace-react-4cwly)
 
@@ -110,6 +119,6 @@ editor.textarea.focus();
 editor.textarea.spellcheck = false;
 ```
 
-## Thanks
+## License
 
-Icon made by [kiranshastry](https://www.flaticon.com/authors/kiranshastry) from [www.flaticon.com](https://www.flaticon.com/)
+[MIT](/LICENSE)
