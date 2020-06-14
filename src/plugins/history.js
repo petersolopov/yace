@@ -1,4 +1,4 @@
-import isKey from './isKey.js';
+import isKey from "./isKey.js";
 
 function history() {
   let stack = [];

@@ -1,9 +1,9 @@
-import isKey from './isKey.js';
+import isKey from "./isKey.js";
 
-const tab = (tabCharacter = '  ') => (textareaProps, event) => {
+const tab = (tabCharacter = "  ") => (textareaProps, event) => {
   const { value, selectionStart, selectionEnd } = textareaProps;
 
-  if (event.type !== 'keydown') {
+  if (event.type !== "keydown") {
     return;
   }
 

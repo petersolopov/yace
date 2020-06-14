@@ -1,11 +1,13 @@
-import isKey from './isKey.js';
+import isKey from "./isKey.js";
 
 const cutLine = (predicate) => (textareaProps, event) => {
-  if (event.type !== 'keydown') {
+  if (event.type !== "keydown") {
     return;
   }
 
-  const predicateFn = predicate ? predicate : (event) => isKey("ctrl/cmd+x", event)
+  const predicateFn = predicate
+    ? predicate
+    : (event) => isKey("ctrl/cmd+x", event);
 
   if (!predicateFn(event)) {
     return;
@@ -54,8 +56,7 @@ const cutLine = (predicate) => (textareaProps, event) => {
   if (navigator && navigator.clipboard) {
     navigator.clipboard
       .writeText(value.split("\n")[currentLineNumber])
-      .catch(() => {
-      }); // prevent any clipboard error. useful for iframe
+      .catch(() => {}); // prevent any clipboard error. useful for iframe
   }
 
   return {

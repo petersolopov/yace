@@ -3,7 +3,8 @@ body {
   display: flex;
   align-items: center;
   flex-direction: column;
-  font-family: Menlo, Consolas, "Liberation Mono", Monaco, "Lucida Console", monospace;
+  font-family: Menlo, Consolas, "Liberation Mono", Monaco, "Lucida Console",
+    monospace;
 }
 
 .wrap {
@@ -18,5 +19,5 @@ body {
 
 .wrap:focus-within {
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.08), 0 8px 8px rgba(0, 0, 0, 0.08),
-  0 16px 16px rgba(0, 0, 0, 0.08), 0 32px 32px rgba(0, 0, 0, 0.08);
+    0 16px 16px rgba(0, 0, 0, 0.08), 0 32px 32px rgba(0, 0, 0, 0.08);
 }

@@ -63,11 +63,7 @@ const editor = new Yace("#editor", {
         },
         highlighter: highlight,
         lineNumbers: true,
-        plugins: [
-          cutLine(),
-          tab(),
-          history()
-        ],
+        plugins: [cutLine(), tab(), history()],
       });
 
       editor.textarea.focus();

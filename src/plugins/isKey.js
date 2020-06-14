@@ -86,6 +86,6 @@ function isKey(string, event) {
   const hasKey = keys.keyCode ? event.which === keys.keyCode : true;
 
   return hasModifiers && hasKey;
-};
+}
 
 export default isKey;
