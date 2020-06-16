@@ -10,6 +10,11 @@
     <title>yace</title>
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="//unpkg.com/mdhl@0.0.2/mdhl.css" />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/styles/github-gist.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js"></script>
     <style>
       main {
         margin: 60px 0 80px 0;
@@ -64,7 +69,10 @@
     </div>
 
     <script type="module">
-      import { highlight } from "https://unpkg.com/mdhl@0.0.2/dist/mdhl.esm.js";
+      import {
+        highlight,
+        defaultRenderers,
+      } from "https://unpkg.com/mdhl@0.0.5/dist/mdhl.esm.js";
       import Yace from "../src/index.js";
       import cutLine from "../src/plugins/cutLine.js";
       import tab from "../src/plugins/tab.js";
@@ -91,13 +99,28 @@ const editor = new Yace("#editor", {
 });
 \`\`\`
 `;
+      const renderers = {
+        ...defaultRenderers,
+        codeInFences: (code, language) => {
+          try {
+            // highlight.js throw error when language is not found
+            return hljs.highlight(language, code).value;
+          } catch (error) {
+            return defaultRenderers.codeInFences(code, language);
+          }
+        },
+      };
+
+      function highlighter(value) {
+        return highlight(value, renderers);
+      }
 
       const editor = new Yace("#editor", {
         value,
         styles: {
           fontSize: "16px",
         },
-        highlighter: highlight,
+        highlighter,
         lineNumbers: true,
         plugins: [cutLine(), tab(), history()],
       });
