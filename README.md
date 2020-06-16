@@ -50,6 +50,7 @@ Live demo with codesandbox:
 - [Using `highlight.js` as highlighter](https://codesandbox.io/s/yace-highlightjs-jvqp0)
 - [Using `prismjs` as highlighter](https://codesandbox.io/s/yace-prismjs-gnjty)
 - [Building tiny ~2KB markdown editor](https://codesandbox.io/s/yace-mdhl-ftdr4)
+- [Building markdown editor with highlighting code in code blocks](https://codesandbox.io/s/yace-mdhl-highlightjs-xocgf)
 - [Using plugins](https://codesandbox.io/s/yace-plugins-m3uzv)
 - [Using with react](https://codesandbox.io/s/yace-react-4cwly)
 
