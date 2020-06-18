@@ -15,12 +15,26 @@ function history() {
     activeIndex = stack.length - 1;
   };
 
+  const shouldRecord = (record) => {
+    return (
+      stack[activeIndex].value !== record.value ||
+      stack[activeIndex].selectionStart !== record.selectionStart ||
+      stack[activeIndex].selectionEnd !== record.selectionEnd
+    );
+  };
+
   return (textareaProps, event) => {
     if (event.type === "keydown") {
       if (isKey("ctrl/cmd+z", event)) {
         event.preventDefault();
 
         if (activeIndex !== null) {
+          // after applying all plugins it can be new props
+          if (shouldRecord(textareaProps)) {
+            stack.push(textareaProps);
+            activeIndex++;
+          }
+
           const newActiveIndex = Math.max(0, activeIndex - 1);
           activeIndex = newActiveIndex;
           return stack[newActiveIndex];
@@ -42,11 +56,7 @@ function history() {
         return;
       }
 
-      if (
-        stack[activeIndex].value !== textareaProps.value ||
-        stack[activeIndex].selectionStart !== textareaProps.selectionStart ||
-        stack[activeIndex].selectionEnd !== textareaProps.selectionEnd
-      ) {
+      if (shouldRecord(textareaProps)) {
         rewriteHistory(textareaProps);
         return;
       }
