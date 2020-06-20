@@ -2,6 +2,9 @@ export const rootStyles = {
   position: "relative",
   boxSizing: "border-box",
   overflow: "hidden",
+  fontSize: "16px",
+  fontFamily:
+    'Menlo, Consolas, "Liberation Mono", Monaco, "Lucida Console", monospace',
 };
 
 export const textareaStyles = {
