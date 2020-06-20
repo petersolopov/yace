@@ -1,4 +1,4 @@
-# Y A C E [![npm](https://badgen.net/npm/v/yace/?color=gray&cache=300)](https://www.npmjs.com/package/yace)
+# Y A C E [![build](https://github.com/petersolopov/yace/workflows/build/badge.svg)](https://github.com/petersolopov/yace/actions?query=workflow%3Abuild) [![npm](https://badgen.net/npm/v/yace/?cache=300)](https://www.npmjs.com/package/yace)
 
 yet another code editor
 
