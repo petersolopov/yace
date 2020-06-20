@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.5](https://github.com/petersolopov/yace/compare/v0.0.4...v0.0.5) (2020-06-20)
+
+
+### Features
+
+* add default fontSize and fontFamily ([fe8ff47](https://github.com/petersolopov/yace/commit/fe8ff47dc8e1309b7401e79088163ddc07994e4a))
+* add preserve indent plugin ([5181bb9](https://github.com/petersolopov/yace/commit/5181bb97f6f51d2216868b8ddda7a27565cd90e2))
+* history more accurate ([910e397](https://github.com/petersolopov/yace/commit/910e397af2b7dfa8fa561ae1dffe0ed96adf9938))
+
+
+### Bug Fixes
+
+* specify lineHeight: textarea line height and pre can be different. ([2f6ed69](https://github.com/petersolopov/yace/commit/2f6ed69decce3adb66334235ec742ff6509521a4))
+
 ### [0.0.4](https://github.com/petersolopov/yace/compare/v0.0.3...v0.0.4) (2020-06-14)
 
 ### [0.0.3](https://github.com/petersolopov/yace/compare/v0.0.2...v0.0.3) (2020-06-14)
