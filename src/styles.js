@@ -5,6 +5,7 @@ export const rootStyles = {
 };
 
 export const textareaStyles = {
+  lineHeight: "inherit",
   whiteSpace: "pre-wrap",
   wordBreak: "keep-all",
   background: "none",
@@ -29,6 +30,7 @@ export const textareaStyles = {
 };
 
 export const preStyles = {
+  lineHeight: "inherit",
   position: "relative",
   whiteSpace: "pre-wrap",
   wordBreak: "keep-all",
@@ -42,6 +44,7 @@ export const preStyles = {
 };
 
 export const linesStyles = {
+  lineHeight: "inherit",
   position: "absolute",
   width: "100%",
   height: "100%",
