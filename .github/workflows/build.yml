@@ -13,6 +13,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npm run prettier:check
+      - run: npm test
 
   publish:
     needs: test
