@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "test": "c8 node test/test.js --lines 99 --functions 99 --branches 95",
+    "report": "c8 report --reporter=text-lcov > coverage.txt ",
     "build": "rm -rf ./dist && rollup -c",
     "prettier:write": "prettier --write '{src,examples,test}/**/*'",
     "prettier:check": "prettier --check '{src,examples,test}/**/*'",
