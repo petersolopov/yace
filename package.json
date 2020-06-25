@@ -9,7 +9,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "test": "node test/test.js",
+    "test": "c8 node test/test.js --lines 99 --functions 99 --branches 95",
     "build": "rm -rf ./dist && rollup -c",
     "prettier:write": "prettier --write '{src,examples,test}/**/*'",
     "prettier:check": "prettier --check '{src,examples,test}/**/*'",
@@ -30,6 +30,7 @@
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.3",
+    "c8": "^7.2.0",
     "prettier": "^2.0.5",
     "rollup": "^2.14.0",
     "rollup-plugin-multi-input": "^1.1.1",
