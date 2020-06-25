@@ -15,6 +15,15 @@ jobs:
       - run: npm run prettier:check
       - run: npm test
 
+      - name: Generate coverage report
+        run: npm run report
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: "./coverage.txt"
+
   publish:
     needs: test
     runs-on: ubuntu-latest
