@@ -1,4 +1,4 @@
-# Y A C E [![build](https://github.com/petersolopov/yace/workflows/build/badge.svg)](https://github.com/petersolopov/yace/actions?query=workflow%3Abuild) [![npm](https://badgen.net/npm/v/yace/?cache=300)](https://www.npmjs.com/package/yace) [![Coverage Status](https://coveralls.io/repos/github/petersolopov/yace/badge.svg)](https://coveralls.io/github/petersolopov/yace)
+# Y A C E [![build](https://github.com/petersolopov/yace/workflows/build/badge.svg)](https://github.com/petersolopov/yace/actions?query=workflow%3Abuild) [![npm](https://badgen.net/npm/v/yace/?cache=300)](https://www.npmjs.com/package/yace) [![Coverage Status](https://coveralls.io/repos/github/petersolopov/yace/badge.svg)](https://coveralls.io/github/petersolopov/yace) [![bundlephobia](https://badgen.net/bundlephobia/minzip/yace)](https://bundlephobia.com/result?p=yace)
 
 yet another code editor
 
