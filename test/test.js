@@ -14,13 +14,20 @@ function dispatchTextareaEvent(textarea, value, type = "input") {
 
 test("constructor", (t) => {
   const editor = new Yace("#editor");
+
   t.throws(() => new Yace(), "constructor should throw error when called without arguments");
   t.doesNotThrow(() => new Yace("#editor"), "constructor should not throw error when called without options");
   t.ok(editor instanceof Yace, "constructor should return editor instance");
+
+  document.querySelector = () => null;
+  t.throws(() => new Yace("#editor"), "it should throw error when dom element is not found");
+  // restore mock
+  document.querySelector = () => document.createElement("div");
 });
 
 test("instance", (t) => {
   const editor = new Yace("#editor", { value: "test" });
+
   t.equal(editor.value, "test", "instance should contain value");
   t.equal(typeof editor.onUpdate, "function", "instance should contain onUpdate method");
   t.equal(typeof editor.update, "function", "instance should contain update method");
