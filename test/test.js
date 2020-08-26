@@ -25,6 +25,13 @@ test("constructor", (t) => {
   document.querySelector = () => document.createElement("div");
 });
 
+test("custom container", (t) => {
+  const container = document.createElement("div");
+  const editor = new Yace(container);
+
+  t.ok(editor instanceof Yace, "constructor should return editor instance");
+});
+
 test("instance", (t) => {
   const editor = new Yace("#editor", { value: "test" });
 
