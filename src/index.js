@@ -11,9 +11,8 @@ class Yace {
       throw new Error("selector is not defined");
     }
 
-    this.root = selector instanceof Node
-      ? selector
-      : document.querySelector(selector);
+    this.root =
+      selector instanceof Node ? selector : document.querySelector(selector);
 
     if (!this.root) {
       throw new Error(`element with "${selector}" selector is not exist`);
