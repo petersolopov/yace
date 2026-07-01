@@ -2,6 +2,8 @@ import { test } from "zora";
 import "undom/register.js";
 
 import Yace from "../src/index.js";
+import preserveIndent from "../src/plugins/preserveIndent.js";
+import isKey from "../src/plugins/isKey.js";
 
 // mock querySelector for yace and return mocked editor element
 document.querySelector = () => document.createElement("div");
@@ -10,6 +12,13 @@ document.querySelector = () => document.createElement("div");
 function dispatchTextareaEvent(textarea, value, type = "input") {
   textarea.value = value;
   textarea.dispatchEvent({ type });
+}
+
+function pressEnter(editor, value, selectionStart, selectionEnd = selectionStart) {
+  editor.textarea.value = value;
+  editor.textarea.selectionStart = selectionStart;
+  editor.textarea.selectionEnd = selectionEnd;
+  editor.textarea.dispatchEvent({ type: "keydown", which: 13, preventDefault() {} });
 }
 
 test("constructor", (t) => {
@@ -171,4 +180,53 @@ test("options.plugins", (t) => {
   dispatchTextareaEvent(editor.textarea, "new value", "keydown");
   t.equal(editor.textarea.value, "NEW VALUE", "it should transform textarea value when keydown event");
   t.equal(editor.pre.innerHTML, "NEW VALUE<br/>", "it should transform textarea value when keydown event");
+});
+
+test("plugins/isKey", (t) => {
+  t.ok(isKey("enter", { which: 13 }), "matches a plain key by code");
+  t.notOk(isKey("enter", { which: 65 }), "does not match a different key");
+  t.ok(isKey("a", { which: 65 }), "matches a letter via toKeyCode fallback");
+  t.ok(isKey("ctrl/cmd+z", { which: 90, ctrlKey: true }), "matches a modifier combo");
+  t.notOk(isKey("ctrl/cmd+z", { which: 90 }), "does not match when the required modifier is absent");
+  t.ok(isKey("shift", { shiftKey: true }), "matches a modifier-only combo");
+});
+
+test("plugins/preserveIndent", (t) => {
+  const editor = new Yace("#editor", { plugins: [preserveIndent()] });
+
+  const value = "func {\n    return res;\n}";
+  const indentedLine = value.indexOf("    return");
+
+  pressEnter(editor, value, indentedLine + "    return res;".length);
+  t.equal(
+    editor.textarea.value,
+    "func {\n    return res;\n    \n}",
+    "enter at end of line should preserve the indent on the new line"
+  );
+
+  // at column 0 there is no indent before the caret to preserve, so the plugin
+  // stays out of the way and lets the native enter split the line — the old code
+  // inserted "\n" + full indent here and doubled it to "        return res;"
+  pressEnter(editor, value, indentedLine);
+  t.equal(editor.textarea.value, value, "enter at column 0 should not double the indent");
+
+  pressEnter(editor, value, indentedLine + 2);
+  t.equal(
+    editor.textarea.value,
+    "func {\n  \n    return res;\n}",
+    "enter inside the indent should split it without doubling"
+  );
+
+  pressEnter(editor, "return res;", 6);
+  t.equal(editor.textarea.value, "return res;", "enter on a line without indent should be a no-op");
+
+  editor.textarea.value = "  abc";
+  editor.textarea.selectionStart = 5;
+  editor.textarea.selectionEnd = 5;
+  editor.textarea.dispatchEvent({ type: "keydown", which: 65, preventDefault() {} });
+  t.equal(editor.textarea.value, "  abc", "non-enter keydown should be a no-op");
+
+  editor.textarea.value = "  abc";
+  editor.textarea.dispatchEvent({ type: "input", which: 13, preventDefault() {} });
+  t.equal(editor.textarea.value, "  abc", "enter on input event should be a no-op");
 });

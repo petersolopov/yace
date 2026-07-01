@@ -38,8 +38,10 @@ const CODES = {
   add: 187,
 };
 
+/* c8 ignore next 3 -- browser/platform detection, not reachable in one test run */
 const IS_MAC =
   typeof window != "undefined" &&
+  window.navigator &&
   /Mac|iPod|iPhone|iPad/.test(window.navigator.platform);
 
 const MODIFIERS = {
@@ -47,6 +49,7 @@ const MODIFIERS = {
   control: "ctrlKey",
   meta: "metaKey",
   shift: "shiftKey",
+  /* c8 ignore next -- depends on IS_MAC, fixed per environment */
   "ctrl/cmd": IS_MAC ? "metaKey" : "ctrlKey",
 };
 

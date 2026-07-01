@@ -11,12 +11,13 @@ const preserveIndent = () => (textareaProps, event) => {
     return;
   }
 
-  const currentLineNumber =
-    value.substring(0, selectionStart).split("\n").length - 1;
-
-  const lines = value.split("\n");
-  const currentLine = lines[currentLineNumber];
-  const matches = /^\s+/.exec(currentLine);
+  // indent from the part of the line before the caret, otherwise the indent
+  // left after the caret is carried to the new line and doubles it
+  const currentLineBeforeCaret = value
+    .substring(0, selectionStart)
+    .split("\n")
+    .pop();
+  const matches = /^\s+/.exec(currentLineBeforeCaret);
 
   if (!matches) {
     return;
