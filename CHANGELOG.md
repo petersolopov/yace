@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.7](https://github.com/petersolopov/yace/compare/v0.0.6...v0.0.7) (2026-07-01)
+
+
+### Bug Fixes
+
+* prevent doubled indentation when pressing enter before line indent ([bb95df3](https://github.com/petersolopov/yace/commit/bb95df3822b6cb8c576286ceb1e00655760d114e))
+
 ### [0.0.6](https://github.com/petersolopov/yace/compare/v0.0.5...v0.0.6) (2020-08-29)
 
 ### [0.0.5](https://github.com/petersolopov/yace/compare/v0.0.4...v0.0.5) (2020-06-20)
