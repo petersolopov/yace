@@ -19,7 +19,7 @@ export const textareaStyles = {
   height: "100%",
   zIndex: "1",
   resize: "none",
-  caretColor: "black",
+  caretColor: "currentColor",
   padding: "inherit",
   outline: "none",
   fontSize: "inherit",
