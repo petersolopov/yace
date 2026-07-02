@@ -25,6 +25,7 @@ export default class Yace {
   pre: HTMLPreElement;
   value: string;
   update(props: Partial<TextareaProps>): void;
+  updateOptions(options: YaceOptions): void;
   onUpdate(cb: (value: string) => void): void;
   destroy(): void;
 }

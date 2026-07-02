@@ -122,15 +122,51 @@ class Yace {
     }
 
     this.value = value;
-
-    const highlighted = this.options.highlighter(value);
-    this.pre.innerHTML = highlighted + "<br/>";
-
-    this.updateLines();
+    this.render();
 
     if (this.updateCallback) {
       this.updateCallback(value);
     }
+  }
+
+  updateOptions(options) {
+    if (!this.textarea) {
+      return;
+    }
+
+    this.options = {
+      ...this.options,
+      ...options,
+    };
+
+    if (options.styles) {
+      // new style keys must land in the snapshot or destroy() would miss them
+      Object.keys(options.styles).forEach((key) => {
+        if (!(key in this.initialRootStyles)) {
+          this.initialRootStyles[key] = this.root.style[key] || "";
+        }
+      });
+      Object.assign(this.root.style, options.styles);
+    }
+
+    if (this.lines && !this.options.lineNumbers) {
+      removeNode(this.lines);
+      this.lines = null;
+      this.root.style.paddingLeft = this.initialRootStyles.paddingLeft;
+    }
+
+    if (options.value != null) {
+      this.update({ value: options.value });
+    }
+
+    this.render();
+  }
+
+  render() {
+    const highlighted = this.options.highlighter(this.value);
+    this.pre.innerHTML = highlighted + "<br/>";
+
+    this.updateLines();
   }
 
   updateLines() {

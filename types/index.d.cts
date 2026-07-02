@@ -5,6 +5,7 @@ declare class Yace {
   pre: HTMLPreElement;
   value: string;
   update(props: Partial<Yace.TextareaProps>): void;
+  updateOptions(options: Yace.YaceOptions): void;
   onUpdate(cb: (value: string) => void): void;
   destroy(): void;
 }

@@ -144,6 +144,61 @@ test("value normalization", (t) => {
   t.equal(editor.pre.innerHTML, "0<br/>", "pre should render '0'");
 });
 
+test(".updateOptions()", (t) => {
+  const editor = new Yace("#editor", { value: "abc" });
+
+  editor.updateOptions({ highlighter: (value) => value.toUpperCase() });
+  t.equal(editor.pre.innerHTML, "ABC<br/>", "new highlighter should re-render the current value");
+  t.equal(editor.textarea.value, "abc", "textarea value should be untouched");
+
+  const upperCasePlugin = ({ value }) => ({ value: value.toUpperCase() });
+  editor.updateOptions({ plugins: [upperCasePlugin] });
+  dispatchTextareaEvent(editor.textarea, "next");
+  t.equal(editor.textarea.value, "NEXT", "new plugins should take effect on the next event");
+
+  let updated = null;
+  editor.onUpdate((value) => (updated = value));
+  editor.updateOptions({ value: "fresh" });
+  t.equal(editor.textarea.value, "fresh", "value should route through update()");
+  t.equal(updated, "fresh", "onUpdate should fire for a value change");
+});
+
+test(".updateOptions() toggles line numbers", (t) => {
+  const root = document.createElement("div");
+  const editor = new Yace(root, { value: "1\n2\n3" });
+
+  t.equal(root.childNodes.length, 2, "no lines element without lineNumbers");
+
+  editor.updateOptions({ lineNumbers: true });
+  t.equal(root.childNodes.length, 3, "lines element should be created");
+  t.equal(root.style.paddingLeft, "2ch", "padding should be applied");
+
+  editor.updateOptions({ lineNumbers: false });
+  t.equal(root.childNodes.length, 2, "lines element should be removed");
+  t.equal(root.style.paddingLeft, "", "padding should be reverted");
+});
+
+test(".updateOptions() styles stay restorable by destroy", (t) => {
+  const root = document.createElement("div");
+  root.style.color = "red";
+  const editor = new Yace(root, { styles: { fontSize: "20px" } });
+
+  editor.updateOptions({ styles: { color: "blue", background: "black" } });
+  t.equal(root.style.color, "blue", "new style should be applied");
+
+  editor.destroy();
+  t.equal(root.style.color, "red", "pre-existing inline style should be restored");
+  t.equal(root.style.background, "", "added style should be removed");
+  t.equal(root.style.fontSize, "", "constructor style should be removed");
+});
+
+test(".updateOptions() after destroy is a no-op", (t) => {
+  const editor = new Yace("#editor");
+  editor.destroy();
+
+  t.doesNotThrow(() => editor.updateOptions({ lineNumbers: true }), "updateOptions should not throw");
+});
+
 test(".destroy()", (t) => {
   const editor = new Yace("#editor");
   const { textarea, root } = editor;

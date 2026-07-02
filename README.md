@@ -125,6 +125,15 @@ editor.update({ value: "new awesome code" });
 editor.update({ selectionStart: 0, selectionEnd: 4 });
 ```
 
+### `updateOptions(options)`
+
+Change any constructor options on a live editor — highlighter, plugins, styles, lineNumbers.
+
+```js
+editor.updateOptions({ highlighter: (value) => Prism.highlight(value, Prism.languages.js) });
+editor.updateOptions({ lineNumbers: false });
+```
+
 ### `destroy()`
 
 Remove listeners and created DOM nodes, restore container styles. The instance can not be reused after that — create a new one.
