@@ -30,11 +30,18 @@ class Yace {
       ...options,
     };
 
+    this.options.value =
+      this.options.value == null ? "" : String(this.options.value);
+
     this.init();
   }
 
   init() {
     this.textarea = document.createElement("textarea");
+    this.textarea.setAttribute("spellcheck", "false");
+    this.textarea.setAttribute("autocapitalize", "off");
+    this.textarea.setAttribute("autocorrect", "off");
+    this.textarea.setAttribute("autocomplete", "off");
     this.pre = document.createElement("pre");
 
     Object.assign(this.root.style, rootStyles, this.options.styles);
@@ -50,29 +57,51 @@ class Yace {
   }
 
   addTextareaEvents() {
-    this.handleInput = (event) => {
+    this.handleEvent = (event) => {
+      if (event.isComposing || event.keyCode === 229) {
+        return;
+      }
+
       const textareaProps = runPlugins(this.options.plugins, event);
       this.update(textareaProps);
     };
 
-    this.handleKeydown = (event) => {
-      const textareaProps = runPlugins(this.options.plugins, event);
-      this.update(textareaProps);
-    };
-
-    this.textarea.addEventListener("input", this.handleInput);
-    this.textarea.addEventListener("keydown", this.handleKeydown);
+    this.textarea.addEventListener("input", this.handleEvent);
+    this.textarea.addEventListener("keydown", this.handleEvent);
+    // composition commit must go through the plugin pipeline like any edit;
+    // some engines fire the final input before compositionend, so the guard
+    // above may have swallowed it
+    this.textarea.addEventListener("compositionend", this.handleEvent);
   }
 
   update(textareaProps) {
-    const { value, selectionStart, selectionEnd } = textareaProps;
-    // should be before updating selection otherwise selection will be lost
+    let { value, selectionStart, selectionEnd } = textareaProps;
+
     if (value != null) {
-      this.textarea.value = value;
+      value = String(value);
+
+      // browsers move the caret to the end on value assignment, so a
+      // value-only update must restore the current selection afterwards
+      if (selectionStart == null) {
+        selectionStart = this.textarea.selectionStart;
+      }
+
+      if (selectionEnd == null) {
+        selectionEnd = this.textarea.selectionEnd;
+      }
+
+      if (this.textarea.value !== value) {
+        this.textarea.value = value;
+      }
     }
 
-    this.textarea.selectionStart = selectionStart;
-    this.textarea.selectionEnd = selectionEnd;
+    if (selectionStart != null) {
+      this.textarea.selectionStart = selectionStart;
+    }
+
+    if (selectionEnd != null) {
+      this.textarea.selectionEnd = selectionEnd;
+    }
 
     if (value === this.value || value == null) {
       return;
@@ -118,8 +147,9 @@ class Yace {
   }
 
   destroy() {
-    this.textarea.removeEventListener("input", this.handleInput);
-    this.textarea.removeEventListener("keydown", this.handleKeydown);
+    this.textarea.removeEventListener("input", this.handleEvent);
+    this.textarea.removeEventListener("keydown", this.handleEvent);
+    this.textarea.removeEventListener("compositionend", this.handleEvent);
   }
 
   onUpdate(callback) {

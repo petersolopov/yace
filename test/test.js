@@ -116,12 +116,67 @@ test(".update()", (t) => {
   t.equal(editor.textarea.selectionEnd, 4, "selectionEnd should be updated");
 });
 
+test(".update() keeps selection when only value changes", (t) => {
+  const editor = new Yace("#editor", { value: "hello world" });
+
+  editor.update({ selectionStart: 3, selectionEnd: 5 });
+  editor.update({ value: "hello there" });
+
+  t.equal(editor.textarea.value, "hello there", "value should be updated");
+  t.equal(editor.textarea.selectionStart, 3, "selectionStart should be unchanged");
+  t.equal(editor.textarea.selectionEnd, 5, "selectionEnd should be unchanged");
+});
+
+test("value normalization", (t) => {
+  const editorZero = new Yace("#editor", { value: 0 });
+  t.equal(editorZero.textarea.value, "0", "constructor value 0 should render as '0'");
+  t.equal(editorZero.pre.innerHTML, "0<br/>", "pre should render '0' for numeric constructor value");
+
+  const editorUndefined = new Yace("#editor", { value: undefined });
+  t.equal(editorUndefined.textarea.value, "", "constructor value undefined should become empty string");
+
+  const editor = new Yace("#editor");
+  t.doesNotThrow(() => editor.update({ value: 0 }), "update with value 0 should not throw");
+  t.equal(editor.textarea.value, "0", "update value 0 should render '0'");
+  t.equal(editor.pre.innerHTML, "0<br/>", "pre should render '0'");
+});
+
 test(".destroy()", (t) => {
   const editor = new Yace("#editor");
   editor.destroy();
 
   t.notOk(editor.textarea.__handlers.input.length, "input handler should be destroyed");
   t.notOk(editor.textarea.__handlers.keydown.length, "keydown handler should be destroyed");
+  t.notOk(editor.textarea.__handlers.compositionend.length, "compositionend handler should be destroyed");
+});
+
+test("IME composition guard", (t) => {
+  const editor = new Yace("#editor");
+
+  let calledTimes = 0;
+  editor.onUpdate(() => {
+    calledTimes++;
+  });
+
+  editor.textarea.value = "ni";
+  editor.textarea.dispatchEvent({ type: "input", isComposing: true });
+  t.equal(calledTimes, 0, "input during composition should not re-render");
+  t.equal(editor.pre.innerHTML, "<br/>", "pre should stay empty during composition");
+
+  editor.textarea.dispatchEvent({ type: "keydown", keyCode: 229 });
+  t.equal(calledTimes, 0, "keydown with keyCode 229 should not re-render");
+
+  editor.textarea.value = "你好";
+  editor.textarea.dispatchEvent({ type: "compositionend" });
+  t.equal(calledTimes, 1, "compositionend should re-render once");
+  t.equal(editor.textarea.value, "你好", "textarea should keep the committed value");
+  t.equal(editor.pre.innerHTML, "你好<br/>", "pre should render the committed value");
+
+  const upperCasePlugin = ({ value }) => ({ value: value.toUpperCase() });
+  const pluginEditor = new Yace("#editor", { plugins: [upperCasePlugin] });
+  pluginEditor.textarea.value = "abc";
+  pluginEditor.textarea.dispatchEvent({ type: "compositionend" });
+  t.equal(pluginEditor.textarea.value, "ABC", "compositionend should run the plugin pipeline");
 });
 
 test("options.lineNumber", (t) => {

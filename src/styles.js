@@ -11,6 +11,8 @@ export const textareaStyles = {
   lineHeight: "inherit",
   whiteSpace: "pre-wrap",
   wordBreak: "keep-all",
+  // wrap parity with the pre layer must not depend on the UA default
+  overflowWrap: "break-word",
   background: "none",
   position: "absolute",
   width: "100%",
