@@ -24,9 +24,9 @@
   "scripts": {
     "test": "c8 --all --include 'src/**/*.js' --check-coverage --lines 62 --functions 84 --branches 92 node test/test.js",
     "report": "c8 report --all --include 'src/**/*.js' --reporter=text-lcov > coverage.txt",
-    "build": "rm -rf ./dist && rollup -c",
-    "prettier:write": "prettier --write '{src,examples,test}/**/*'",
-    "prettier:check": "prettier --check '{src,examples,test}/**/*'",
+    "build": "rm -rf ./dist && rollup -c && cp -R types/. dist/",
+    "prettier:write": "prettier --write '{src,examples,test,types}/**/*'",
+    "prettier:check": "prettier --check '{src,examples,test,types}/**/*'",
     "release": "npx standard-version"
   },
   "keywords": [
