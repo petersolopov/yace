@@ -143,11 +143,68 @@ test("value normalization", (t) => {
 
 test(".destroy()", (t) => {
   const editor = new Yace("#editor");
+  const { textarea, root } = editor;
   editor.destroy();
 
-  t.notOk(editor.textarea.__handlers.input.length, "input handler should be destroyed");
-  t.notOk(editor.textarea.__handlers.keydown.length, "keydown handler should be destroyed");
-  t.notOk(editor.textarea.__handlers.compositionend.length, "compositionend handler should be destroyed");
+  t.notOk(textarea.__handlers.input.length, "input handler should be destroyed");
+  t.notOk(textarea.__handlers.keydown.length, "keydown handler should be destroyed");
+  t.notOk(textarea.__handlers.compositionend.length, "compositionend handler should be destroyed");
+  t.equal(root.childNodes.length, 0, "created nodes should be removed");
+  t.equal(editor.textarea, null, "textarea reference should be cleared");
+  t.equal(editor.pre, null, "pre reference should be cleared");
+  t.doesNotThrow(() => editor.destroy(), "double destroy should be a no-op");
+});
+
+test(".destroy() restores container styles", (t) => {
+  const root = document.createElement("div");
+  root.style.fontSize = "12px";
+
+  const editor = new Yace(root, {
+    value: "1\n2\n3",
+    lineNumbers: true,
+    styles: { fontSize: "200px" },
+  });
+
+  t.equal(root.style.fontSize, "200px", "init should apply option styles");
+  t.equal(root.style.paddingLeft, "2ch", "line numbers should set padding");
+  t.equal(root.childNodes.length, 3, "editor should create three nodes");
+
+  editor.destroy();
+
+  t.equal(root.style.fontSize, "12px", "prior inline style should be restored");
+  t.equal(root.style.paddingLeft, "", "padding mutation should be reverted");
+  t.equal(root.style.position, "", "root styles should be reverted");
+  t.equal(root.childNodes.length, 0, "lines node should be removed too");
+});
+
+test(".destroy() survives externally detached nodes", (t) => {
+  const root = document.createElement("div");
+  const editor = new Yace(root, { styles: { fontSize: "200px" } });
+
+  root.removeChild(editor.textarea);
+  root.removeChild(editor.pre);
+
+  t.doesNotThrow(() => editor.destroy(), "destroy should not throw");
+  t.equal(root.style.fontSize, "", "styles should still be restored");
+  t.equal(editor.textarea, null, "references should still be cleared");
+});
+
+test(".update() after destroy is a no-op", (t) => {
+  const editor = new Yace("#editor");
+  editor.destroy();
+
+  t.doesNotThrow(() => editor.update({ value: "late" }), "update should not throw");
+});
+
+test("re-init on the same node after destroy", (t) => {
+  const root = document.createElement("div");
+
+  const first = new Yace(root, { value: "one" });
+  first.destroy();
+  const second = new Yace(root, { value: "two" });
+
+  t.equal(root.childNodes.length, 2, "only one set of nodes should exist");
+  t.equal(second.textarea.value, "two", "new editor should work after destroy");
 });
 
 test("IME composition guard", (t) => {

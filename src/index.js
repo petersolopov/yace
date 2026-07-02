@@ -44,6 +44,15 @@ class Yace {
     this.textarea.setAttribute("autocomplete", "off");
     this.pre = document.createElement("pre");
 
+    // snapshot inline styles the editor mutates so destroy() can restore them
+    const mutatedStyleKeys = Object.keys(rootStyles)
+      .concat(Object.keys(this.options.styles))
+      .concat(["paddingLeft"]);
+    this.initialRootStyles = {};
+    mutatedStyleKeys.forEach((key) => {
+      this.initialRootStyles[key] = this.root.style[key] || "";
+    });
+
     Object.assign(this.root.style, rootStyles, this.options.styles);
     Object.assign(this.textarea.style, textareaStyles);
     Object.assign(this.pre.style, preStyles);
@@ -75,6 +84,11 @@ class Yace {
   }
 
   update(textareaProps) {
+    // an async consumer callback can land after destroy (e.g. React unmount)
+    if (!this.textarea) {
+      return;
+    }
+
     let { value, selectionStart, selectionEnd } = textareaProps;
 
     if (value != null) {
@@ -147,13 +161,40 @@ class Yace {
   }
 
   destroy() {
+    if (!this.textarea) {
+      return;
+    }
+
     this.textarea.removeEventListener("input", this.handleEvent);
     this.textarea.removeEventListener("keydown", this.handleEvent);
     this.textarea.removeEventListener("compositionend", this.handleEvent);
+
+    // a framework may have detached the nodes already (e.g. React unmount),
+    // so remove from the actual parent instead of assuming root
+    removeNode(this.textarea);
+    removeNode(this.pre);
+    removeNode(this.lines);
+
+    Object.assign(this.root.style, this.initialRootStyles);
+
+    this.textarea = null;
+    this.pre = null;
+    this.lines = null;
+    this.updateCallback = null;
+    this.handleEvent = null;
+    this.initialRootStyles = null;
+    this.options = null;
+    this.root = null;
   }
 
   onUpdate(callback) {
     this.updateCallback = callback;
+  }
+}
+
+function removeNode(node) {
+  if (node && node.parentNode) {
+    node.parentNode.removeChild(node);
   }
 }
 

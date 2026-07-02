@@ -120,7 +120,7 @@ editor.update({ selectionStart: 0, selectionEnd: 4 });
 
 ### `destroy()`
 
-Remove all listeners.
+Remove listeners and created DOM nodes, restore container styles. The instance can not be reused after that — create a new one.
 
 ```js
 editor.destroy();
