@@ -178,6 +178,27 @@ test(".updateOptions() toggles line numbers", (t) => {
   t.equal(root.style.paddingLeft, "", "padding should be reverted");
 });
 
+test(".updateOptions() keeps user padding when line numbers turn off", (t) => {
+  const root = document.createElement("div");
+  const editor = new Yace(root, {
+    value: "1\n2\n3",
+    lineNumbers: true,
+    styles: { paddingLeft: "10px" },
+  });
+
+  t.equal(root.style.paddingLeft, "2ch", "line numbers should own the padding");
+
+  editor.updateOptions({ lineNumbers: false });
+  t.equal(root.style.paddingLeft, "10px", "user padding should come back, not the pre-editor value");
+
+  editor.updateOptions({ lineNumbers: true });
+  editor.updateOptions({ styles: { paddingLeft: "24px" }, lineNumbers: false });
+  t.equal(root.style.paddingLeft, "24px", "a padding set via updateOptions should become the new base");
+
+  editor.destroy();
+  t.equal(root.style.paddingLeft, "", "destroy still restores the pre-editor value");
+});
+
 test(".updateOptions() styles stay restorable by destroy", (t) => {
   const root = document.createElement("div");
   root.style.color = "red";

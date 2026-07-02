@@ -130,7 +130,9 @@ editor.update({ selectionStart: 0, selectionEnd: 4 });
 Change any constructor options on a live editor — highlighter, plugins, styles, lineNumbers.
 
 ```js
-editor.updateOptions({ highlighter: (value) => Prism.highlight(value, Prism.languages.js) });
+editor.updateOptions({
+  highlighter: (value) => Prism.highlight(value, Prism.languages.javascript, "javascript"),
+});
 editor.updateOptions({ lineNumbers: false });
 ```
 

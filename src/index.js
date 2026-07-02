@@ -57,6 +57,10 @@ class Yace {
     Object.assign(this.textarea.style, textareaStyles);
     Object.assign(this.pre.style, preStyles);
 
+    // what the config produced, as opposed to the pre-editor snapshot above:
+    // toggling lineNumbers off must return here, not to the destroy() baseline
+    this.basePaddingLeft = this.root.style.paddingLeft || "";
+
     this.root.appendChild(this.textarea);
     this.root.appendChild(this.pre);
 
@@ -147,12 +151,16 @@ class Yace {
         }
       });
       Object.assign(this.root.style, options.styles);
+
+      if ("paddingLeft" in options.styles || "padding" in options.styles) {
+        this.basePaddingLeft = this.root.style.paddingLeft || "";
+      }
     }
 
     if (this.lines && !this.options.lineNumbers) {
       removeNode(this.lines);
       this.lines = null;
-      this.root.style.paddingLeft = this.initialRootStyles.paddingLeft;
+      this.root.style.paddingLeft = this.basePaddingLeft;
     }
 
     if (options.value != null) {
