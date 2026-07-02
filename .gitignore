@@ -2,3 +2,5 @@ node_modules
 dist
 coverage
 coverage.txt
+test-results
+playwright-report

@@ -9,12 +9,24 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "import": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
-      "require": { "types": "./dist/index.d.cts", "default": "./dist/index.cjs" }
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./plugins/*": {
-      "import": { "types": "./dist/plugins/*.d.ts", "default": "./dist/plugins/*.js" },
-      "require": { "types": "./dist/plugins/*.d.cts", "default": "./dist/plugins/*.cjs" }
+      "import": {
+        "types": "./dist/plugins/*.d.ts",
+        "default": "./dist/plugins/*.js"
+      },
+      "require": {
+        "types": "./dist/plugins/*.d.cts",
+        "default": "./dist/plugins/*.cjs"
+      }
     },
     "./package.json": "./package.json"
   },
@@ -23,10 +35,12 @@
   ],
   "scripts": {
     "test": "c8 --all --include 'src/**/*.js' --check-coverage --lines 99 --functions 99 --branches 98 node test/test.js",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
     "report": "c8 report --all --include 'src/**/*.js' --reporter=text-lcov > coverage.txt",
     "build": "rm -rf ./dist && rollup -c && cp -R types/. dist/",
-    "prettier:write": "prettier --write '{src,examples,test,types}/**/*'",
-    "prettier:check": "prettier --check '{src,examples,test,types}/**/*'",
+    "prettier:write": "prettier --write '{src,examples,test,types,e2e}/**/*' playwright.config.js",
+    "prettier:check": "prettier --check '{src,examples,test,types,e2e}/**/*' playwright.config.js",
     "release": "npx standard-version"
   },
   "keywords": [
@@ -50,6 +64,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@rollup/plugin-buble": "^0.21.3",
     "c8": "^7.2.0",
     "prettier": "^2.0.5",
@@ -58,6 +73,5 @@
     "rollup-plugin-terser": "^6.1.0",
     "undom": "^0.4.0",
     "zora": "^4.0.0"
-  },
-  "dependencies": {}
+  }
 }

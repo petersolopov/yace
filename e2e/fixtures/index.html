@@ -1,0 +1,38 @@
+<div id="editor"></div>
+<script type="module">
+  import Yace from "../../src/index.js";
+  import history from "../../src/plugins/history.js";
+  import tab from "../../src/plugins/tab.js";
+  import preserveIndent from "../../src/plugins/preserveIndent.js";
+  import cutLine from "../../src/plugins/cutLine.js";
+
+  window.Yace = Yace;
+  window.plugins = { history, tab, preserveIndent, cutLine };
+
+  const build = (spec) => {
+    const name = typeof spec === "string" ? spec : spec.name;
+    const options = typeof spec === "string" ? undefined : spec.options;
+
+    if (name === "history") return history(options || {});
+    if (name === "tab") return tab(options);
+    if (name === "preserveIndent") return preserveIndent();
+    if (name === "cutLine") return cutLine();
+    throw new Error(`unknown plugin: ${name}`);
+  };
+
+  // #editor exposes the div as window.editor via named-element access, so the
+  // live instance is tracked separately to guard destroy across re-creates
+  let current = null;
+
+  window.createEditor = (options = {}) => {
+    if (current) {
+      current.destroy();
+    }
+
+    const { plugins = [], ...rest } = options;
+    window.updates = [];
+    current = new Yace("#editor", { ...rest, plugins: plugins.map(build) });
+    current.onUpdate((value) => window.updates.push(value));
+    window.editor = current;
+  };
+</script>
