@@ -63,14 +63,40 @@ const editor = new Yace(selector, options);
 ### Options
 
 - `value` — initial value.
-- `lineNumber` — show or hide line numbers, default `false`.
-- `highlighter` — function that takes current value and return highlighted html.
-- `styles` — styles for root component, e.g. `{ fontSize: "20px }`.
-- `plugins` — array of plugins.
+- `lineNumbers` — show or hide line numbers, default `false`.
+- `highlighter` — function that takes current value and return highlighted html, see [highlighter contract](#highlighter-contract).
+- `styles` — styles for root component, e.g. `{ fontSize: "20px" }`.
+- `plugins` — array of plugins, see [plugins](#plugins).
 
-### Plugin
+### Highlighter contract
 
-Plugin is a function that called with textarea params `{value, selectionStart, selectionEnd}` as first argument and keydown DOM event as second argument and returns new textarea params `{value, selectionStart, selectionEnd}`.
+The returned HTML is assigned to `innerHTML`, so two rules apply:
+
+- The highlighter must escape HTML in the value (`<`, `>`, `&`, quotes). The default highlighter escapes everything; Prism and highlight.js escape too. Returning unescaped user input from a custom highlighter is an XSS vector.
+- The highlighting must not change character widths: keep one monospace font and one font size. If a token style changes glyph widths, the highlighted layer drifts out of alignment with the invisible textarea text.
+
+### Plugins
+
+First-party plugins are available as subpath imports:
+
+```js
+import Yace from "yace";
+import history from "yace/plugins/history";
+import tab from "yace/plugins/tab";
+import preserveIndent from "yace/plugins/preserveIndent";
+import cutLine from "yace/plugins/cutLine";
+
+const editor = new Yace("#editor", {
+  // history goes first: it must checkpoint the state before other plugins change it
+  plugins: [history(), tab(), preserveIndent(), cutLine()],
+});
+```
+
+Plugin is a function that is called with textarea params `{value, selectionStart, selectionEnd}` as first argument and the DOM event (`keydown`, `input` or `compositionend`) as second argument. It returns new textarea params or `undefined` to leave them unchanged.
+
+```js
+const upperCase = ({ value }) => ({ value: value.toUpperCase() });
+```
 
 ### `onUpdate(callback)`
 

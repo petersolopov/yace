@@ -19,7 +19,14 @@
   "keywords": [
     "text-editor",
     "editor",
-    "code-editor"
+    "code-editor",
+    "textarea",
+    "syntax-highlighting",
+    "lightweight",
+    "zero-dependencies",
+    "prism",
+    "react",
+    "framework-agnostic"
   ],
   "author": "Peter Solopov <peter@solopov.dev>",
   "homepage": "https://github.com/petersolopov/yace",
