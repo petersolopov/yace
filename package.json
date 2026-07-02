@@ -3,8 +3,21 @@
   "version": "0.0.7",
   "description": "tiny text editor with plugins",
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/esm/index.esm.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+      "require": { "types": "./dist/index.d.cts", "default": "./dist/index.cjs" }
+    },
+    "./plugins/*": {
+      "import": { "types": "./dist/plugins/*.d.ts", "default": "./dist/plugins/*.js" },
+      "require": { "types": "./dist/plugins/*.d.cts", "default": "./dist/plugins/*.cjs" }
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist/**/*"
   ],

@@ -1,24 +1,36 @@
 import multiInput from "rollup-plugin-multi-input";
 import buble from "@rollup/plugin-buble";
 import { terser } from "rollup-plugin-terser";
-import pkg from './package.json';
+
+const bublePlugin = buble({ objectAssign: "Object.assign" });
 
 const editorConfig = {
   input: ["src/index.js"],
   output: [
-    { file: pkg.module, format: "esm" },
-    { file: pkg.main, format: "cjs" },
+    { file: "dist/index.js", format: "esm" },
+    { file: "dist/index.cjs", format: "cjs", exports: "default" },
   ],
-  plugins: [terser(), buble({ objectAssign: "Object.assign" })],
+  plugins: [terser(), bublePlugin],
 };
 
 const pluginsConfig = {
   input: ["src/plugins/**.js"],
   output: [
-    { format: "cjs", dir: "dist" },
-    { format: "esm", dir: "dist/esm" },
+    {
+      format: "esm",
+      dir: "dist",
+      entryFileNames: "[name].js",
+      chunkFileNames: "[name].js",
+    },
+    {
+      format: "cjs",
+      dir: "dist",
+      entryFileNames: "[name].cjs",
+      chunkFileNames: "[name].cjs",
+      exports: "default",
+    },
   ],
-  plugins: [multiInput(), terser(), buble({ objectAssign: "Object.assign" })],
+  plugins: [multiInput(), terser(), bublePlugin],
 };
 
 export default [editorConfig, pluginsConfig];
