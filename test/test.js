@@ -4,6 +4,7 @@ import "undom/register.js";
 import Yace from "../src/index.js";
 import preserveIndent from "../src/plugins/preserveIndent.js";
 import isKey from "../src/plugins/isKey.js";
+import tab from "../src/plugins/tab.js";
 
 // mock querySelector for yace and return mocked editor element
 document.querySelector = () => document.createElement("div");
@@ -301,6 +302,82 @@ test("plugins/isKey", (t) => {
   t.ok(isKey("ctrl/cmd+z", { which: 90, ctrlKey: true }), "matches a modifier combo");
   t.notOk(isKey("ctrl/cmd+z", { which: 90 }), "does not match when the required modifier is absent");
   t.ok(isKey("shift", { shiftKey: true }), "matches a modifier-only combo");
+});
+
+const tabKey = () => ({ type: "keydown", which: 9, preventDefault() {} });
+const shiftTabKey = () => ({
+  type: "keydown",
+  which: 9,
+  shiftKey: true,
+  preventDefault() {},
+});
+
+test("plugins/tab: indent", (t) => {
+  const plugin = tab();
+
+  t.equal(
+    plugin({ value: "ab", selectionStart: 1, selectionEnd: 1 }, tabKey()),
+    { value: "a  b", selectionStart: 3, selectionEnd: 3 },
+    "collapsed caret should insert the tab character"
+  );
+
+  t.equal(
+    plugin({ value: "a\nb", selectionStart: 0, selectionEnd: 3 }, tabKey()),
+    { value: "  a\n  b", selectionStart: 2, selectionEnd: 7 },
+    "selection through both lines should indent both"
+  );
+
+  t.equal(
+    plugin({ value: "a\nb", selectionStart: 0, selectionEnd: 2 }, tabKey()),
+    { value: "  a\nb", selectionStart: 2, selectionEnd: 4 },
+    "selection ending at column 0 should not indent the next line"
+  );
+
+  t.equal(
+    plugin({ value: "ab", selectionStart: 1, selectionEnd: 1 }, { type: "input", which: 9 }),
+    undefined,
+    "non-keydown event should be a no-op"
+  );
+
+  t.equal(
+    plugin({ value: "ab", selectionStart: 1, selectionEnd: 1 }, { type: "keydown", which: 65, preventDefault() {} }),
+    undefined,
+    "non-tab key should be a no-op"
+  );
+
+  t.equal(
+    tab("\t")({ value: "ab", selectionStart: 1, selectionEnd: 1 }, tabKey()),
+    { value: "a\tb", selectionStart: 2, selectionEnd: 2 },
+    "custom tab character should be supported"
+  );
+});
+
+test("plugins/tab: outdent", (t) => {
+  const plugin = tab();
+
+  t.equal(
+    plugin({ value: "  a\n  b", selectionStart: 2, selectionEnd: 6 }, shiftTabKey()),
+    { value: "a\nb", selectionStart: 0, selectionEnd: 2 },
+    "selection through both lines should outdent both"
+  );
+
+  t.equal(
+    plugin({ value: "  a\n  b", selectionStart: 0, selectionEnd: 4 }, shiftTabKey()),
+    { value: "a\n  b", selectionStart: 0, selectionEnd: 2 },
+    "selection ending at column 0 should not outdent the next line"
+  );
+
+  t.equal(
+    plugin({ value: "a\nb", selectionStart: 0, selectionEnd: 3 }, shiftTabKey()),
+    undefined,
+    "nothing to outdent should be a no-op"
+  );
+
+  t.equal(
+    plugin({ value: "  ab", selectionStart: 4, selectionEnd: 4 }, shiftTabKey()),
+    { value: "ab", selectionStart: 2, selectionEnd: 2 },
+    "collapsed caret should outdent the current line"
+  );
 });
 
 test("plugins/preserveIndent", (t) => {

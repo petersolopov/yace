@@ -1,5 +1,14 @@
 import isKey from "./isKey.js";
 
+// when a selection ends at column 0 the line under that caret is not part of
+// the selection, so the range must end on the previous line
+function lastSelectedLine(value, selectionStart, selectionEnd) {
+  const isLineBoundaryEnd =
+    selectionEnd > selectionStart && value[selectionEnd - 1] === "\n";
+  const effectiveEnd = isLineBoundaryEnd ? selectionEnd - 1 : selectionEnd;
+  return value.substring(0, effectiveEnd).split("\n").length - 1;
+}
+
 const tab = (tabCharacter = "  ") => (textareaProps, event) => {
   const { value, selectionStart, selectionEnd } = textareaProps;
 
@@ -11,7 +20,7 @@ const tab = (tabCharacter = "  ") => (textareaProps, event) => {
     event.preventDefault();
     const linesBeforeCaret = value.substring(0, selectionStart).split("\n");
     const startLine = linesBeforeCaret.length - 1;
-    const endLine = value.substring(0, selectionEnd).split("\n").length - 1;
+    const endLine = lastSelectedLine(value, selectionStart, selectionEnd);
     const nextValue = value
       .split("\n")
       .map((line, i) => {
@@ -59,7 +68,7 @@ const tab = (tabCharacter = "  ") => (textareaProps, event) => {
 
     const linesBeforeCaret = value.substring(0, selectionStart).split("\n");
     const startLine = linesBeforeCaret.length - 1;
-    const endLine = value.substring(0, selectionEnd).split("\n").length - 1;
+    const endLine = lastSelectedLine(value, selectionStart, selectionEnd);
 
     return {
       value: value
