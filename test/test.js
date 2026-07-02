@@ -5,6 +5,7 @@ import Yace from "../src/index.js";
 import preserveIndent from "../src/plugins/preserveIndent.js";
 import isKey from "../src/plugins/isKey.js";
 import tab from "../src/plugins/tab.js";
+import cutLine from "../src/plugins/cutLine.js";
 
 // mock querySelector for yace and return mocked editor element
 document.querySelector = () => document.createElement("div");
@@ -378,6 +379,120 @@ test("plugins/tab: outdent", (t) => {
     { value: "ab", selectionStart: 2, selectionEnd: 2 },
     "collapsed caret should outdent the current line"
   );
+});
+
+function mockClipboard() {
+  const written = [];
+  Object.defineProperty(globalThis.navigator, "clipboard", {
+    value: { writeText: (text) => (written.push(text), Promise.resolve()) },
+    configurable: true,
+  });
+  return written;
+}
+
+function unmockClipboard() {
+  delete globalThis.navigator.clipboard;
+}
+
+const cutKey = () => {
+  const event = {
+    type: "keydown",
+    which: 88,
+    ctrlKey: true,
+    defaultPrevented: false,
+    preventDefault() {
+      event.defaultPrevented = true;
+    },
+  };
+  return event;
+};
+
+test("plugins/cutLine: selection", (t) => {
+  const written = mockClipboard();
+  const plugin = cutLine();
+
+  t.equal(
+    plugin({ value: "hello world", selectionStart: 5, selectionEnd: 11 }, cutKey()),
+    { value: "hello", selectionStart: 5, selectionEnd: 5 },
+    "selection should be removed and caret collapsed"
+  );
+  t.equal(written, [" world"], "selection should be copied to clipboard");
+
+  unmockClipboard();
+});
+
+test("plugins/cutLine: whole line", (t) => {
+  const written = mockClipboard();
+  const plugin = cutLine();
+
+  t.equal(
+    plugin({ value: "aa\nbb\ncc", selectionStart: 4, selectionEnd: 4 }, cutKey()),
+    { value: "aa\ncc", selectionStart: 3, selectionEnd: 3 },
+    "middle line should be cut with caret at the next line start"
+  );
+
+  t.equal(
+    plugin({ value: "aa\nbb", selectionStart: 1, selectionEnd: 1 }, cutKey()),
+    { value: "bb", selectionStart: 0, selectionEnd: 0 },
+    "cutting the first line should put the caret at 0"
+  );
+
+  t.equal(
+    plugin({ value: "aa\nbb", selectionStart: 4, selectionEnd: 4 }, cutKey()),
+    { value: "aa", selectionStart: 2, selectionEnd: 2 },
+    "cutting the last line should clamp the caret to the new end"
+  );
+
+  t.equal(
+    plugin({ value: "abc", selectionStart: 1, selectionEnd: 1 }, cutKey()),
+    { value: "", selectionStart: 0, selectionEnd: 0 },
+    "cutting the only line should empty the value"
+  );
+
+  t.equal(written, ["bb", "aa", "bb", "abc"], "each cut line should be copied");
+
+  unmockClipboard();
+});
+
+test("plugins/cutLine: guards", (t) => {
+  const written = mockClipboard();
+  const plugin = cutLine();
+
+  t.equal(
+    plugin(
+      { value: "aa", selectionStart: 0, selectionEnd: 0 },
+      { type: "keydown", which: 65, ctrlKey: true, preventDefault() {} }
+    ),
+    undefined,
+    "non-matching key should be a no-op"
+  );
+
+  t.equal(
+    plugin({ value: "aa", selectionStart: 0, selectionEnd: 0 }, { type: "input" }),
+    undefined,
+    "non-keydown event should be a no-op"
+  );
+
+  const customPlugin = cutLine((event) => event.which === 75);
+  t.equal(
+    customPlugin(
+      { value: "aa\nbb", selectionStart: 0, selectionEnd: 0 },
+      { type: "keydown", which: 75, preventDefault() {} }
+    ),
+    { value: "bb", selectionStart: 0, selectionEnd: 0 },
+    "custom predicate should trigger the cut"
+  );
+
+  t.equal(written, ["aa"], "only the custom predicate cut should copy");
+  unmockClipboard();
+
+  const event = cutKey();
+  t.equal(
+    plugin({ value: "aa\nbb", selectionStart: 0, selectionEnd: 0 }, event),
+    undefined,
+    "no Clipboard API should leave the event to the browser"
+  );
+  t.notOk(event.defaultPrevented, "no Clipboard API should not preventDefault");
 });
 
 test("plugins/preserveIndent", (t) => {

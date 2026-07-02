@@ -13,6 +13,12 @@ const cutLine = (predicate) => (textareaProps, event) => {
     return;
   }
 
+  // without the Clipboard API (insecure context) a cut would delete text
+  // while the copy silently fails — leave the event to the browser instead
+  if (typeof navigator === "undefined" || !navigator.clipboard) {
+    return;
+  }
+
   event.preventDefault();
 
   const { value, selectionStart, selectionEnd } = textareaProps;
@@ -21,11 +27,9 @@ const cutLine = (predicate) => (textareaProps, event) => {
     const newValue =
       value.substring(0, selectionStart) + value.substring(selectionEnd);
 
-    if (navigator && navigator.clipboard) {
-      navigator.clipboard
-        .writeText(value.substring(selectionStart, selectionEnd))
-        .catch(() => {}); // prevent any clipboard error. useful for iframe
-    }
+    navigator.clipboard
+      .writeText(value.substring(selectionStart, selectionEnd))
+      .catch(() => {}); // prevent any clipboard error. useful for iframe
 
     return {
       value: newValue,
@@ -53,18 +57,21 @@ const cutLine = (predicate) => (textareaProps, event) => {
     .filter((line) => line != null)
     .join("\n");
 
-  if (navigator && navigator.clipboard) {
-    navigator.clipboard
-      .writeText(value.split("\n")[currentLineNumber])
-      .catch(() => {}); // prevent any clipboard error. useful for iframe
-  }
+  navigator.clipboard
+    .writeText(value.split("\n")[currentLineNumber])
+    .catch(() => {}); // prevent any clipboard error. useful for iframe
+
+  // start of the line that replaced the cut one; on the first line there is
+  // no preceding newline, and cutting the last line clamps to the new end
+  const caret = Math.min(
+    linesBeforeCaret.length ? linesBeforeCaret.join("\n").length + 1 : 0,
+    newValue.length
+  );
 
   return {
     value: newValue,
-
-    // move cursor to start next line
-    selectionStart: linesBeforeCaret.join("\n").length + 1,
-    selectionEnd: linesBeforeCaret.join("\n").length + 1,
+    selectionStart: caret,
+    selectionEnd: caret,
   };
 };
 
