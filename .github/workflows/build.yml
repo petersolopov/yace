@@ -32,8 +32,19 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           file: ./coverage.txt
 
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npm run test:e2e
+
   publish:
-    needs: test
+    needs: [test, e2e]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/') && github.event_name == 'push'
     permissions:
