@@ -6,6 +6,7 @@ import preserveIndent from "../src/plugins/preserveIndent.js";
 import isKey from "../src/plugins/isKey.js";
 import tab from "../src/plugins/tab.js";
 import cutLine from "../src/plugins/cutLine.js";
+import history from "../src/plugins/history.js";
 
 // mock querySelector for yace and return mocked editor element
 document.querySelector = () => document.createElement("div");
@@ -551,4 +552,252 @@ test("plugins/preserveIndent", (t) => {
   editor.textarea.value = "  abc";
   editor.textarea.dispatchEvent({ type: "input", which: 13, preventDefault() {} });
   t.equal(editor.textarea.value, "  abc", "enter on input event should be a no-op");
+});
+
+const props = (value, caret = value.length) => ({
+  value,
+  selectionStart: caret,
+  selectionEnd: caret,
+});
+
+const typeKey = () => ({ type: "keydown", which: 65, preventDefault() {} });
+
+const undoKey = () => {
+  const event = {
+    type: "keydown",
+    which: 90,
+    ctrlKey: true,
+    defaultPrevented: false,
+    preventDefault() {
+      event.defaultPrevented = true;
+    },
+  };
+  return event;
+};
+
+const redoKey = () => {
+  const event = {
+    type: "keydown",
+    which: 90,
+    ctrlKey: true,
+    shiftKey: true,
+    defaultPrevented: false,
+    preventDefault() {
+      event.defaultPrevented = true;
+    },
+  };
+  return event;
+};
+
+const inputAt = (timeStamp) => ({ type: "input", timeStamp });
+
+test("plugins/history: records inputs and walks undo/redo", (t) => {
+  const plugin = history();
+  const A = props("");
+  const B = props("a");
+  const C = props("ab");
+
+  t.equal(plugin(A, typeKey()), undefined, "first event initializes without changing props");
+  t.equal(plugin(B, inputAt(100)), undefined, "input records the new state");
+  t.equal(plugin(C, inputAt(1000)), undefined, "an input beyond the window records again");
+
+  t.equal(plugin(C, undoKey()), B, "undo returns the previous state");
+  t.equal(plugin(B, undoKey()), A, "second undo returns to the initial state");
+  t.equal(plugin(A, redoKey()), B, "redo returns forward");
+  t.equal(plugin(B, redoKey()), C, "second redo returns to the latest state");
+});
+
+test("plugins/history: a new input truncates the redo branch", (t) => {
+  const plugin = history();
+  const A = props("");
+  const B = props("a");
+  const C = props("ab");
+  plugin(A, typeKey());
+  plugin(B, inputAt(100));
+  plugin(C, inputAt(1000));
+
+  t.equal(plugin(C, undoKey()), B, "undo goes back to B");
+
+  const D = props("aX");
+  plugin(D, inputAt(2000));
+  t.equal(plugin(D, redoKey()), D, "redo after a new edit is a no-op");
+  t.equal(plugin(D, undoKey()), B, "undo returns to B, not the dropped C");
+});
+
+test("plugins/history: cap evicts the oldest record", (t) => {
+  const plugin = history({ limit: 3 });
+  plugin(props(""), typeKey());
+  plugin(props("a"), inputAt(1000));
+  plugin(props("ab"), inputAt(2000));
+  plugin(props("abc"), inputAt(3000));
+
+  t.equal(plugin(props("abc"), undoKey()).value, "ab", "first undo");
+  t.equal(plugin(props("ab"), undoKey()).value, "a", "second undo");
+  t.equal(plugin(props("a"), undoKey()).value, "a", "third undo clamps at the oldest kept record");
+});
+
+test("plugins/history: coalesces inputs within the window", (t) => {
+  const plugin = history({ coalesceMs: 300 });
+  const A = props("");
+  plugin(A, typeKey());
+  plugin(props("a"), inputAt(100));
+  plugin(props("ab"), inputAt(200));
+
+  t.equal(plugin(props("ab"), undoKey()), A, "the coalesced burst is a single undo step");
+});
+
+test("plugins/history: inputs beyond the window are separate steps", (t) => {
+  const plugin = history({ coalesceMs: 300 });
+  const A = props("");
+  const B = props("a");
+  const C = props("ab");
+  plugin(A, typeKey());
+  plugin(B, inputAt(100));
+  plugin(C, inputAt(500));
+
+  t.equal(plugin(C, undoKey()), B, "beyond the window undo stops at the first input");
+  t.equal(plugin(B, undoKey()), A, "another undo reaches the initial state");
+});
+
+test("plugins/history: a missing timeStamp never coalesces", (t) => {
+  const plugin = history();
+  const A = props("");
+  const B = props("a");
+  const C = props("ab");
+  plugin(A, typeKey());
+  plugin(B, { type: "input" });
+  plugin(C, { type: "input" });
+
+  t.equal(plugin(C, undoKey()), B, "without a clock each input is its own step");
+});
+
+test("plugins/history: caret-only keydown updates the record without adding one", (t) => {
+  const plugin = history();
+  const A = props("");
+  const B = props("hi");
+  plugin(A, typeKey());
+  plugin(B, inputAt(100));
+
+  const moved = props("hi", 0);
+  t.equal(plugin(moved, typeKey()), undefined, "a caret move does not return a record");
+
+  t.equal(plugin(moved, undoKey()), A, "undo returns to the initial state, not a caret snapshot");
+  t.equal(plugin(A, redoKey()), moved, "redo restores the value with the updated caret");
+});
+
+test("plugins/history: keydown checkpoints an unrecorded programmatic edit", (t) => {
+  const plugin = history();
+  const A = props("");
+  const B = props("ab");
+  plugin(A, typeKey());
+  plugin(B, inputAt(100));
+
+  // a later plugin edited the value on keydown without firing input (e.g. tab)
+  const C = props("a  b");
+  t.equal(plugin(C, typeKey()), undefined, "the checkpoint does not return a record");
+  t.equal(plugin(C, undoKey()), B, "undo returns to the pre-edit state");
+  t.equal(plugin(B, redoKey()), C, "redo returns to the checkpointed edit");
+});
+
+test("plugins/history: undo records the current state so redo can return", (t) => {
+  const plugin = history();
+  const A = props("");
+  const B = props("a");
+  plugin(A, typeKey());
+  plugin(B, inputAt(100));
+
+  const C = props("aZ");
+  t.equal(plugin(C, undoKey()), B, "undo moves down after recording the current state");
+  t.equal(plugin(B, redoKey()), C, "redo returns to the value that existed at undo time");
+});
+
+test("plugins/history: redo checkpoints an unrecorded edit instead of reverting it", (t) => {
+  const plugin = history();
+  const A = props("");
+  const B = props("ab");
+  plugin(A, typeKey());
+  plugin(B, inputAt(100));
+
+  // a later plugin edited the value on keydown without firing input (e.g. tab)
+  const C = props("a  b");
+  t.equal(plugin(C, redoKey()), undefined, "redo must not roll the edit back to the stale top");
+  t.equal(plugin(C, undoKey()), B, "undo returns to the state before the edit");
+  t.equal(plugin(B, redoKey()), C, "redo returns to the checkpointed edit");
+});
+
+test("plugins/history: limit is clamped to keep at least one record", (t) => {
+  const plugin = history({ limit: 0 });
+  plugin(props(""), typeKey());
+  plugin(props("a"), inputAt(1000));
+  plugin(props("ab"), inputAt(3000));
+
+  t.doesNotThrow(() => plugin(props("ab"), undoKey()), "undo does not crash with limit 0");
+  t.equal(plugin(props("ab"), undoKey()).value, "ab", "the single kept record survives");
+});
+
+test("plugins/history: undo on a fresh editor preventDefaults without crashing", (t) => {
+  const plugin = history();
+  const event = undoKey();
+  t.doesNotThrow(() => plugin(props(""), event), "a fresh undo does not throw");
+  t.ok(event.defaultPrevented, "a fresh undo still blocks native undo");
+});
+
+test("plugins/history: redo at the top is a no-op", (t) => {
+  const plugin = history();
+  const A = props("");
+  const B = props("a");
+  plugin(A, typeKey());
+  plugin(B, inputAt(100));
+
+  t.equal(plugin(B, redoKey()), B, "redo at the newest record returns it unchanged");
+});
+
+test("plugins/history: undo at the bottom stays put", (t) => {
+  const plugin = history();
+  const A = props("");
+  const B = props("a");
+  plugin(A, typeKey());
+  plugin(B, inputAt(100));
+
+  t.equal(plugin(B, undoKey()), A, "first undo reaches the bottom");
+  t.equal(plugin(A, undoKey()), A, "another undo at the bottom stays at the bottom");
+});
+
+test("plugins/history: integration through the editor", (t) => {
+  const editor = new Yace("#editor", { plugins: [history()] });
+
+  const setCaret = (value) => {
+    editor.textarea.value = value;
+    editor.textarea.selectionStart = value.length;
+    editor.textarea.selectionEnd = value.length;
+  };
+
+  // a real keystroke fires keydown on the pre-edit value, then input on the new one
+  const type = (prev, next, timeStamp) => {
+    setCaret(prev);
+    editor.textarea.dispatchEvent({ type: "keydown", which: 65, timeStamp, preventDefault() {} });
+    setCaret(next);
+    editor.textarea.dispatchEvent({ type: "input", timeStamp });
+  };
+  const dispatchHistoryKey = (shiftKey) => {
+    editor.textarea.dispatchEvent({
+      type: "keydown",
+      which: 90,
+      ctrlKey: true,
+      shiftKey,
+      preventDefault() {},
+    });
+  };
+
+  type("", "a", 1500);
+  type("a", "ab", 5000);
+
+  dispatchHistoryKey(false);
+  t.equal(editor.textarea.value, "a", "undo restores the previous value through the editor");
+
+  dispatchHistoryKey(false);
+  t.equal(editor.textarea.value, "", "second undo restores the initial empty value");
+
+  dispatchHistoryKey(true);
+  t.equal(editor.textarea.value, "a", "redo re-applies the change");
 });

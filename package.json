@@ -22,7 +22,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "test": "c8 --all --include 'src/**/*.js' --check-coverage --lines 88 --functions 95 --branches 97 node test/test.js",
+    "test": "c8 --all --include 'src/**/*.js' --check-coverage --lines 99 --functions 99 --branches 98 node test/test.js",
     "report": "c8 report --all --include 'src/**/*.js' --reporter=text-lcov > coverage.txt",
     "build": "rm -rf ./dist && rollup -c && cp -R types/. dist/",
     "prettier:write": "prettier --write '{src,examples,test,types}/**/*'",

@@ -92,6 +92,13 @@ const editor = new Yace("#editor", {
 });
 ```
 
+First-party plugin factories and their options:
+
+- `history({ limit = 300, coalesceMs = 300 })` — undo/redo. `limit` caps the number of stored states; edits made within `coalesceMs` of each other merge into one undo step.
+- `tab(tabCharacter = "  ")` — indent and outdent the selection with tab and shift + tab.
+- `preserveIndent()` — keep the current line's indentation on enter.
+- `cutLine(predicate?)` — cut the selection or current line to the clipboard; `predicate` overrides the default ctrl/cmd + x.
+
 Plugin is a function that is called with textarea params `{value, selectionStart, selectionEnd}` as first argument and the DOM event (`keydown`, `input` or `compositionend`) as second argument. It returns new textarea params or `undefined` to leave them unchanged.
 
 ```js
