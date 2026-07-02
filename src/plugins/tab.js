@@ -18,11 +18,11 @@ const tab = (tabCharacter = "  ") => (textareaProps, event) => {
 
   if (isKey("shift+tab", event)) {
     event.preventDefault();
+    const lines = value.split("\n");
     const linesBeforeCaret = value.substring(0, selectionStart).split("\n");
     const startLine = linesBeforeCaret.length - 1;
     const endLine = lastSelectedLine(value, selectionStart, selectionEnd);
-    const nextValue = value
-      .split("\n")
+    const nextValue = lines
       .map((line, i) => {
         if (i >= startLine && i <= endLine && line.startsWith(tabCharacter)) {
           return line.substring(tabCharacter.length);
@@ -32,22 +32,33 @@ const tab = (tabCharacter = "  ") => (textareaProps, event) => {
       })
       .join("\n");
 
-    if (value !== nextValue) {
-      const startLineText = linesBeforeCaret[startLine];
-
-      return {
-        value: nextValue,
-        // Move the start cursor if first line in selection was modified
-        // It was modified only if it started with a tab
-        selectionStart: startLineText.startsWith(tabCharacter)
-          ? selectionStart - tabCharacter.length
-          : selectionStart,
-        // Move the end cursor by total number of characters removed
-        selectionEnd: selectionEnd - (value.length - nextValue.length),
-      };
+    if (value === nextValue) {
+      return;
     }
 
-    return;
+    // a caret can sit inside the removed indent, so each edge moves only by
+    // the characters removed before it, not by the full tab width
+    const startColumn = linesBeforeCaret[startLine].length;
+    const removedBeforeStart = lines[startLine].startsWith(tabCharacter)
+      ? Math.min(startColumn, tabCharacter.length)
+      : 0;
+
+    const linesBeforeEnd = value.substring(0, selectionEnd).split("\n");
+    const endPhysicalLine = linesBeforeEnd.length - 1;
+    const endColumn = linesBeforeEnd[endPhysicalLine].length;
+    const endLineOutdented =
+      endPhysicalLine <= endLine &&
+      lines[endPhysicalLine].startsWith(tabCharacter);
+    const removedAfterEnd = endLineOutdented
+      ? Math.max(0, tabCharacter.length - endColumn)
+      : 0;
+
+    return {
+      value: nextValue,
+      selectionStart: selectionStart - removedBeforeStart,
+      selectionEnd:
+        selectionEnd - (value.length - nextValue.length) + removedAfterEnd,
+    };
   }
 
   if (isKey("tab", event)) {

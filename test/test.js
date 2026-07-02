@@ -379,6 +379,24 @@ test("plugins/tab: outdent", (t) => {
     { value: "ab", selectionStart: 2, selectionEnd: 2 },
     "collapsed caret should outdent the current line"
   );
+
+  t.equal(
+    plugin({ value: "  ab", selectionStart: 0, selectionEnd: 0 }, shiftTabKey()),
+    { value: "ab", selectionStart: 0, selectionEnd: 0 },
+    "caret at column 0 should stay at column 0, not go negative"
+  );
+
+  t.equal(
+    plugin({ value: "  ab", selectionStart: 1, selectionEnd: 1 }, shiftTabKey()),
+    { value: "ab", selectionStart: 0, selectionEnd: 0 },
+    "caret inside the removed indent should clamp to column 0"
+  );
+
+  t.equal(
+    plugin({ value: "a\n  b", selectionStart: 0, selectionEnd: 3 }, shiftTabKey()),
+    { value: "a\nb", selectionStart: 0, selectionEnd: 2 },
+    "selection ending inside the removed indent should clamp to the line start"
+  );
 });
 
 function mockClipboard() {
