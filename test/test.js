@@ -411,7 +411,7 @@ test("default highlighter escapes HTML entities", (t) => {
 
   t.ok(
     withLines.lines.innerHTML.includes("&amp; &lt; &gt; &quot; &#039;"),
-    "the line-number layer should escape entities too"
+    "the line-number layer should escape entities too",
   );
 });
 
@@ -522,37 +522,37 @@ test("plugins/tab: indent", (t) => {
   t.equal(
     plugin({ value: "ab", selectionStart: 1, selectionEnd: 1 }, tabKey()),
     { value: "a  b", selectionStart: 3, selectionEnd: 3 },
-    "collapsed caret should insert the tab character"
+    "collapsed caret should insert the tab character",
   );
 
   t.equal(
     plugin({ value: "a\nb", selectionStart: 0, selectionEnd: 3 }, tabKey()),
     { value: "  a\n  b", selectionStart: 2, selectionEnd: 7 },
-    "selection through both lines should indent both"
+    "selection through both lines should indent both",
   );
 
   t.equal(
     plugin({ value: "a\nb", selectionStart: 0, selectionEnd: 2 }, tabKey()),
     { value: "  a\nb", selectionStart: 2, selectionEnd: 4 },
-    "selection ending at column 0 should not indent the next line"
+    "selection ending at column 0 should not indent the next line",
   );
 
   t.equal(
     plugin({ value: "ab", selectionStart: 1, selectionEnd: 1 }, { type: "input", which: 9 }),
     undefined,
-    "non-keydown event should be a no-op"
+    "non-keydown event should be a no-op",
   );
 
   t.equal(
     plugin({ value: "ab", selectionStart: 1, selectionEnd: 1 }, { type: "keydown", which: 65, preventDefault() {} }),
     undefined,
-    "non-tab key should be a no-op"
+    "non-tab key should be a no-op",
   );
 
   t.equal(
     tab("\t")({ value: "ab", selectionStart: 1, selectionEnd: 1 }, tabKey()),
     { value: "a\tb", selectionStart: 2, selectionEnd: 2 },
-    "custom tab character should be supported"
+    "custom tab character should be supported",
   );
 });
 
@@ -562,43 +562,43 @@ test("plugins/tab: outdent", (t) => {
   t.equal(
     plugin({ value: "  a\n  b", selectionStart: 2, selectionEnd: 6 }, shiftTabKey()),
     { value: "a\nb", selectionStart: 0, selectionEnd: 2 },
-    "selection through both lines should outdent both"
+    "selection through both lines should outdent both",
   );
 
   t.equal(
     plugin({ value: "  a\n  b", selectionStart: 0, selectionEnd: 4 }, shiftTabKey()),
     { value: "a\n  b", selectionStart: 0, selectionEnd: 2 },
-    "selection ending at column 0 should not outdent the next line"
+    "selection ending at column 0 should not outdent the next line",
   );
 
   t.equal(
     plugin({ value: "a\nb", selectionStart: 0, selectionEnd: 3 }, shiftTabKey()),
     undefined,
-    "nothing to outdent should be a no-op"
+    "nothing to outdent should be a no-op",
   );
 
   t.equal(
     plugin({ value: "  ab", selectionStart: 4, selectionEnd: 4 }, shiftTabKey()),
     { value: "ab", selectionStart: 2, selectionEnd: 2 },
-    "collapsed caret should outdent the current line"
+    "collapsed caret should outdent the current line",
   );
 
   t.equal(
     plugin({ value: "  ab", selectionStart: 0, selectionEnd: 0 }, shiftTabKey()),
     { value: "ab", selectionStart: 0, selectionEnd: 0 },
-    "caret at column 0 should stay at column 0, not go negative"
+    "caret at column 0 should stay at column 0, not go negative",
   );
 
   t.equal(
     plugin({ value: "  ab", selectionStart: 1, selectionEnd: 1 }, shiftTabKey()),
     { value: "ab", selectionStart: 0, selectionEnd: 0 },
-    "caret inside the removed indent should clamp to column 0"
+    "caret inside the removed indent should clamp to column 0",
   );
 
   t.equal(
     plugin({ value: "a\n  b", selectionStart: 0, selectionEnd: 3 }, shiftTabKey()),
     { value: "a\nb", selectionStart: 0, selectionEnd: 2 },
-    "selection ending inside the removed indent should clamp to the line start"
+    "selection ending inside the removed indent should clamp to the line start",
   );
 });
 
@@ -635,7 +635,7 @@ test("plugins/cutLine: selection", (t) => {
   t.equal(
     plugin({ value: "hello world", selectionStart: 5, selectionEnd: 11 }, cutKey()),
     { value: "hello", selectionStart: 5, selectionEnd: 5 },
-    "selection should be removed and caret collapsed"
+    "selection should be removed and caret collapsed",
   );
   t.equal(written, [" world"], "selection should be copied to clipboard");
 
@@ -649,25 +649,25 @@ test("plugins/cutLine: whole line", (t) => {
   t.equal(
     plugin({ value: "aa\nbb\ncc", selectionStart: 4, selectionEnd: 4 }, cutKey()),
     { value: "aa\ncc", selectionStart: 3, selectionEnd: 3 },
-    "middle line should be cut with caret at the next line start"
+    "middle line should be cut with caret at the next line start",
   );
 
   t.equal(
     plugin({ value: "aa\nbb", selectionStart: 1, selectionEnd: 1 }, cutKey()),
     { value: "bb", selectionStart: 0, selectionEnd: 0 },
-    "cutting the first line should put the caret at 0"
+    "cutting the first line should put the caret at 0",
   );
 
   t.equal(
     plugin({ value: "aa\nbb", selectionStart: 4, selectionEnd: 4 }, cutKey()),
     { value: "aa", selectionStart: 2, selectionEnd: 2 },
-    "cutting the last line should clamp the caret to the new end"
+    "cutting the last line should clamp the caret to the new end",
   );
 
   t.equal(
     plugin({ value: "abc", selectionStart: 1, selectionEnd: 1 }, cutKey()),
     { value: "", selectionStart: 0, selectionEnd: 0 },
-    "cutting the only line should empty the value"
+    "cutting the only line should empty the value",
   );
 
   t.equal(written, ["bb", "aa", "bb", "abc"], "each cut line should be copied");
@@ -682,26 +682,26 @@ test("plugins/cutLine: guards", (t) => {
   t.equal(
     plugin(
       { value: "aa", selectionStart: 0, selectionEnd: 0 },
-      { type: "keydown", which: 65, ctrlKey: true, preventDefault() {} }
+      { type: "keydown", which: 65, ctrlKey: true, preventDefault() {} },
     ),
     undefined,
-    "non-matching key should be a no-op"
+    "non-matching key should be a no-op",
   );
 
   t.equal(
     plugin({ value: "aa", selectionStart: 0, selectionEnd: 0 }, { type: "input" }),
     undefined,
-    "non-keydown event should be a no-op"
+    "non-keydown event should be a no-op",
   );
 
   const customPlugin = cutLine((event) => event.which === 75);
   t.equal(
     customPlugin(
       { value: "aa\nbb", selectionStart: 0, selectionEnd: 0 },
-      { type: "keydown", which: 75, preventDefault() {} }
+      { type: "keydown", which: 75, preventDefault() {} },
     ),
     { value: "bb", selectionStart: 0, selectionEnd: 0 },
-    "custom predicate should trigger the cut"
+    "custom predicate should trigger the cut",
   );
 
   t.equal(written, ["aa"], "only the custom predicate cut should copy");
@@ -711,7 +711,7 @@ test("plugins/cutLine: guards", (t) => {
   t.equal(
     plugin({ value: "aa\nbb", selectionStart: 0, selectionEnd: 0 }, event),
     undefined,
-    "no Clipboard API should leave the event to the browser"
+    "no Clipboard API should leave the event to the browser",
   );
   t.notOk(event.defaultPrevented, "no Clipboard API should not preventDefault");
 });
@@ -748,7 +748,7 @@ test("plugins/preserveIndent", (t) => {
   t.equal(
     editor.textarea.value,
     "func {\n    return res;\n    \n}",
-    "enter at end of line should preserve the indent on the new line"
+    "enter at end of line should preserve the indent on the new line",
   );
 
   // at column 0 there is no indent before the caret to preserve, so the plugin
@@ -761,7 +761,7 @@ test("plugins/preserveIndent", (t) => {
   t.equal(
     editor.textarea.value,
     "func {\n  \n    return res;\n}",
-    "enter inside the indent should split it without doubling"
+    "enter inside the indent should split it without doubling",
   );
 
   pressEnter(editor, "return res;", 6);
