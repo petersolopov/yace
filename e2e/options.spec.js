@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { caretRange } from "./support.js";
 
 const selectors = {
   textarea: "#editor textarea",
@@ -78,4 +79,25 @@ test("updateOptions with a new value fires onUpdate", async ({ page }) => {
 
   await expect(page.locator(selectors.textarea)).toHaveValue("new");
   await expect.poll(() => page.evaluate(() => window.updates)).toContain("new");
+});
+
+test("updateOptions preserves the caret across prop changes", async ({
+  page,
+}) => {
+  await page.evaluate(() => window.createEditor({ value: "hello world" }));
+  const textarea = page.locator(selectors.textarea);
+
+  // drive the caret through the API: keyboard navigation is cross-engine
+  // unstable (see support.js)
+  await page.evaluate(() =>
+    window.editor.update({ selectionStart: 3, selectionEnd: 5 })
+  );
+
+  await page.evaluate(() =>
+    window.editor.updateOptions({ highlighter: (value) => value.toUpperCase() })
+  );
+  await expect.poll(() => caretRange(textarea)).toEqual([3, 5]);
+
+  await page.evaluate(() => window.editor.updateOptions({ lineNumbers: true }));
+  await expect.poll(() => caretRange(textarea)).toEqual([3, 5]);
 });

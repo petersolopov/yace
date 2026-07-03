@@ -32,6 +32,10 @@ test("the line numbers layer escapes HTML too", async ({ page }) => {
   );
 
   await expect(page.locator("#editor img")).toHaveCount(0);
+  // the lines layer is the second pre; it must render the payload as text
+  await expect(page.locator("#editor pre").nth(1)).toContainText(
+    "<img src=x onerror=window.__pwned=1>"
+  );
   expect(await page.evaluate(() => window.__pwned)).toBeUndefined();
 });
 

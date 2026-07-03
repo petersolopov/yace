@@ -144,3 +144,19 @@ test("a custom font size keeps both layers aligned", async ({ page }) => {
 
   await expectLayersAligned(page);
 });
+
+test("a long document stays aligned after scrolling to the bottom", async ({
+  page,
+}) => {
+  await page.evaluate(() =>
+    window.createEditor({
+      value: Array.from({ length: 200 }, (_, i) => "line " + i).join("\n"),
+    })
+  );
+
+  // scrolling here is measurement setup, not user interaction, so drive it
+  // directly rather than through unreliable Control/Meta+End
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+
+  await expectLayersAligned(page);
+});

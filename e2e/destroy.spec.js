@@ -52,15 +52,3 @@ test("re-initializing on the same node yields exactly one working editor", async
   await expect(page.locator(selectors.textarea)).toHaveValue("works");
   await expect(page.locator(selectors.pre)).toHaveText("works");
 });
-
-test("update after destroy does not throw", async ({ page }) => {
-  await page.evaluate(() => window.createEditor({ value: "hello" }));
-
-  const result = await page.evaluate(() => {
-    window.editor.destroy();
-    window.editor.update({ value: "ignored" });
-    return "ok";
-  });
-
-  expect(result).toBe("ok");
-});

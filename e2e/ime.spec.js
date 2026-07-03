@@ -29,7 +29,7 @@ test("intermediate composition frames never reach the pre or clobber the textare
   });
 
   await expect(textarea).toHaveValue("ni");
-  await expect(page.locator(selectors.pre)).not.toContainText("n");
+  await expect(page.locator(selectors.pre)).toHaveText("");
   await expect.poll(() => page.evaluate(() => window.updates)).toEqual([]);
 
   await page.evaluate(() => {
@@ -42,7 +42,7 @@ test("intermediate composition frames never reach the pre or clobber the textare
   await expect(page.locator(selectors.pre)).toHaveText("你好");
   await expect
     .poll(() => page.evaluate(() => window.updates))
-    .toContain("你好");
+    .toEqual(["你好"]);
 });
 
 test("a composition that replaces a selection keeps the committed value", async ({
@@ -51,12 +51,12 @@ test("a composition that replaces a selection keeps the committed value", async 
   await page.evaluate(() => window.createEditor({ value: "hello world" }));
   const textarea = page.locator(selectors.textarea);
   await textarea.click();
-  await page.keyboard.press("End");
-  await page.keyboard.press("Shift+ArrowLeft");
-  await page.keyboard.press("Shift+ArrowLeft");
-  await page.keyboard.press("Shift+ArrowLeft");
-  await page.keyboard.press("Shift+ArrowLeft");
-  await page.keyboard.press("Shift+ArrowLeft");
+
+  // Home/End caret navigation is cross-engine unstable (see support.js), so
+  // select "world" through the API instead
+  await page.evaluate(() =>
+    window.editor.update({ selectionStart: 6, selectionEnd: 11 })
+  );
 
   // synthesized IME frames (see WHY above); the replacement is derived from
   // the live selection via setRangeText like a browser does, so a broken
