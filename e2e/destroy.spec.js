@@ -27,12 +27,12 @@ test("destroy removes the editor nodes and restores the container's inline style
   await expect(page.locator(selectors.pre)).toHaveCount(0);
   await expect
     .poll(() =>
-      page.locator(selectors.root).evaluate((el) => el.style.fontSize)
+      page.locator(selectors.root).evaluate((el) => el.style.fontSize),
     )
     .toBe("40px");
   await expect
     .poll(() =>
-      page.locator(selectors.root).evaluate((el) => el.style.position)
+      page.locator(selectors.root).evaluate((el) => el.style.position),
     )
     .toBe("static");
 });

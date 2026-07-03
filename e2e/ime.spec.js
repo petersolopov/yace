@@ -55,7 +55,7 @@ test("a composition that replaces a selection keeps the committed value", async 
   // Home/End caret navigation is cross-engine unstable (see support.js), so
   // select "world" through the API instead
   await page.evaluate(() =>
-    window.editor.update({ selectionStart: 6, selectionEnd: 11 })
+    window.editor.update({ selectionStart: 6, selectionEnd: 11 }),
   );
 
   // synthesized IME frames (see WHY above); the replacement is derived from
@@ -66,11 +66,11 @@ test("a composition that replaces a selection keeps the committed value", async 
     ta.dispatchEvent(new CompositionEvent("compositionstart", { data: "" }));
     ta.setRangeText("你", ta.selectionStart, ta.selectionEnd, "end");
     ta.dispatchEvent(
-      new InputEvent("input", { isComposing: true, data: "你" })
+      new InputEvent("input", { isComposing: true, data: "你" }),
     );
     ta.setRangeText("你好", ta.selectionStart - 1, ta.selectionStart, "end");
     ta.dispatchEvent(
-      new InputEvent("input", { isComposing: true, data: "你好" })
+      new InputEvent("input", { isComposing: true, data: "你好" }),
     );
   });
 

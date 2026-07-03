@@ -13,7 +13,7 @@ test.describe.configure({ mode: "serial" });
 // the chromium permission model
 test.skip(
   ({ browserName }) => browserName !== "chromium",
-  "paste needs clipboard permissions, which are only granted in chromium"
+  "paste needs clipboard permissions, which are only granted in chromium",
 );
 
 test.use({ permissions: ["clipboard-read", "clipboard-write"] });
@@ -47,7 +47,7 @@ test("pasting an HTML payload renders as literal text and creates no elements", 
   const mod = await modifierKey(page);
 
   await page.evaluate(() =>
-    navigator.clipboard.writeText("<img src=x onerror=window.__pwned=1>")
+    navigator.clipboard.writeText("<img src=x onerror=window.__pwned=1>"),
   );
 
   await textarea.click();
@@ -55,7 +55,7 @@ test("pasting an HTML payload renders as literal text and creates no elements", 
 
   await expect(textarea).toHaveValue("<img src=x onerror=window.__pwned=1>");
   await expect(page.locator(selectors.pre)).toHaveText(
-    "<img src=x onerror=window.__pwned=1>"
+    "<img src=x onerror=window.__pwned=1>",
   );
   await expect(page.locator("#editor pre img")).toHaveCount(0);
   expect(await page.evaluate(() => window.__pwned)).toBeUndefined();

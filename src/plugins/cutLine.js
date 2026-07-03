@@ -65,7 +65,7 @@ const cutLine = (predicate) => (textareaProps, event) => {
   // no preceding newline, and cutting the last line clamps to the new end
   const caret = Math.min(
     linesBeforeCaret.length ? linesBeforeCaret.join("\n").length + 1 : 0,
-    newValue.length
+    newValue.length,
   );
 
   return {

@@ -13,7 +13,7 @@ test("Enter at the end of an indented line continues the indent", async ({
   page,
 }) => {
   await page.evaluate(() =>
-    window.createEditor({ plugins: ["preserveIndent"] })
+    window.createEditor({ plugins: ["preserveIndent"] }),
   );
   const textarea = page.locator(selectors.textarea);
 
@@ -28,7 +28,7 @@ test("Enter at column 0 of an indented line does not double the indent", async (
   page,
 }) => {
   await page.evaluate(() =>
-    window.createEditor({ plugins: ["preserveIndent"] })
+    window.createEditor({ plugins: ["preserveIndent"] }),
   );
   const textarea = page.locator(selectors.textarea);
 
@@ -44,7 +44,7 @@ test("Enter on an unindented line inserts a plain newline", async ({
   page,
 }) => {
   await page.evaluate(() =>
-    window.createEditor({ plugins: ["preserveIndent"] })
+    window.createEditor({ plugins: ["preserveIndent"] }),
   );
   const textarea = page.locator(selectors.textarea);
 

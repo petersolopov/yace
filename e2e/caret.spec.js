@@ -63,7 +63,7 @@ test("update with an explicit selection applies that selection", async ({
       value: "goodbye moon",
       selectionStart: 3,
       selectionEnd: 7,
-    })
+    }),
   );
 
   await expect(textarea).toHaveValue("goodbye moon");

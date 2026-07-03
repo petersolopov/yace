@@ -6,7 +6,7 @@ export interface TextareaProps {
 
 export type Plugin = (
   props: TextareaProps,
-  event: Event
+  event: Event,
 ) => Partial<TextareaProps> | void;
 
 export interface YaceOptions {

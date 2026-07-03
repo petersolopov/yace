@@ -12,7 +12,7 @@ test.describe.configure({ mode: "serial" });
 // chromium permission model; the plugin no-ops without navigator.clipboard
 test.skip(
   ({ browserName }) => browserName !== "chromium",
-  "cutLine reads the clipboard, which is only granted in chromium"
+  "cutLine reads the clipboard, which is only granted in chromium",
 );
 
 test.use({ permissions: ["clipboard-read", "clipboard-write"] });

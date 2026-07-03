@@ -15,7 +15,7 @@ test("with coalescing off each keystroke is its own undo step", async ({
   await page.evaluate(() =>
     window.createEditor({
       plugins: [{ name: "history", options: { coalesceMs: 0 } }],
-    })
+    }),
   );
   const textarea = page.locator(selectors.textarea);
   const mod = await modifierKey(page);
@@ -36,7 +36,7 @@ test("a typed burst within the coalesce window is a single undo step", async ({
   await page.evaluate(() =>
     window.createEditor({
       plugins: [{ name: "history", options: { coalesceMs: 100000 } }],
-    })
+    }),
   );
   const textarea = page.locator(selectors.textarea);
   const mod = await modifierKey(page);
@@ -51,7 +51,7 @@ test("undo then redo round-trips the value", async ({ page }) => {
   await page.evaluate(() =>
     window.createEditor({
       plugins: [{ name: "history", options: { coalesceMs: 0 } }],
-    })
+    }),
   );
   const textarea = page.locator(selectors.textarea);
   const mod = await modifierKey(page);
@@ -70,7 +70,7 @@ test("caret-only arrow moves between edits do not add undo steps", async ({
   await page.evaluate(() =>
     window.createEditor({
       plugins: [{ name: "history", options: { coalesceMs: 0 } }],
-    })
+    }),
   );
   const textarea = page.locator(selectors.textarea);
   const mod = await modifierKey(page);
@@ -89,7 +89,7 @@ test("undo reverts a Tab edit and redo reapplies it", async ({ page }) => {
   await page.evaluate(() =>
     window.createEditor({
       plugins: [{ name: "history", options: { coalesceMs: 0 } }, "tab"],
-    })
+    }),
   );
   const textarea = page.locator(selectors.textarea);
   const mod = await modifierKey(page);

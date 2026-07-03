@@ -18,7 +18,7 @@ declare namespace Yace {
   }
   type Plugin = (
     props: TextareaProps,
-    event: Event
+    event: Event,
   ) => Partial<TextareaProps> | void;
   interface YaceOptions {
     // the contract is string; the runtime String(...) coercion is JS-only defense

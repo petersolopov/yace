@@ -2,7 +2,7 @@
 // test decides the modifier: Meta on Mac engines, Control elsewhere (Linux CI)
 export async function modifierKey(page) {
   const isMac = await page.evaluate(() =>
-    /Mac|iPod|iPhone|iPad/.test(navigator.platform)
+    /Mac|iPod|iPhone|iPad/.test(navigator.platform),
   );
   return isMac ? "Meta" : "Control";
 }

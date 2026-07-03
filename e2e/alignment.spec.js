@@ -55,7 +55,7 @@ test("plain multiline text keeps both layers the same height and font metrics", 
   page,
 }) => {
   await page.evaluate(() =>
-    window.createEditor({ value: "one\ntwo\nthree\nfour\nfive" })
+    window.createEditor({ value: "one\ntwo\nthree\nfour\nfive" }),
   );
 
   await expectLayersAligned(page);
@@ -68,7 +68,7 @@ test("a long unbroken token wraps identically in both layers", async ({
     window.createEditor({
       value: "x".repeat(200),
       styles: { width: "300px" },
-    })
+    }),
   );
 
   await expectLayersAligned(page);
@@ -101,7 +101,7 @@ test("CJK text stays aligned between textarea and pre", async ({ page }) => {
     window.createEditor({
       value: "你好世界，这是一段用来测试换行对齐的中文文本。再来一行汉字。",
       styles: { width: "300px" },
-    })
+    }),
   );
 
   await expectLayersAligned(page);
@@ -114,7 +114,7 @@ test("mixed emoji text stays aligned between textarea and pre", async ({
     window.createEditor({
       value: "hi 👋 world 🌍 emoji 😀 family 👨‍👩‍👧‍👦 flags 🇯🇵 done 🎉",
       styles: { width: "300px" },
-    })
+    }),
   );
 
   await expectLayersAligned(page);
@@ -125,7 +125,7 @@ test("line numbers shift both layers by the same padding", async ({ page }) => {
     window.createEditor({
       value: "one\ntwo\nthree\nfour\nfive\nsix\nseven\neight\nnine\nten",
       lineNumbers: true,
-    })
+    }),
   );
 
   await expectLayersAligned(page);
@@ -136,7 +136,7 @@ test("a custom font size keeps both layers aligned", async ({ page }) => {
     window.createEditor({
       value: "one\ntwo\nthree",
       styles: { fontSize: "20px" },
-    })
+    }),
   );
 
   const pre = await grab(page.locator(selectors.pre).first());
@@ -151,7 +151,7 @@ test("a long document stays aligned after scrolling to the bottom", async ({
   await page.evaluate(() =>
     window.createEditor({
       value: Array.from({ length: 200 }, (_, i) => "line " + i).join("\n"),
-    })
+    }),
   );
 
   // scrolling here is measurement setup, not user interaction, so drive it

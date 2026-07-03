@@ -252,7 +252,7 @@ function runPlugins(plugins, event) {
         ...plugin(acc, event),
       };
     },
-    { value, selectionStart, selectionEnd }
+    { value, selectionStart, selectionEnd },
   );
 }
 

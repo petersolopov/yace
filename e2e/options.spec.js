@@ -19,7 +19,7 @@ test("updateOptions re-renders the current value with the new highlighter", asyn
   await page.evaluate(() =>
     window.editor.updateOptions({
       highlighter: (value) => `<mark>${value}</mark>`,
-    })
+    }),
   );
 
   await expect(page.locator("#editor pre mark")).toHaveText("hello");
@@ -32,7 +32,7 @@ test("toggling line numbers on then off updates the DOM and restores padding", a
     window.createEditor({
       value: "one\ntwo\nthree",
       styles: { paddingLeft: "10px" },
-    })
+    }),
   );
 
   await expect(page.locator(selectors.pre)).toHaveCount(1);
@@ -41,17 +41,17 @@ test("toggling line numbers on then off updates the DOM and restores padding", a
   await expect(page.locator(selectors.pre)).toHaveCount(2);
   await expect
     .poll(() =>
-      page.locator(selectors.root).evaluate((el) => el.style.paddingLeft)
+      page.locator(selectors.root).evaluate((el) => el.style.paddingLeft),
     )
     .toBe("2ch");
 
   await page.evaluate(() =>
-    window.editor.updateOptions({ lineNumbers: false })
+    window.editor.updateOptions({ lineNumbers: false }),
   );
   await expect(page.locator(selectors.pre)).toHaveCount(1);
   await expect
     .poll(() =>
-      page.locator(selectors.root).evaluate((el) => el.style.paddingLeft)
+      page.locator(selectors.root).evaluate((el) => el.style.paddingLeft),
     )
     .toBe("10px");
 });
@@ -60,14 +60,14 @@ test("updateOptions applies new container styles", async ({ page }) => {
   await page.evaluate(() => window.createEditor({ value: "hello" }));
 
   await page.evaluate(() =>
-    window.editor.updateOptions({ styles: { background: "rgb(0, 128, 0)" } })
+    window.editor.updateOptions({ styles: { background: "rgb(0, 128, 0)" } }),
   );
 
   await expect
     .poll(() =>
       page
         .locator(selectors.root)
-        .evaluate((el) => getComputedStyle(el).backgroundColor)
+        .evaluate((el) => getComputedStyle(el).backgroundColor),
     )
     .toBe("rgb(0, 128, 0)");
 });
@@ -90,11 +90,13 @@ test("updateOptions preserves the caret across prop changes", async ({
   // drive the caret through the API: keyboard navigation is cross-engine
   // unstable (see support.js)
   await page.evaluate(() =>
-    window.editor.update({ selectionStart: 3, selectionEnd: 5 })
+    window.editor.update({ selectionStart: 3, selectionEnd: 5 }),
   );
 
   await page.evaluate(() =>
-    window.editor.updateOptions({ highlighter: (value) => value.toUpperCase() })
+    window.editor.updateOptions({
+      highlighter: (value) => value.toUpperCase(),
+    }),
   );
   await expect.poll(() => caretRange(textarea)).toEqual([3, 5]);
 

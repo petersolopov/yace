@@ -13,7 +13,7 @@ test("a mouse drag selects text through the layered textarea", async ({
   page,
 }) => {
   await page.evaluate(() =>
-    window.createEditor({ value: "hello world foo bar baz" })
+    window.createEditor({ value: "hello world foo bar baz" }),
   );
   const textarea = page.locator(selectors.textarea);
 

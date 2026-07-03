@@ -78,7 +78,7 @@ function isKey(string, event) {
         shiftKey: false,
       },
       keyCode: null,
-    }
+    },
   );
 
   const hasModifiers = Object.keys(keys.modifiers).every((key) => {
