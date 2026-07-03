@@ -19,6 +19,7 @@ export const textareaStyles = {
   height: "100%",
   zIndex: "1",
   resize: "none",
+  // not "auto": with transparent text-fill the UA may derive an invisible caret
   caretColor: "currentColor",
   padding: "inherit",
   outline: "none",
