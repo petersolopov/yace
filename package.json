@@ -34,6 +34,7 @@
     "dist/**/*"
   ],
   "scripts": {
+    "dev": "node e2e/server.js",
     "test": "c8 --all --include 'src/**/*.js' --check-coverage --lines 99 --functions 99 --branches 98 node test/test.js",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",

@@ -15,7 +15,8 @@ const mime = {
 
 createServer(async (req, res) => {
   const path = decodeURIComponent(new URL(req.url, "http://x").pathname);
-  const file = join(root, normalize(path).replace(/^(\.\.[/\\])+/, ""));
+  const indexedPath = path.endsWith("/") ? path + "index.html" : path;
+  const file = join(root, normalize(indexedPath).replace(/^(\.\.[/\\])+/, ""));
 
   try {
     const body = await readFile(file);
