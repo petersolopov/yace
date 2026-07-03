@@ -234,6 +234,22 @@ test(".updateOptions() keeps user padding when line numbers turn off", (t) => {
   t.equal(root.style.paddingLeft, "", "destroy still restores the pre-editor value");
 });
 
+test(".updateOptions() padding shorthand refreshes the base", (t) => {
+  const root = document.createElement("div");
+  const editor = new Yace(root, { value: "1\n2\n3" });
+
+  editor.updateOptions({ styles: { padding: "5px" } });
+  // "" in undom (no shorthand expansion), "5px" in real browsers — the
+  // contract is "base equals paddingLeft at shorthand time", not a literal
+  const base = root.style.paddingLeft || "";
+
+  editor.updateOptions({ lineNumbers: true });
+  t.equal(root.style.paddingLeft, "2ch", "line numbers own the padding");
+
+  editor.updateOptions({ lineNumbers: false });
+  t.equal(root.style.paddingLeft, base, "the base captured at shorthand time should come back");
+});
+
 test(".updateOptions() styles stay restorable by destroy", (t) => {
   const root = document.createElement("div");
   root.style.color = "red";
