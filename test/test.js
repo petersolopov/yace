@@ -28,7 +28,6 @@ test("constructor", (t) => {
   const editor = new Yace("#editor");
 
   t.throws(() => new Yace(), "constructor should throw error when called without arguments");
-  t.doesNotThrow(() => new Yace("#editor"), "constructor should not throw error when called without options");
   t.ok(editor instanceof Yace, "constructor should return editor instance");
 
   document.querySelector = () => null;
@@ -42,6 +41,7 @@ test("custom container", (t) => {
   const editor = new Yace(container);
 
   t.ok(editor instanceof Yace, "constructor should return editor instance");
+  t.equal(editor.root, container, "the passed node should be used as the root");
 });
 
 test("instance", (t) => {
@@ -52,22 +52,19 @@ test("instance", (t) => {
   t.equal(typeof editor.update, "function", "instance should contain update method");
   t.equal(typeof editor.destroy, "function", "instance should contain destroy method");
   t.equal(typeof editor.textarea, "object", "instance should contain textarea property");
-  t.equal(typeof editor.textarea, "object", "instance should contain textarea property");
 });
 
 test("textarea", (t) => {
   const editor = new Yace("#editor", { value: "test" });
-  t.ok(editor.textarea.__handlers.input.length, "textarea should have input handler");
-  t.ok(editor.textarea.__handlers.keydown.length, "textarea should have keydown handler");
-  t.ok(editor.textarea.style, "textarea should have inline styles");
+  t.ok(editor.textarea.style, "textarea should have a style object");
   t.equal(editor.textarea.value, "test", "textarea should have value same in option");
 });
 
 test("pre", (t) => {
   const editor = new Yace("#editor", { value: "test" });
   t.ok(editor.pre, "pre should exist");
-  t.ok(editor.pre.nodeName, "pre should have nodeName 'pre'");
-  t.ok(editor.pre.style, "pre should have inline styles");
+  t.equal(editor.pre.nodeName, "PRE", "pre element should have nodeName PRE");
+  t.ok(editor.pre.style, "pre should have a style object");
   t.equal(editor.pre.innerHTML, "test<br/>", "pre should have initial html");
 
   dispatchTextareaEvent(editor.textarea, "new value");
@@ -90,6 +87,33 @@ test(".onUpdate()", (t) => {
 
   t.equal(calledTimes, 1, "callback should be called when input event was happened");
   t.equal(value, "new value", "callback should be called with new value");
+});
+
+test(".onUpdate() fires only on real value changes", (t) => {
+  const editor = new Yace("#editor", { value: "abc" });
+
+  const calls = [];
+  editor.onUpdate((value) => calls.push(value));
+
+  editor.update({ selectionStart: 1, selectionEnd: 2 });
+  t.equal(calls.length, 0, "a selection-only update should not fire onUpdate");
+
+  editor.update({ value: "abc" });
+  t.equal(calls.length, 0, "setting the same value should not fire onUpdate");
+
+  editor.update({ value: "abcd" });
+  t.equal(calls, ["abcd"], "a real value change fires once with the new value");
+});
+
+test(".onUpdate() reports the post-plugin value", (t) => {
+  const upperCasePlugin = ({ value }) => ({ value: value.toUpperCase() });
+  const editor = new Yace("#editor", { plugins: [upperCasePlugin] });
+
+  let received = null;
+  editor.onUpdate((value) => (received = value));
+  dispatchTextareaEvent(editor.textarea, "xyz");
+
+  t.equal(received, "XYZ", "onUpdate should receive the value after plugins run");
 });
 
 test(".update()", (t) => {
@@ -139,26 +163,37 @@ test("value normalization", (t) => {
   t.equal(editorUndefined.textarea.value, "", "constructor value undefined should become empty string");
 
   const editor = new Yace("#editor");
-  t.doesNotThrow(() => editor.update({ value: 0 }), "update with value 0 should not throw");
+  editor.update({ value: 0 });
   t.equal(editor.textarea.value, "0", "update value 0 should render '0'");
   t.equal(editor.pre.innerHTML, "0<br/>", "pre should render '0'");
 });
 
-test(".updateOptions()", (t) => {
+test(".updateOptions() replaces the highlighter and re-renders", (t) => {
   const editor = new Yace("#editor", { value: "abc" });
 
   editor.updateOptions({ highlighter: (value) => value.toUpperCase() });
+
   t.equal(editor.pre.innerHTML, "ABC<br/>", "new highlighter should re-render the current value");
   t.equal(editor.textarea.value, "abc", "textarea value should be untouched");
+});
+
+test(".updateOptions() replaces the plugins", (t) => {
+  const editor = new Yace("#editor", { value: "abc" });
 
   const upperCasePlugin = ({ value }) => ({ value: value.toUpperCase() });
   editor.updateOptions({ plugins: [upperCasePlugin] });
   dispatchTextareaEvent(editor.textarea, "next");
+
   t.equal(editor.textarea.value, "NEXT", "new plugins should take effect on the next event");
+});
+
+test(".updateOptions() routes value through update() and fires onUpdate", (t) => {
+  const editor = new Yace("#editor", { value: "abc" });
 
   let updated = null;
   editor.onUpdate((value) => (updated = value));
   editor.updateOptions({ value: "fresh" });
+
   t.equal(editor.textarea.value, "fresh", "value should route through update()");
   t.equal(updated, "fresh", "onUpdate should fire for a value change");
 });
@@ -322,7 +357,7 @@ test("options.lineNumber", (t) => {
 
   t.ok(lineNumbersElement, "line numbers element should exist");
   t.ok(lineNumbersElement.innerHTML, "line numbers html should exist");
-  t.ok(lineNumbersElement.innerHTML.split("\n"), "line numbers html should have one number");
+  t.equal(lineNumbersElement.innerHTML.split("\n").length, 1, "a single-line value should render one line number");
   t.equal(editor.root.style.paddingLeft, "2ch", "root element should have 2ch padding left");
 
   editor.update({ value: "1\n2\n3\n4" });
@@ -330,7 +365,7 @@ test("options.lineNumber", (t) => {
   t.equal(editor.root.style.paddingLeft, "2ch", "root element should have 2ch padding left");
 
   editor.update({ value: "1\n2\n3\n4\n5\n6\n7\n8\n9\n10" });
-  t.equal(lineNumbersElement.innerHTML.split("\n").length, 10, "it should be 4 line number after update");
+  t.equal(lineNumbersElement.innerHTML.split("\n").length, 10, "it should be 10 line numbers after update");
   t.equal(editor.root.style.paddingLeft, "3ch", "root element should have 3ch padding left");
 });
 
@@ -346,6 +381,22 @@ test("options.highlighter", (t) => {
   editor.update({ value: "test test" });
   t.equal(editor.pre.innerHTML, "TEST TEST<br/>", "it should transform pre innerHTML when editor was updated");
   t.equal(editor.textarea.value, "test test", "textarea should have not transformed value");
+});
+
+test("default highlighter escapes HTML entities", (t) => {
+  const editor = new Yace("#editor", { value: "& < > \" '" });
+
+  t.equal(editor.pre.innerHTML, "&amp; &lt; &gt; &quot; &#039;<br/>", "pre should escape all five HTML entities");
+
+  const withLines = new Yace("#editor", {
+    value: "& < > \" '",
+    lineNumbers: true,
+  });
+
+  t.ok(
+    withLines.lines.innerHTML.includes("&amp; &lt; &gt; &quot; &#039;"),
+    "the line-number layer should escape entities too"
+  );
 });
 
 test("options.styles", (t) => {
@@ -373,6 +424,33 @@ test("options.plugins", (t) => {
   t.equal(editor.pre.innerHTML, "NEW VALUE<br/>", "it should transform textarea value when keydown event");
 });
 
+test("plugins pipeline: each plugin receives the previous one's output", (t) => {
+  const editor = new Yace("#editor");
+
+  let captured = null;
+  const upper = ({ value }) => ({ value: value.toUpperCase() });
+  const capture = (props) => {
+    captured = props;
+  };
+  editor.updateOptions({ plugins: [upper, capture] });
+  dispatchTextareaEvent(editor.textarea, "abc");
+
+  t.equal(captured.value, "ABC", "the second plugin receives the transformed value");
+  t.equal(editor.textarea.value, "ABC", "a plugin returning undefined is a passthrough");
+});
+
+test("plugins pipeline: partial results from different plugins merge", (t) => {
+  const editor = new Yace("#editor");
+
+  const setValue = () => ({ value: "merged" });
+  const setStart = () => ({ selectionStart: 3 });
+  editor.updateOptions({ plugins: [setValue, setStart] });
+  dispatchTextareaEvent(editor.textarea, "x");
+
+  t.equal(editor.textarea.value, "merged", "value from the first plugin applies");
+  t.equal(editor.textarea.selectionStart, 3, "selectionStart from the second plugin applies");
+});
+
 test("plugins/isKey", (t) => {
   t.ok(isKey("enter", { which: 13 }), "matches a plain key by code");
   t.notOk(isKey("enter", { which: 65 }), "does not match a different key");
@@ -382,13 +460,45 @@ test("plugins/isKey", (t) => {
   t.ok(isKey("shift", { shiftKey: true }), "matches a modifier-only combo");
 });
 
-const tabKey = () => ({ type: "keydown", which: 9, preventDefault() {} });
-const shiftTabKey = () => ({
-  type: "keydown",
-  which: 9,
-  shiftKey: true,
-  preventDefault() {},
+test("plugins/isKey: edge cases", (t) => {
+  t.notOk(isKey("enter", { which: 13, shiftKey: true }), "an unexpected modifier rejects an otherwise matching key");
+  t.ok(isKey("escape", { which: 27 }), "matches escape by code");
 });
+
+const tabKey = () => {
+  const event = {
+    type: "keydown",
+    which: 9,
+    defaultPrevented: false,
+    preventDefault() {
+      event.defaultPrevented = true;
+    },
+  };
+  return event;
+};
+const shiftTabKey = () => {
+  const event = {
+    type: "keydown",
+    which: 9,
+    shiftKey: true,
+    defaultPrevented: false,
+    preventDefault() {
+      event.defaultPrevented = true;
+    },
+  };
+  return event;
+};
+const enterKey = () => {
+  const event = {
+    type: "keydown",
+    which: 13,
+    defaultPrevented: false,
+    preventDefault() {
+      event.defaultPrevented = true;
+    },
+  };
+  return event;
+};
 
 test("plugins/tab: indent", (t) => {
   const plugin = tab();
@@ -590,6 +700,28 @@ test("plugins/cutLine: guards", (t) => {
   t.notOk(event.defaultPrevented, "no Clipboard API should not preventDefault");
 });
 
+test("plugins preventDefault on the successful path", (t) => {
+  const tabPlugin = tab();
+
+  const indent = tabKey();
+  tabPlugin({ value: "ab", selectionStart: 1, selectionEnd: 1 }, indent);
+  t.ok(indent.defaultPrevented, "tab indent should preventDefault");
+
+  const outdent = shiftTabKey();
+  tabPlugin({ value: "  ab", selectionStart: 4, selectionEnd: 4 }, outdent);
+  t.ok(outdent.defaultPrevented, "shift+tab outdent should preventDefault");
+
+  const enter = enterKey();
+  preserveIndent()({ value: "  ab", selectionStart: 4, selectionEnd: 4 }, enter);
+  t.ok(enter.defaultPrevented, "enter on an indented line should preventDefault");
+
+  const written = mockClipboard();
+  const cut = cutKey();
+  cutLine()({ value: "aa\nbb\ncc", selectionStart: 4, selectionEnd: 4 }, cut);
+  t.ok(cut.defaultPrevented, "whole-line cut should preventDefault");
+  unmockClipboard();
+});
+
 test("plugins/preserveIndent", (t) => {
   const editor = new Yace("#editor", { plugins: [preserveIndent()] });
 
@@ -722,6 +854,23 @@ test("plugins/history: coalesces inputs within the window", (t) => {
   t.equal(plugin(props("ab"), undoKey()), A, "the coalesced burst is a single undo step");
 });
 
+test("plugins/history: an input right after undo does not coalesce into the restored record", (t) => {
+  const plugin = history({ coalesceMs: 300 });
+  const A = props("");
+  const B = props("a");
+  plugin(A, typeKey());
+  plugin(B, inputAt(100));
+
+  t.equal(plugin(B, undoKey()), A, "undo restores the initial record");
+
+  // 150 is within 300ms of the t=100 edit, but the undo reset the coalesce
+  // clock, so this input must start a fresh record instead of overwriting A
+  const C = props("b");
+  plugin(C, inputAt(150));
+
+  t.equal(plugin(C, undoKey()), A, "the post-undo input is its own step, so undo returns A");
+});
+
 test("plugins/history: inputs beyond the window are separate steps", (t) => {
   const plugin = history({ coalesceMs: 300 });
   const A = props("");
@@ -807,8 +956,7 @@ test("plugins/history: limit is clamped to keep at least one record", (t) => {
   plugin(props("a"), inputAt(1000));
   plugin(props("ab"), inputAt(3000));
 
-  t.doesNotThrow(() => plugin(props("ab"), undoKey()), "undo does not crash with limit 0");
-  t.equal(plugin(props("ab"), undoKey()).value, "ab", "the single kept record survives");
+  t.equal(plugin(props("ab"), undoKey()).value, "ab", "the single kept record survives undo");
 });
 
 test("plugins/history: undo on a fresh editor preventDefaults without crashing", (t) => {
