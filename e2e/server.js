@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
@@ -55,6 +55,13 @@ createServer(async (req, res) => {
   const file = resolveInRoot(indexedPath);
 
   try {
+    if ((await stat(file)).isDirectory()) {
+      // serving index.html at the slashless URL would break the page's
+      // relative imports — redirect to the canonical directory URL instead
+      res.writeHead(301, { Location: path + "/" });
+      res.end();
+      return;
+    }
     const body = await readFile(file);
     res.writeHead(200, { "Content-Type": mime[extname(file)] || "text/plain" });
     res.end(body);
