@@ -1,4 +1,4 @@
-const CODES = {
+const CODES: Record<string, number> = {
   backspace: 8,
   tab: 9,
   enter: 13,
@@ -38,13 +38,15 @@ const CODES = {
   add: 187,
 };
 
+type ModifierKey = "altKey" | "ctrlKey" | "metaKey" | "shiftKey";
+
 /* c8 ignore next 3 -- browser/platform detection, not reachable in one test run */
 const IS_MAC =
   typeof window != "undefined" &&
   window.navigator &&
   /Mac|iPod|iPhone|iPad/.test(window.navigator.platform);
 
-const MODIFIERS = {
+const MODIFIERS: Record<string, ModifierKey> = {
   alt: "altKey",
   control: "ctrlKey",
   meta: "metaKey",
@@ -53,12 +55,15 @@ const MODIFIERS = {
   "ctrl/cmd": IS_MAC ? "metaKey" : "ctrlKey",
 };
 
-function toKeyCode(name) {
+function toKeyCode(name: string): number {
   return CODES[name] || name.toUpperCase().charCodeAt(0);
 }
 
-function isKey(string, event) {
-  const keys = string.split("+").reduce(
+function isKey(shortcut: string, event: KeyboardEvent): boolean {
+  const keys = shortcut.split("+").reduce<{
+    modifiers: Record<ModifierKey, boolean>;
+    keyCode: number | null;
+  }>(
     (acc, key) => {
       if (MODIFIERS[key]) {
         acc.modifiers[MODIFIERS[key]] = true;
@@ -81,10 +86,12 @@ function isKey(string, event) {
     },
   );
 
-  const hasModifiers = Object.keys(keys.modifiers).every((key) => {
-    const value = keys.modifiers[key];
-    return value ? event[key] : !event[key];
-  });
+  const hasModifiers = (Object.keys(keys.modifiers) as ModifierKey[]).every(
+    (key) => {
+      const value = keys.modifiers[key];
+      return value ? event[key] : !event[key];
+    },
+  );
 
   const hasKey = keys.keyCode ? event.which === keys.keyCode : true;
 

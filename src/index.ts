@@ -3,22 +3,62 @@ import {
   preStyles,
   rootStyles,
   linesStyles,
-} from "./styles.js";
+} from "./styles.ts";
 
-class Yace {
-  constructor(selector, options = {}) {
+export interface TextareaProps {
+  value: string;
+  selectionStart: number;
+  selectionEnd: number;
+}
+
+export type Plugin = (
+  props: TextareaProps,
+  event: Event,
+) => Partial<TextareaProps> | void;
+
+export interface YaceOptions {
+  /** the contract is string; the runtime String(...) coercion is JS-only defense */
+  value?: string;
+  lineNumbers?: boolean;
+  highlighter?: (value: string) => string;
+  styles?: Record<string, string>;
+  plugins?: Plugin[];
+}
+
+type ResolvedOptions = {
+  value: string;
+  lineNumbers?: boolean;
+  highlighter: (value: string) => string;
+  styles: Record<string, string>;
+  plugins: Plugin[];
+};
+
+export default class Yace {
+  root!: HTMLElement;
+  textarea!: HTMLTextAreaElement;
+  pre!: HTMLPreElement;
+  value!: string;
+  private options: ResolvedOptions;
+  private lines: HTMLPreElement | null = null;
+  private initialRootStyles!: Record<string, string>;
+  private basePaddingLeft!: string;
+  private handleEvent!: (event: Event) => void;
+  private updateCallback?: (value: string) => void;
+
+  constructor(selector: string | Node, options: YaceOptions = {}) {
     if (!selector) {
       throw new Error("selector is not defined");
     }
 
-    this.root =
-      selector instanceof Node ? selector : document.querySelector(selector);
+    this.root = (
+      selector instanceof Node ? selector : document.querySelector(selector)
+    ) as HTMLElement;
 
     if (!this.root) {
       throw new Error(`element with "${selector}" selector is not exist`);
     }
 
-    const defaultOptions = {
+    const defaultOptions: Omit<ResolvedOptions, "lineNumbers"> = {
       value: "",
       styles: {},
       plugins: [],
@@ -36,7 +76,7 @@ class Yace {
     this.init();
   }
 
-  init() {
+  private init(): void {
     this.textarea = document.createElement("textarea");
     this.textarea.setAttribute("spellcheck", "false");
     this.textarea.setAttribute("autocapitalize", "off");
@@ -49,8 +89,10 @@ class Yace {
       .concat(Object.keys(this.options.styles))
       .concat(["paddingLeft"]);
     this.initialRootStyles = {};
+    // CSSStyleDeclaration has no string index signature; read camelCase props as a map
+    const rootStyle = this.root.style as unknown as Record<string, string>;
     mutatedStyleKeys.forEach((key) => {
-      this.initialRootStyles[key] = this.root.style[key] || "";
+      this.initialRootStyles[key] = rootStyle[key] || "";
     });
 
     Object.assign(this.root.style, rootStyles, this.options.styles);
@@ -69,9 +111,10 @@ class Yace {
     this.updateLines();
   }
 
-  addTextareaEvents() {
+  private addTextareaEvents(): void {
     this.handleEvent = (event) => {
-      if (event.isComposing || event.keyCode === 229) {
+      const keyEvent = event as KeyboardEvent;
+      if (keyEvent.isComposing || keyEvent.keyCode === 229) {
         return;
       }
 
@@ -87,13 +130,13 @@ class Yace {
     this.textarea.addEventListener("compositionend", this.handleEvent);
   }
 
-  update(textareaProps) {
+  update(props: Partial<TextareaProps>): void {
     // an async consumer callback can land after destroy (e.g. React unmount)
     if (!this.textarea) {
       return;
     }
 
-    let { value, selectionStart, selectionEnd } = textareaProps;
+    let { value, selectionStart, selectionEnd } = props;
 
     if (value != null) {
       value = String(value);
@@ -101,11 +144,11 @@ class Yace {
       // browsers move the caret to the end on value assignment, so a
       // value-only update must restore the current selection afterwards
       if (selectionStart == null) {
-        selectionStart = this.textarea.selectionStart;
+        selectionStart = this.textarea.selectionStart as number;
       }
 
       if (selectionEnd == null) {
-        selectionEnd = this.textarea.selectionEnd;
+        selectionEnd = this.textarea.selectionEnd as number;
       }
 
       if (this.textarea.value !== value) {
@@ -133,7 +176,7 @@ class Yace {
     }
   }
 
-  updateOptions(options) {
+  updateOptions(options: YaceOptions): void {
     if (!this.textarea) {
       return;
     }
@@ -144,10 +187,11 @@ class Yace {
     };
 
     if (options.styles) {
+      const rootStyle = this.root.style as unknown as Record<string, string>;
       // new style keys must land in the snapshot or destroy() would miss them
       Object.keys(options.styles).forEach((key) => {
         if (!(key in this.initialRootStyles)) {
-          this.initialRootStyles[key] = this.root.style[key] || "";
+          this.initialRootStyles[key] = rootStyle[key] || "";
         }
       });
       Object.assign(this.root.style, options.styles);
@@ -170,14 +214,14 @@ class Yace {
     this.render();
   }
 
-  render() {
+  private render(): void {
     const highlighted = this.options.highlighter(this.value);
     this.pre.innerHTML = highlighted + "<br/>";
 
     this.updateLines();
   }
 
-  updateLines() {
+  private updateLines(): void {
     if (!this.options.lineNumbers) {
       return;
     }
@@ -204,7 +248,7 @@ class Yace {
       .join("\n");
   }
 
-  destroy() {
+  destroy(): void {
     if (!this.textarea) {
       return;
     }
@@ -221,42 +265,51 @@ class Yace {
 
     Object.assign(this.root.style, this.initialRootStyles);
 
-    this.textarea = null;
-    this.pre = null;
-    this.lines = null;
-    this.updateCallback = null;
-    this.handleEvent = null;
-    this.initialRootStyles = null;
-    this.options = null;
-    this.root = null;
+    // the public fields are typed non-null per the frozen type contract, so the
+    // teardown reset goes through Object.assign, which bypasses those field types
+    Object.assign(this, {
+      textarea: null,
+      pre: null,
+      lines: null,
+      updateCallback: null,
+      handleEvent: null,
+      initialRootStyles: null,
+      options: null,
+      root: null,
+    });
   }
 
-  onUpdate(callback) {
-    this.updateCallback = callback;
+  onUpdate(cb: (value: string) => void): void {
+    this.updateCallback = cb;
   }
 }
 
-function removeNode(node) {
+function removeNode(node: Node | null): void {
   if (node && node.parentNode) {
     node.parentNode.removeChild(node);
   }
 }
 
-function runPlugins(plugins, event) {
-  const { value, selectionStart, selectionEnd } = event.target;
+function runPlugins(plugins: Plugin[], event: Event): TextareaProps {
+  const { value, selectionStart, selectionEnd } =
+    event.target as HTMLTextAreaElement;
 
-  return plugins.reduce(
+  return plugins.reduce<TextareaProps>(
     (acc, plugin) => {
       return {
         ...acc,
         ...plugin(acc, event),
       };
     },
-    { value, selectionStart, selectionEnd },
+    {
+      value,
+      selectionStart: selectionStart as number,
+      selectionEnd: selectionEnd as number,
+    },
   );
 }
 
-function escape(unsafe) {
+function escape(unsafe: string): string {
   return unsafe
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -264,5 +317,3 @@ function escape(unsafe) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-
-export default Yace;

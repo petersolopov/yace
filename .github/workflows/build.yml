@@ -20,6 +20,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
       - run: npm run prettier:check
+      - run: npm run typecheck
       - run: npm test
 
       # node10 module resolution is deliberately unsupported: legacy resolvers

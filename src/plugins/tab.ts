@@ -1,8 +1,13 @@
-import isKey from "./isKey.js";
+import type { Plugin } from "../index.ts";
+import isKey from "./isKey.ts";
 
 // when a selection ends at column 0 the line under that caret is not part of
 // the selection, so the range must end on the previous line
-function lastSelectedLine(value, selectionStart, selectionEnd) {
+function lastSelectedLine(
+  value: string,
+  selectionStart: number,
+  selectionEnd: number,
+): number {
   const isLineBoundaryEnd =
     selectionEnd > selectionStart && value[selectionEnd - 1] === "\n";
   const effectiveEnd = isLineBoundaryEnd ? selectionEnd - 1 : selectionEnd;
@@ -10,15 +15,15 @@ function lastSelectedLine(value, selectionStart, selectionEnd) {
 }
 
 const tab =
-  (tabCharacter = "  ") =>
-  (textareaProps, event) => {
+  (tabCharacter = "  "): Plugin =>
+  (textareaProps, event): ReturnType<Plugin> => {
     const { value, selectionStart, selectionEnd } = textareaProps;
 
     if (event.type !== "keydown") {
       return;
     }
 
-    if (isKey("shift+tab", event)) {
+    if (isKey("shift+tab", event as KeyboardEvent)) {
       event.preventDefault();
       const lines = value.split("\n");
       const linesBeforeCaret = value.substring(0, selectionStart).split("\n");
@@ -63,7 +68,7 @@ const tab =
       };
     }
 
-    if (isKey("tab", event)) {
+    if (isKey("tab", event as KeyboardEvent)) {
       event.preventDefault();
       if (selectionStart === selectionEnd) {
         const updatedSelection = selectionStart + tabCharacter.length;

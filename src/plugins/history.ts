@@ -1,15 +1,18 @@
-import isKey from "./isKey.js";
+import type { Plugin, TextareaProps } from "../index.ts";
+import isKey from "./isKey.ts";
 
-function history(options = {}) {
+function history(
+  options: { limit?: number; coalesceMs?: number } = {},
+): Plugin {
   const limit = Math.max(1, options.limit == null ? 300 : options.limit);
   const coalesceMs = options.coalesceMs == null ? 300 : options.coalesceMs;
 
-  let stack = [];
-  let activeIndex = null;
-  let lastEditTime = null;
+  let stack: TextareaProps[] = [];
+  let activeIndex: number | null = null;
+  let lastEditTime: number | null = null;
 
-  const push = (record) => {
-    stack = stack.slice(0, activeIndex + 1);
+  const push = (record: TextareaProps): void => {
+    stack = stack.slice(0, activeIndex! + 1);
     stack.push(record);
     if (stack.length > limit) {
       stack = stack.slice(stack.length - limit);
@@ -17,9 +20,12 @@ function history(options = {}) {
     activeIndex = stack.length - 1;
   };
 
-  return (props, event) => {
-    const isUndo = event.type === "keydown" && isKey("ctrl/cmd+z", event);
-    const isRedo = event.type === "keydown" && isKey("ctrl/cmd+shift+z", event);
+  return (props, event): ReturnType<Plugin> => {
+    const isUndo =
+      event.type === "keydown" && isKey("ctrl/cmd+z", event as KeyboardEvent);
+    const isRedo =
+      event.type === "keydown" &&
+      isKey("ctrl/cmd+shift+z", event as KeyboardEvent);
 
     if (isUndo || isRedo) {
       // always block native undo: a plugin writing textarea.value corrupts the
