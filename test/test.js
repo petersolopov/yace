@@ -22,7 +22,7 @@ function pressEnter(editor, value, selectionStart, selectionEnd = selectionStart
   editor.textarea.value = value;
   editor.textarea.selectionStart = selectionStart;
   editor.textarea.selectionEnd = selectionEnd;
-  editor.textarea.dispatchEvent({ type: "keydown", which: 13, preventDefault() {} });
+  editor.textarea.dispatchEvent({ type: "keydown", key: "Enter", preventDefault() {} });
 }
 
 test("constructor", () => {
@@ -489,23 +489,47 @@ test("plugins pipeline: partial results from different plugins merge", () => {
 });
 
 test("plugins/isKey", () => {
-  assert.ok(isKey("enter", { which: 13 }), "matches a plain key by code");
-  assert.ok(!isKey("enter", { which: 65 }), "does not match a different key");
-  assert.ok(isKey("a", { which: 65 }), "matches a letter via toKeyCode fallback");
-  assert.ok(isKey("ctrl/cmd+z", { which: 90, ctrlKey: true }), "matches a modifier combo");
-  assert.ok(!isKey("ctrl/cmd+z", { which: 90 }), "does not match when the required modifier is absent");
+  assert.ok(isKey("enter", { key: "Enter" }), "matches a named key case-insensitively");
+  assert.ok(!isKey("enter", { key: "a" }), "does not match a different key");
+  assert.ok(isKey("a", { key: "a" }), "matches a letter by key");
+  assert.ok(isKey("ctrl/cmd+z", { key: "z", ctrlKey: true }), "matches a modifier combo");
+  assert.ok(!isKey("ctrl/cmd+z", { key: "z" }), "does not match when the required modifier is absent");
   assert.ok(isKey("shift", { shiftKey: true }), "matches a modifier-only combo");
 });
 
 test("plugins/isKey: edge cases", () => {
-  assert.ok(!isKey("enter", { which: 13, shiftKey: true }), "an unexpected modifier rejects an otherwise matching key");
-  assert.ok(isKey("escape", { which: 27 }), "matches escape by code");
+  assert.ok(
+    !isKey("enter", { key: "Enter", shiftKey: true }),
+    "an unexpected modifier rejects an otherwise matching key",
+  );
+  assert.ok(isKey("escape", { key: "Escape" }), "matches escape by name");
+  assert.ok(
+    isKey("ctrl/cmd+shift+z", { key: "Z", ctrlKey: true, shiftKey: true }),
+    "a shifted uppercase key still matches",
+  );
+  assert.ok(
+    isKey("ctrl/cmd+z", { key: "я", code: "KeyZ", ctrlKey: true }),
+    "falls back to the physical code on a non-latin layout",
+  );
+  assert.ok(isKey("1", { key: "!", code: "Digit1" }), "falls back to the physical code for digits");
+  assert.ok(!isKey("a", { key: "b", code: "KeyB" }), "rejects when neither key nor code match");
+  assert.ok(!isKey("enter", {}), "an event without key data does not match");
+  assert.ok(isKey("add", { key: "=" }), "resolves the add alias");
+  assert.ok(isKey("ctrl+y", { key: "y", ctrlKey: true }), "resolves the ctrl modifier alias");
+  assert.ok(
+    isKey("shift+/", { key: "?", code: "Slash", shiftKey: true }),
+    "matches shifted punctuation by physical code",
+  );
+  assert.ok(
+    !isKey("ctrl/cmd+z", { key: "Process", code: "KeyZ", ctrlKey: true, isComposing: true }),
+    "the code fallback must not match composition keydowns",
+  );
 });
 
 const tabKey = () => {
   const event = {
     type: "keydown",
-    which: 9,
+    key: "Tab",
     defaultPrevented: false,
     preventDefault() {
       event.defaultPrevented = true;
@@ -516,7 +540,7 @@ const tabKey = () => {
 const shiftTabKey = () => {
   const event = {
     type: "keydown",
-    which: 9,
+    key: "Tab",
     shiftKey: true,
     defaultPrevented: false,
     preventDefault() {
@@ -528,7 +552,7 @@ const shiftTabKey = () => {
 const enterKey = () => {
   const event = {
     type: "keydown",
-    which: 13,
+    key: "Enter",
     defaultPrevented: false,
     preventDefault() {
       event.defaultPrevented = true;
@@ -559,13 +583,13 @@ test("plugins/tab: indent", () => {
   );
 
   assert.deepStrictEqual(
-    plugin({ value: "ab", selectionStart: 1, selectionEnd: 1 }, { type: "input", which: 9 }),
+    plugin({ value: "ab", selectionStart: 1, selectionEnd: 1 }, { type: "input", key: "Tab" }),
     undefined,
     "non-keydown event should be a no-op",
   );
 
   assert.deepStrictEqual(
-    plugin({ value: "ab", selectionStart: 1, selectionEnd: 1 }, { type: "keydown", which: 65, preventDefault() {} }),
+    plugin({ value: "ab", selectionStart: 1, selectionEnd: 1 }, { type: "keydown", key: "a", preventDefault() {} }),
     undefined,
     "non-tab key should be a no-op",
   );
@@ -639,7 +663,7 @@ function unmockClipboard() {
 const cutKey = () => {
   const event = {
     type: "keydown",
-    which: 88,
+    key: "x",
     ctrlKey: true,
     defaultPrevented: false,
     preventDefault() {
@@ -703,7 +727,7 @@ test("plugins/cutLine: guards", () => {
   assert.deepStrictEqual(
     plugin(
       { value: "aa", selectionStart: 0, selectionEnd: 0 },
-      { type: "keydown", which: 65, ctrlKey: true, preventDefault() {} },
+      { type: "keydown", key: "a", ctrlKey: true, preventDefault() {} },
     ),
     undefined,
     "non-matching key should be a no-op",
@@ -715,11 +739,11 @@ test("plugins/cutLine: guards", () => {
     "non-keydown event should be a no-op",
   );
 
-  const customPlugin = cutLine((event) => event.which === 75);
+  const customPlugin = cutLine((event) => event.key === "k");
   assert.deepStrictEqual(
     customPlugin(
       { value: "aa\nbb", selectionStart: 0, selectionEnd: 0 },
-      { type: "keydown", which: 75, preventDefault() {} },
+      { type: "keydown", key: "k", preventDefault() {} },
     ),
     { value: "bb", selectionStart: 0, selectionEnd: 0 },
     "custom predicate should trigger the cut",
@@ -791,11 +815,11 @@ test("plugins/preserveIndent", () => {
   editor.textarea.value = "  abc";
   editor.textarea.selectionStart = 5;
   editor.textarea.selectionEnd = 5;
-  editor.textarea.dispatchEvent({ type: "keydown", which: 65, preventDefault() {} });
+  editor.textarea.dispatchEvent({ type: "keydown", key: "a", preventDefault() {} });
   assert.deepStrictEqual(editor.textarea.value, "  abc", "non-enter keydown should be a no-op");
 
   editor.textarea.value = "  abc";
-  editor.textarea.dispatchEvent({ type: "input", which: 13, preventDefault() {} });
+  editor.textarea.dispatchEvent({ type: "input", key: "Enter", preventDefault() {} });
   assert.deepStrictEqual(editor.textarea.value, "  abc", "enter on input event should be a no-op");
 });
 
@@ -805,12 +829,12 @@ const props = (value, caret = value.length) => ({
   selectionEnd: caret,
 });
 
-const typeKey = () => ({ type: "keydown", which: 65, preventDefault() {} });
+const typeKey = () => ({ type: "keydown", key: "a", preventDefault() {} });
 
 const undoKey = () => {
   const event = {
     type: "keydown",
-    which: 90,
+    key: "z",
     ctrlKey: true,
     defaultPrevented: false,
     preventDefault() {
@@ -823,7 +847,7 @@ const undoKey = () => {
 const redoKey = () => {
   const event = {
     type: "keydown",
-    which: 90,
+    key: "z",
     ctrlKey: true,
     shiftKey: true,
     defaultPrevented: false,
@@ -850,6 +874,32 @@ test("plugins/history: records inputs and walks undo/redo", () => {
   assert.deepStrictEqual(plugin(B, undoKey()), A, "second undo returns to the initial state");
   assert.deepStrictEqual(plugin(A, redoKey()), B, "redo returns forward");
   assert.deepStrictEqual(plugin(B, redoKey()), C, "second redo returns to the latest state");
+});
+
+test("plugins/history: ctrl+y redoes", () => {
+  const plugin = history();
+  const ctrlYKey = () => {
+    const event = {
+      type: "keydown",
+      key: "y",
+      ctrlKey: true,
+      defaultPrevented: false,
+      preventDefault() {
+        event.defaultPrevented = true;
+      },
+    };
+    return event;
+  };
+  const A = props("");
+  const B = props("a");
+
+  plugin(A, typeKey());
+  plugin(B, inputAt(100));
+  assert.deepStrictEqual(plugin(B, undoKey()), A, "undo returns the previous state");
+
+  const event = ctrlYKey();
+  assert.deepStrictEqual(plugin(A, event), B, "ctrl+y redoes");
+  assert.ok(event.defaultPrevented, "ctrl+y must block the native browser redo");
 });
 
 test("plugins/history: a new input truncates the redo branch", () => {
@@ -1036,14 +1086,14 @@ test("plugins/history: integration through the editor", () => {
   // a real keystroke fires keydown on the pre-edit value, then input on the new one
   const type = (prev, next, timeStamp) => {
     setCaret(prev);
-    editor.textarea.dispatchEvent({ type: "keydown", which: 65, timeStamp, preventDefault() {} });
+    editor.textarea.dispatchEvent({ type: "keydown", key: "a", timeStamp, preventDefault() {} });
     setCaret(next);
     editor.textarea.dispatchEvent({ type: "input", timeStamp });
   };
   const dispatchHistoryKey = (shiftKey) => {
     editor.textarea.dispatchEvent({
       type: "keydown",
-      which: 90,
+      key: "z",
       ctrlKey: true,
       shiftKey,
       preventDefault() {},

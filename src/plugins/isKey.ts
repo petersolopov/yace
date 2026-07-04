@@ -1,43 +1,3 @@
-const CODES: Record<string, number> = {
-  backspace: 8,
-  tab: 9,
-  enter: 13,
-  shift: 16,
-  control: 17,
-  alt: 18,
-  pause: 19,
-  capslock: 20,
-  escape: 27,
-  " ": 32,
-  pageup: 33,
-  pagedown: 34,
-  end: 35,
-  home: 36,
-  arrowleft: 37,
-  arrowup: 38,
-  arrowright: 39,
-  arrowdown: 40,
-  insert: 45,
-  delete: 46,
-  meta: 91,
-  numlock: 144,
-  scrolllock: 145,
-  ";": 186,
-  "=": 187,
-  ",": 188,
-  "-": 189,
-  ".": 190,
-  "/": 191,
-  "`": 192,
-  "[": 219,
-  "\\": 220,
-  "]": 221,
-  "'": 222,
-
-  // aliases
-  add: 187,
-};
-
 type ModifierKey = "altKey" | "ctrlKey" | "metaKey" | "shiftKey";
 
 /* c8 ignore next 3 -- browser/platform detection, not reachable in one test run */
@@ -49,20 +9,48 @@ const IS_MAC =
 const MODIFIERS: Record<string, ModifierKey> = {
   alt: "altKey",
   control: "ctrlKey",
+  ctrl: "ctrlKey",
   meta: "metaKey",
   shift: "shiftKey",
   /* c8 ignore next -- depends on IS_MAC, fixed per environment */
   "ctrl/cmd": IS_MAC ? "metaKey" : "ctrlKey",
 };
 
-function toKeyCode(name: string): number {
-  return CODES[name] || name.toUpperCase().charCodeAt(0);
+const KEY_ALIASES: Record<string, string> = {
+  add: "=",
+};
+
+const PUNCTUATION_CODES: Record<string, string> = {
+  ";": "semicolon",
+  "=": "equal",
+  ",": "comma",
+  "-": "minus",
+  ".": "period",
+  "/": "slash",
+  "`": "backquote",
+  "[": "bracketleft",
+  "\\": "backslash",
+  "]": "bracketright",
+  "'": "quote",
+};
+
+// physical-key fallback keeps shortcuts layout- and shift-independent:
+// ctrl+z must match when the active layout puts "я" on the Z key, and
+// shift+/ must match although the shifted event.key is "?"
+function toCode(key: string): string | null {
+  if (/^[a-z]$/.test(key)) {
+    return `key${key}`;
+  }
+  if (/^[0-9]$/.test(key)) {
+    return `digit${key}`;
+  }
+  return PUNCTUATION_CODES[key] || null;
 }
 
 function isKey(shortcut: string, event: KeyboardEvent): boolean {
   const keys = shortcut.split("+").reduce<{
     modifiers: Record<ModifierKey, boolean>;
-    keyCode: number | null;
+    key: string | null;
   }>(
     (acc, key) => {
       if (MODIFIERS[key]) {
@@ -72,7 +60,7 @@ function isKey(shortcut: string, event: KeyboardEvent): boolean {
 
       return {
         ...acc,
-        keyCode: toKeyCode(key),
+        key: KEY_ALIASES[key] || key.toLowerCase(),
       };
     },
     {
@@ -82,7 +70,7 @@ function isKey(shortcut: string, event: KeyboardEvent): boolean {
         metaKey: false,
         shiftKey: false,
       },
-      keyCode: null,
+      key: null,
     },
   );
 
@@ -93,9 +81,21 @@ function isKey(shortcut: string, event: KeyboardEvent): boolean {
     },
   );
 
-  const hasKey = keys.keyCode ? event.which === keys.keyCode : true;
+  if (!keys.key) {
+    return hasModifiers;
+  }
 
-  return hasModifiers && hasKey;
+  const matchesKey = event.key != null && event.key.toLowerCase() === keys.key;
+  const code = toCode(keys.key);
+  // composition keydowns carry the physical code, but the legacy matcher saw
+  // keyCode 229 and never matched them — keep the fallback out of IME input
+  const matchesCode =
+    !event.isComposing &&
+    code != null &&
+    event.code != null &&
+    event.code.toLowerCase() === code;
+
+  return hasModifiers && (matchesKey || matchesCode);
 }
 
 export default isKey;

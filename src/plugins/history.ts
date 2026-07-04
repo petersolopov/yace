@@ -25,7 +25,8 @@ function history(
       event.type === "keydown" && isKey("ctrl/cmd+z", event as KeyboardEvent);
     const isRedo =
       event.type === "keydown" &&
-      isKey("ctrl/cmd+shift+z", event as KeyboardEvent);
+      (isKey("ctrl/cmd+shift+z", event as KeyboardEvent) ||
+        isKey("ctrl+y", event as KeyboardEvent));
 
     if (isUndo || isRedo) {
       // always block native undo: a plugin writing textarea.value corrupts the
