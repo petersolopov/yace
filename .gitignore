@@ -4,3 +4,4 @@ coverage
 coverage.txt
 test-results
 playwright-report
+_site

@@ -1,0 +1,42 @@
+name: pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+      - run: npm ci
+
+      # examples import ../src/*.js live; emit browser-runnable JS from the TS source
+      - run: npx tsc -p tsconfig.pages.json
+      - run: cp -R examples _site/examples
+
+      # legacy Pages rendered the README at the site root; keep that URL alive
+      - run: printf '<!doctype html><meta http-equiv="refresh" content="0; url=examples/">\n' > _site/index.html
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v5
