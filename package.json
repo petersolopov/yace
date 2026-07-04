@@ -35,7 +35,7 @@
   ],
   "scripts": {
     "dev": "node e2e/server.js",
-    "test": "c8 --all --include 'src/**/*.js' --check-coverage --lines 100 --functions 100 --branches 99 node test/test.js",
+    "test": "c8 --all --include 'src/**/*.js' --check-coverage --lines 100 --functions 100 --branches 99 node --test test/test.js",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "report": "c8 report --all --include 'src/**/*.js' --reporter=text-lcov > coverage.txt",
@@ -74,7 +74,6 @@
     "rollup": "^2.14.0",
     "rollup-plugin-multi-input": "^1.1.1",
     "rollup-plugin-terser": "^6.1.0",
-    "undom": "^0.4.0",
-    "zora": "^4.0.0"
+    "undom": "^0.4.0"
   }
 }
