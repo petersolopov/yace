@@ -22,6 +22,11 @@ jobs:
       - run: npm run prettier:check
       - run: npm test
 
+      # node10 module resolution is deliberately unsupported: legacy resolvers
+      # ignore the exports map, so their view of the package cannot be fixed
+      - name: Check packaging (attw)
+        run: npm run attw
+
       - name: Generate coverage report
         run: npm run report
 
@@ -40,7 +45,25 @@ jobs:
         with:
           node-version: 24.x
       - run: npm ci
+
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
       - run: npx playwright install --with-deps
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+      # system deps are apt packages — not covered by the browser cache
+      - run: npx playwright install-deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+
       - run: npm run test:e2e
 
   publish:

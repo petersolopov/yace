@@ -40,6 +40,7 @@
     "test:e2e:headed": "playwright test --headed",
     "report": "c8 report --all --include 'src/**/*.js' --reporter=text-lcov > coverage.txt",
     "build": "rm -rf ./dist && rollup -c && cp -R types/. dist/",
+    "attw": "npm run build && attw --pack . --profile node16 --ignore-rules false-export-default",
     "prettier:write": "prettier --write '{src,examples,test,types,e2e}/**/*' playwright.config.js",
     "prettier:check": "prettier --check '{src,examples,test,types,e2e}/**/*' playwright.config.js",
     "release": "npx standard-version"
@@ -65,6 +66,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.4",
     "@playwright/test": "^1.61.1",
     "@rollup/plugin-buble": "^0.21.3",
     "c8": "^11.0.0",
