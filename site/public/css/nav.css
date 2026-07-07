@@ -1,0 +1,85 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+}
+
+.nav__logo {
+  font-weight: 700;
+  font-size: 18px;
+  white-space: nowrap;
+  color: var(--accent);
+}
+
+.nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.theme-switch {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.theme-switch__option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  appearance: none;
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease;
+}
+
+.theme-switch__option:hover {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+}
+
+/* the active pill is driven by data-theme on :root, not by a JS class: the
+   anti-FOUC head script sets the attribute before first paint, so the switch
+   never flashes the wrong state on load */
+:root:not([data-theme]) .theme-switch__option--system,
+:root[data-theme="light"] .theme-switch__option--light,
+:root[data-theme="dark"] .theme-switch__option--dark {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* hover on the active option must not compete with its selected state */
+:root:not([data-theme]) .theme-switch__option--system:hover,
+:root[data-theme="light"] .theme-switch__option--light:hover,
+:root[data-theme="dark"] .theme-switch__option--dark:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.theme-switch__icon {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2;
+}
+
+@media (max-width: 640px) {
+  .nav {
+    padding: 10px 22px;
+  }
+
+  .nav__logo {
+    font-size: 16px;
+  }
+}

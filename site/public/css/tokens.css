@@ -1,0 +1,118 @@
+/* Google Fonts latin subsets, self-hosted; JetBrains Mono and Tektur are
+   variable files — one src covers the whole declared weight range */
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("../fonts/jetbrains-mono-400-800.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/jetbrains-mono-italic-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Tektur";
+  font-style: normal;
+  font-weight: 500 900;
+  font-display: swap;
+  src: url("../fonts/tektur-500-900.woff2") format("woff2");
+}
+
+/* Palette: one source of truth via light-dark(). color-scheme picks the half —
+   `light dark` on the base :root follows the OS in system mode (no data-theme),
+   and the two forced themes pin it. The non-color theme differences (box
+   shadows, the hero backdrop image, opacities) cannot
+   go through light-dark(), so they stay a twin pair: the base holds the dark
+   values and both light blocks re-declare the light ones in sync. */
+:root {
+  color-scheme: light dark;
+  --bg: light-dark(#f2f0fb, #0a0a12);
+  --panel: light-dark(#ffffff, #0f0f1c);
+  --fg: light-dark(#16121f, #e9e9f6);
+  --muted: light-dark(#7a728e, #6b6b8a);
+  --border: light-dark(#e0d8f0, #242440);
+  --accent: light-dark(#d6006e, #ff2e97);
+  --accent2: light-dark(#0088b0, #00e9ff);
+  --tok-com: light-dark(#8a83a0, #5a5a80);
+  --tok-str: light-dark(#0079a8, #00e9ff);
+  --tok-kw: light-dark(#c8005f, #ff2e97);
+  --tok-num: light-dark(#a06a00, #ffd166);
+  --tok-punc: light-dark(#6a6482, #9a9ac0);
+  --scanline: light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.12));
+  --fish-big: light-dark(#d6006e, #ff2f97);
+  --fish-small: light-dark(#6a4cc0, #8a7cff);
+  --hero-title-fill: light-dark(#a9c3dc, var(--fg));
+  --hero-button-hover-bg: light-dark(
+    color-mix(in srgb, var(--accent) 86%, #000000),
+    var(--accent)
+  );
+
+  --fish-big-shadow:
+    0 0 9px rgba(255, 209, 102, 0.55), 0 0 3px rgba(255, 209, 102, 0.4);
+  --fish-small-shadow: 0 0 8px rgba(138, 124, 255, 0.55);
+  --hero-title-glow: 0 0 16px color-mix(in srgb, var(--accent) 20%, transparent);
+  /* the shimmer band must beat the muted base in luminance: dark ink by day,
+     bright cyan by night */
+  --hero-shimmer-band: light-dark(var(--fg), var(--accent2));
+  --hero-button-shadow: 0 0 28px -4px var(--accent);
+  --hero-button-shadow-hover: 0 0 34px -2px var(--accent);
+  --hero-ghost-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  --hero-backdrop:
+    radial-gradient(
+      120% 90% at 80% 0%,
+      color-mix(in srgb, var(--accent) 14%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      90% 80% at 0% 100%,
+      color-mix(in srgb, var(--accent2) 12%, transparent),
+      transparent 55%
+    );
+  --hero-scanlines-op: 1;
+
+  --font-mono: "JetBrains Mono", monospace;
+  --font-display: "Tektur", monospace;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* keep in sync with the [data-theme="light"] twin block below */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --fish-big-shadow: none;
+    --fish-small-shadow: none;
+    --hero-title-glow: none;
+    /* light: not a glow — a soft reflex under the button */
+    --hero-button-shadow: 0 10px 24px -10px
+      color-mix(in srgb, var(--accent) 70%, transparent);
+    --hero-button-shadow-hover: 0 10px 24px -10px
+      color-mix(in srgb, var(--accent) 70%, transparent);
+    --hero-ghost-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+    /* light hero is flat: the gradients and scanlines read as dirt on light */
+    --hero-backdrop: none;
+    --hero-scanlines-op: 0;
+  }
+}
+
+/* keep in sync with the prefers-color-scheme: light twin block above */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --fish-big-shadow: none;
+  --fish-small-shadow: none;
+  --hero-title-glow: none;
+  --hero-button-shadow: 0 10px 24px -10px
+    color-mix(in srgb, var(--accent) 70%, transparent);
+  --hero-button-shadow-hover: 0 10px 24px -10px
+    color-mix(in srgb, var(--accent) 70%, transparent);
+  --hero-ghost-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  --hero-backdrop: none;
+  --hero-scanlines-op: 0;
+}

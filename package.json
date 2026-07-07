@@ -74,7 +74,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "dev": "node e2e/server.js",
+    "dev": "node site/server.js",
     "typecheck": "tsc --noEmit",
     "test": "c8 --all --include 'src/**/*.ts' --check-coverage --lines 100 --functions 100 --branches 99 node --test test/test.js test/highlighters.test.js",
     "test:e2e": "playwright test",
@@ -82,8 +82,8 @@
     "report": "c8 report --all --include 'src/**/*.ts' --reporter=text-lcov > coverage.txt",
     "build": "rm -rf ./dist && rollup -c && tsc -p tsconfig.build.json && node scripts/build-dts.js",
     "attw": "npm run build && attw --pack . --profile node16 --ignore-rules false-export-default",
-    "prettier:write": "prettier --write '{src,examples,test,e2e,scripts}/**/*' playwright.config.js",
-    "prettier:check": "prettier --check '{src,examples,test,e2e,scripts}/**/*' playwright.config.js",
+    "prettier:write": "prettier --write '{src,test,e2e,scripts}/**/*' 'site/**/*.{html,css,js,jsx}' playwright.config.js",
+    "prettier:check": "prettier --check '{src,test,e2e,scripts}/**/*' 'site/**/*.{html,css,js,jsx}' playwright.config.js",
     "release": "npx standard-version"
   },
   "keywords": [

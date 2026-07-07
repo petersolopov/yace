@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>yace — yet another code editor</title>
+    <meta name="description" content="yace — yet another code editor. ~1.7KB, zero dependencies, any highlighter." />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="./fonts/jetbrains-mono-400-800.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="./fonts/tektur-500-900.woff2" as="font" type="font/woff2" crossorigin />
+    <script>
+      // apply the stored theme before first paint so the page never flashes the wrong theme
+      try {
+        var t = localStorage.getItem("yace-theme");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="./css/tokens.css" />
+    <link rel="stylesheet" href="./css/base.css" />
+    <link rel="stylesheet" href="./css/nav.css" />
+    <link rel="stylesheet" href="./css/hero.css" />
+    <link rel="stylesheet" href="./css/getting-started.css" />
+    <link rel="stylesheet" href="./css/features.css" />
+    <link rel="stylesheet" href="./css/examples.css" />
+    <link rel="stylesheet" href="./css/footer.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "yace": "./src/index.js",
+          "yace/plugins/tab": "./src/plugins/tab.js",
+          "yace/plugins/history": "./src/plugins/history.js",
+          "yace/plugins/preserveIndent": "./src/plugins/preserveIndent.js",
+          "yace/highlighters/basic": "./src/highlighters/basic.js",
+          "yace/highlighters/sliceGlitch": "./src/highlighters/sliceGlitch.js",
+          "yace/highlighters/shimmer": "./src/highlighters/shimmer.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <svg class="sprite" aria-hidden="true" width="0" height="0">
+      <symbol
+        id="icon-arrow"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M7 17 17 7"></path>
+        <path d="M9 7h8v8"></path>
+      </symbol>
+      <symbol
+        id="icon-copy"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </symbol>
+      <symbol
+        id="icon-monitor"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+        <path d="M8 21h8"></path>
+        <path d="M12 17v4"></path>
+      </symbol>
+      <symbol
+        id="icon-sun"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="4"></circle>
+        <path d="M12 2v2"></path>
+        <path d="M12 20v2"></path>
+        <path d="m4.93 4.93 1.41 1.41"></path>
+        <path d="m17.66 17.66 1.41 1.41"></path>
+        <path d="M2 12h2"></path>
+        <path d="M20 12h2"></path>
+        <path d="m6.34 17.66-1.41 1.41"></path>
+        <path d="m19.07 4.93-1.41 1.41"></path>
+      </symbol>
+      <symbol
+        id="icon-moon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+      </symbol>
+    </svg>
+    <div class="page">
+      <header class="header">
+        <nav class="nav">
+          <span class="nav__logo">&lt;°)YACE)&gt;&lt;</span>
+          <div class="nav__actions">
+            <div class="theme-switch" role="group" aria-label="Theme">
+              <button
+                class="theme-switch__option theme-switch__option--system"
+                type="button"
+                data-theme-choice="system"
+                aria-label="System theme"
+                aria-pressed="true"
+              >
+                <svg class="theme-switch__icon" aria-hidden="true"><use href="#icon-monitor"></use></svg>
+              </button>
+              <button
+                class="theme-switch__option theme-switch__option--light"
+                type="button"
+                data-theme-choice="light"
+                aria-label="Light theme"
+                aria-pressed="false"
+              >
+                <svg class="theme-switch__icon" aria-hidden="true"><use href="#icon-sun"></use></svg>
+              </button>
+              <button
+                class="theme-switch__option theme-switch__option--dark"
+                type="button"
+                data-theme-choice="dark"
+                aria-label="Dark theme"
+                aria-pressed="false"
+              >
+                <svg class="theme-switch__icon" aria-hidden="true"><use href="#icon-moon"></use></svg>
+              </button>
+            </div>
+          </div>
+        </nav>
+        <div class="hero">
+          <div class="hero__scanlines"></div>
+          <div class="hero__inner">
+            <div class="hero__bubbles"></div>
+            <div class="hero__fish-school">
+              <span class="hero__fish hero__fish--big">&lt;°))))&gt;&lt;</span>
+              <span class="hero__fish hero__fish--small">&gt;&lt;((°&gt;</span>
+            </div>
+            <div class="hero__content">
+              <h1 class="hero__sr">yace — yet another code editor</h1>
+              <div class="hero__title" aria-hidden="true">
+                <span class="hero__title-line" data-text="yet another">yet another</span>
+                <span class="hero__title-line" data-text="code editor">code editor</span>
+              </div>
+              <p class="hero__tagline">
+                <b class="hero__size">~1.7KB</b> gzipped, zero dependencies, framework-agnostic. A native
+                <span class="hero__tag">&lt;textarea&gt;</span> under the hood.
+              </p>
+              <div class="hero__tagline hero__tagline--live" id="hero-tagline-live"></div>
+              <div class="hero__actions">
+                <button class="hero__button hero__button--primary" type="button">
+                  <span class="hero__button-label">npm install yace</span>
+                  <svg class="hero__copy" aria-hidden="true"><use href="#icon-copy"></use></svg>
+                </button>
+                <a class="hero__button hero__button--ghost" href="https://github.com/petersolopov/yace">
+                  github
+                  <svg class="hero__arrow" aria-hidden="true"><use href="#icon-arrow"></use></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      <main class="main">
+        <section class="getting-started" id="getting-started">
+          <h2 class="section-label getting-started__label">// GETTING_STARTED</h2>
+          <div class="getting-started__window">
+            <div class="getting-started__editor" id="editor"></div>
+          </div>
+        </section>
+        <section class="features" id="features">
+          <h2 class="section-label features__label">// FEATURES</h2>
+          <ul class="features__grid">
+            <li class="features__card">
+              <span class="features__title">1.7KB, zero deps</span>
+              <p class="features__text">gzipped core with no supply-chain surface.</p>
+            </li>
+            <li class="features__card">
+              <span class="features__title">any highlighter</span>
+              <p class="features__text">highlight.js, Prism, Shiki — or the fun ones shipped in yace/highlighters.</p>
+            </li>
+            <li class="features__card">
+              <span class="features__title">plugins</span>
+              <p class="features__text">tab, history, indent, cut line — or write your own in a few lines.</p>
+            </li>
+            <li class="features__card">
+              <span class="features__title">framework-agnostic</span>
+              <p class="features__text">pass a DOM node — plays nice with React and friends.</p>
+            </li>
+          </ul>
+        </section>
+        <section class="examples" id="examples">
+          <h2 class="section-label examples__label">// EXAMPLES</h2>
+          <ul class="examples__list">
+            <li class="examples__item">
+              <a class="examples__link" href="https://codesandbox.io/s/yace-highlightjs-jvqp0">
+                highlight.js as highlighter
+                <svg class="examples__arrow" aria-hidden="true"><use href="#icon-arrow"></use></svg>
+              </a>
+            </li>
+            <li class="examples__item">
+              <a class="examples__link" href="https://codesandbox.io/s/yace-prismjs-gnjty">
+                prismjs as highlighter
+                <svg class="examples__arrow" aria-hidden="true"><use href="#icon-arrow"></use></svg>
+              </a>
+            </li>
+            <li class="examples__item">
+              <a class="examples__link" href="https://codesandbox.io/s/yace-mdhl-ftdr4">
+                tiny ~2KB markdown editor
+                <svg class="examples__arrow" aria-hidden="true"><use href="#icon-arrow"></use></svg>
+              </a>
+            </li>
+            <li class="examples__item">
+              <a class="examples__link" href="https://codesandbox.io/s/yace-mdhl-highlightjs-xocgf">
+                markdown with code highlighting
+                <svg class="examples__arrow" aria-hidden="true"><use href="#icon-arrow"></use></svg>
+              </a>
+            </li>
+            <li class="examples__item">
+              <a class="examples__link" href="https://codesandbox.io/s/yace-plugins-m3uzv">
+                using plugins
+                <svg class="examples__arrow" aria-hidden="true"><use href="#icon-arrow"></use></svg>
+              </a>
+            </li>
+            <li class="examples__item">
+              <a class="examples__link" href="https://codesandbox.io/s/yace-react-4cwly">
+                using with React
+                <svg class="examples__arrow" aria-hidden="true"><use href="#icon-arrow"></use></svg>
+              </a>
+            </li>
+          </ul>
+        </section>
+      </main>
+      <footer class="footer">
+        <p class="footer__note"><span class="footer__logo">&lt;°)YACE)&gt;&lt;</span> · MIT license</p>
+        <nav class="footer__links">
+          <a class="footer__link" href="https://github.com/petersolopov/yace">github</a>
+          <a class="footer__link" href="https://www.npmjs.com/package/yace">npm</a>
+        </nav>
+      </footer>
+    </div>
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>

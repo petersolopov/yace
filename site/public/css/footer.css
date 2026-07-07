@@ -1,0 +1,39 @@
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 28px 28px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.footer__note {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.footer__logo {
+  color: var(--accent);
+}
+
+.footer__links {
+  display: flex;
+  gap: 16px;
+}
+
+.footer__link {
+  color: var(--accent2);
+  text-decoration: none;
+  transition: color 0.18s ease;
+}
+
+.footer__link:hover {
+  color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .footer {
+    padding: 18px 22px 26px;
+  }
+}

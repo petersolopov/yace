@@ -1,0 +1,45 @@
+.getting-started {
+  padding: 28px;
+}
+
+.getting-started__window {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  /* yace pins line numbers at the editor's left edge; their air from the
+     border comes from the window; vertical air comes from editor padding */
+  padding: 0 14px;
+  /* reserve the mounted editor height so the deferred JS does not jump the
+     page (the value matches the rendered snippet) */
+  min-height: 479px;
+  background: var(--panel);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.getting-started__window:focus-within {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* consumed by inline editor styles (js/main.js): yace styles the root inline,
+   so responsive font/padding go through custom properties */
+.getting-started__editor {
+  --editor-font-size: 14px;
+  --editor-line-height: 1.65;
+  --editor-padding: 16px;
+}
+
+@media (max-width: 640px) {
+  .getting-started {
+    padding: 22px;
+  }
+
+  .getting-started__window {
+    min-height: 567px;
+  }
+
+  .getting-started__editor {
+    --editor-font-size: 12px;
+    --editor-line-height: 1.6;
+    --editor-padding: 14px;
+  }
+}
