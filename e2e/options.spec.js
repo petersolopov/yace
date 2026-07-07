@@ -11,14 +11,14 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/e2e/fixtures/index.html");
 });
 
-test("updateOptions re-renders the current value with the new highlighter", async ({
+test("updateOptions re-renders the current value with the new highlighters", async ({
   page,
 }) => {
   await page.evaluate(() => window.createEditor({ value: "hello" }));
 
   await page.evaluate(() =>
     window.editor.updateOptions({
-      highlighter: (value) => `<mark>${value}</mark>`,
+      highlighters: [(value) => `<mark>${value}</mark>`],
     }),
   );
 
@@ -95,7 +95,7 @@ test("updateOptions preserves the caret across prop changes", async ({
 
   await page.evaluate(() =>
     window.editor.updateOptions({
-      highlighter: (value) => value.toUpperCase(),
+      highlighters: [(value) => value.toUpperCase()],
     }),
   );
   await expect.poll(() => caretRange(textarea)).toEqual([3, 5]);

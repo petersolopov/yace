@@ -15,7 +15,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  site-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npx playwright test --project=site-chromium --project=site-firefox --project=site-webkit
+
   deploy:
+    needs: site-e2e
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -27,12 +39,12 @@ jobs:
           node-version: 24.x
       - run: npm ci
 
-      # examples import ../src/*.js live; emit browser-runnable JS from the TS source
+      # the landing imports yace from /src/*.js live; emit browser-runnable JS from the TS source
       - run: npx tsc -p tsconfig.pages.json
-      - run: cp -R examples _site/examples
 
-      # legacy Pages rendered the README at the site root; keep that URL alive
-      - run: printf '<!doctype html><meta http-equiv="refresh" content="0; url=examples/">\n' > _site/index.html
+      # final _site layout: root = site/public/ (landing), /src/ = tsc-built
+      # JS the import map resolves; /examples/ ships only as a redirect stub
+      - run: cp -R site/public/. _site/
 
       - uses: actions/upload-pages-artifact@v5
         with:
