@@ -25,6 +25,9 @@ export const textareaStyles = {
   outline: "none",
   fontSize: "inherit",
   fontFamily: "inherit",
+  // form controls do not inherit letter-spacing by UA default, so a spaced
+  // root would misalign the caret against the pre glyph by glyph
+  letterSpacing: "inherit",
   boxSizing: "border-box",
   border: "none",
   top: "0px",
