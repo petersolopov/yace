@@ -169,12 +169,12 @@ test("value normalization", () => {
   assert.deepStrictEqual(editor.pre.innerHTML, "0<br/>", "pre should render '0'");
 });
 
-test(".updateOptions() replaces the highlighter and re-renders", () => {
+test(".updateOptions() replaces the highlighters and re-renders", () => {
   const editor = new Yace("#editor", { value: "abc" });
 
-  editor.updateOptions({ highlighter: (value) => value.toUpperCase() });
+  editor.updateOptions({ highlighters: [(value) => value.toUpperCase()] });
 
-  assert.deepStrictEqual(editor.pre.innerHTML, "ABC<br/>", "new highlighter should re-render the current value");
+  assert.deepStrictEqual(editor.pre.innerHTML, "ABC<br/>", "new highlighters should re-render the current value");
   assert.deepStrictEqual(editor.textarea.value, "abc", "textarea value should be untouched");
 });
 
@@ -394,10 +394,10 @@ test("options.lineNumber", () => {
   assert.deepStrictEqual(editor.root.style.paddingLeft, "3ch", "root element should have 3ch padding left");
 });
 
-test("options.highlighter", () => {
+test("options.highlighters", () => {
   const editor = new Yace("#editor", {
     value: "test",
-    highlighter: (value) => value.toUpperCase(),
+    highlighters: [(value) => value.toUpperCase()],
   });
 
   assert.deepStrictEqual(editor.pre.innerHTML, "TEST<br/>", "it should transform pre innerHTML when editor init");
@@ -410,6 +410,80 @@ test("options.highlighter", () => {
     "it should transform pre innerHTML when editor was updated",
   );
   assert.deepStrictEqual(editor.textarea.value, "test test", "textarea should have not transformed value");
+});
+
+test("array highlighter composes stages, raw first then html-aware", () => {
+  const seen = [];
+  const stage0 = (value, context) => {
+    seen.push(context);
+    return value + "|0";
+  };
+  const stage1 = (value, context) => {
+    seen.push(context);
+    return value + "|1";
+  };
+
+  const editor = new Yace("#editor", { value: "x", highlighters: [stage0, stage1] });
+
+  assert.deepStrictEqual(editor.pre.innerHTML, "x|0|1<br/>", "each stage feeds the next, in order");
+  assert.deepStrictEqual(
+    seen,
+    [{ html: false }, { html: true }],
+    "stage 0 gets html:false (raw code), later stages get html:true (prior HTML)",
+  );
+});
+
+test(".updateOptions() accepts a highlighters array", () => {
+  const editor = new Yace("#editor", { value: "x" });
+
+  const a = (value) => value + "|a";
+  const b = (value, context) => value + (context.html ? "|htmlB" : "|rawB");
+  editor.updateOptions({ highlighters: [a, b] });
+
+  assert.deepStrictEqual(
+    editor.pre.innerHTML,
+    "x|a|htmlB<br/>",
+    "the array normalizes on updateOptions and re-renders",
+  );
+});
+
+test("a bare function is tolerated where the typed option wants an array", () => {
+  // the documented option is Highlighter[]; JS callers may still pass one
+  // function and the runtime wraps it — same result as a single-element array
+  const editor = new Yace("#editor", { value: "abc", highlighters: (value) => value.toUpperCase() });
+  assert.deepStrictEqual(editor.pre.innerHTML, "ABC<br/>", "the lone function runs as stage 0");
+
+  editor.updateOptions({ highlighters: (value) => `[${value}]` });
+  assert.deepStrictEqual(editor.pre.innerHTML, "[abc]<br/>", "updateOptions wraps a bare function too");
+});
+
+test("an empty highlighter array falls back to escaping, not identity", () => {
+  const editor = new Yace("#editor", {
+    value: "<img src=x onerror=alert(1)>",
+    highlighters: [],
+  });
+
+  assert.ok(!editor.pre.innerHTML.includes("<img"), "the payload is not passed through raw");
+  assert.deepStrictEqual(
+    editor.pre.innerHTML,
+    "&lt;img src=x onerror=alert(1)&gt;<br/>",
+    "an empty pipeline escapes like the default highlighter",
+  );
+});
+
+test(".updateOptions() with an empty highlighters array resets to the escaping default", () => {
+  const editor = new Yace("#editor", {
+    value: "<b>",
+    highlighters: [(value) => value],
+  });
+  assert.deepStrictEqual(editor.pre.innerHTML, "<b><br/>", "the identity highlighter leaves the value raw");
+
+  editor.updateOptions({ highlighters: [] });
+  assert.deepStrictEqual(
+    editor.pre.innerHTML,
+    "&lt;b&gt;<br/>",
+    "an empty array on updateOptions falls back to escaping, not identity",
+  );
 });
 
 test("default highlighter escapes HTML entities", () => {

@@ -16,11 +16,22 @@ export type Plugin = (
   event: Event,
 ) => Partial<TextareaProps> | void;
 
+/**
+ * A highlighter turns a value into HTML. `context.html` is false for the first
+ * stage of the `highlighters` pipeline (raw code — escape it) and true for later
+ * stages (the input is prior HTML — copy tags verbatim, do not re-escape).
+ */
+export type Highlighter = (
+  value: string,
+  context?: { html: boolean },
+) => string;
+
 export interface YaceOptions {
   /** the contract is string; the runtime String(...) coercion is JS-only defense */
   value?: string;
   lineNumbers?: boolean;
-  highlighter?: (value: string) => string;
+  /** a pipeline, mirroring `plugins`; a bare function is tolerated at runtime */
+  highlighters?: Highlighter[];
   styles?: Record<string, string>;
   plugins?: Plugin[];
 }
@@ -28,10 +39,28 @@ export interface YaceOptions {
 type ResolvedOptions = {
   value: string;
   lineNumbers?: boolean;
-  highlighter: (value: string) => string;
+  highlighter: Highlighter;
   styles: Record<string, string>;
   plugins: Plugin[];
 };
+
+const defaultHighlighter: Highlighter = (value) => escape(value);
+
+// the typed option is an array (mirrors `plugins`); a bare function is tolerated
+// at runtime for JS callers. the array runs as a pipeline: stage 0 gets the raw
+// value (html:false), each later stage gets the previous stage's HTML (html:true)
+function normalizeHighlighters(
+  highlighters: Highlighter | Highlighter[],
+): Highlighter {
+  const list = Array.isArray(highlighters) ? highlighters : [highlighters];
+  // an empty pipeline would reduce to the identity and pass the raw value
+  // straight to innerHTML — fall back to the escaping default (XSS-safe)
+  if (list.length === 0) {
+    return defaultHighlighter;
+  }
+  return (value) =>
+    list.reduce((input, h, i) => h(input, { html: i > 0 }), value);
+}
 
 export default class Yace {
   root!: HTMLElement;
@@ -62,12 +91,16 @@ export default class Yace {
       value: "",
       styles: {},
       plugins: [],
-      highlighter: (value) => escape(value),
+      highlighter: defaultHighlighter,
     };
 
+    const { highlighters, ...rest } = options;
     this.options = {
       ...defaultOptions,
-      ...options,
+      ...rest,
+      highlighter: highlighters
+        ? normalizeHighlighters(highlighters)
+        : defaultOptions.highlighter,
     };
 
     this.options.value =
@@ -181,9 +214,13 @@ export default class Yace {
       return;
     }
 
+    const { highlighters, ...rest } = options;
     this.options = {
       ...this.options,
-      ...options,
+      ...rest,
+      highlighter: highlighters
+        ? normalizeHighlighters(highlighters)
+        : this.options.highlighter,
     };
 
     if (options.styles) {

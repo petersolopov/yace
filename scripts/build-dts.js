@@ -64,7 +64,7 @@ async function writeIndexCts(esm) {
     throw new Error("build-dts: bad derived index.d.cts");
   }
   const cts = `${body}declare namespace Yace {
-    export { TextareaProps, Plugin, YaceOptions };
+    export { TextareaProps, Plugin, YaceOptions, Highlighter };
 }
 export = Yace;
 `;
