@@ -28,6 +28,46 @@
         "default": "./dist/plugins/*.cjs"
       }
     },
+    "./highlighters/basic": {
+      "import": {
+        "types": "./dist/highlighters/basic.d.ts",
+        "default": "./dist/highlighters/basic.js"
+      },
+      "require": {
+        "types": "./dist/highlighters/basic.d.cts",
+        "default": "./dist/highlighters/basic.cjs"
+      }
+    },
+    "./highlighters/jitterGlitch": {
+      "import": {
+        "types": "./dist/highlighters/jitterGlitch.d.ts",
+        "default": "./dist/highlighters/jitterGlitch.js"
+      },
+      "require": {
+        "types": "./dist/highlighters/jitterGlitch.d.cts",
+        "default": "./dist/highlighters/jitterGlitch.cjs"
+      }
+    },
+    "./highlighters/sliceGlitch": {
+      "import": {
+        "types": "./dist/highlighters/sliceGlitch.d.ts",
+        "default": "./dist/highlighters/sliceGlitch.js"
+      },
+      "require": {
+        "types": "./dist/highlighters/sliceGlitch.d.cts",
+        "default": "./dist/highlighters/sliceGlitch.cjs"
+      }
+    },
+    "./highlighters/shimmer": {
+      "import": {
+        "types": "./dist/highlighters/shimmer.d.ts",
+        "default": "./dist/highlighters/shimmer.js"
+      },
+      "require": {
+        "types": "./dist/highlighters/shimmer.d.cts",
+        "default": "./dist/highlighters/shimmer.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -36,7 +76,7 @@
   "scripts": {
     "dev": "node e2e/server.js",
     "typecheck": "tsc --noEmit",
-    "test": "c8 --all --include 'src/**/*.ts' --check-coverage --lines 100 --functions 100 --branches 99 node --test test/test.js",
+    "test": "c8 --all --include 'src/**/*.ts' --check-coverage --lines 100 --functions 100 --branches 99 node --test test/test.js test/highlighters.test.js",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "report": "c8 report --all --include 'src/**/*.ts' --reporter=text-lcov > coverage.txt",

@@ -57,4 +57,29 @@ const pluginsConfig = {
   plugins: [resolveTsSource, typescriptPlugin, terser()],
 };
 
-export default [editorConfig, pluginsConfig];
+const highlightersConfig = {
+  input: [
+    "src/highlighters/basic.ts",
+    "src/highlighters/jitterGlitch.ts",
+    "src/highlighters/sliceGlitch.ts",
+    "src/highlighters/shimmer.ts",
+  ],
+  output: [
+    {
+      format: "esm",
+      dir: "dist/highlighters",
+      entryFileNames: "[name].js",
+      chunkFileNames: "[name].js",
+    },
+    {
+      format: "cjs",
+      dir: "dist/highlighters",
+      entryFileNames: "[name].cjs",
+      chunkFileNames: "[name].cjs",
+      exports: "default",
+    },
+  ],
+  plugins: [resolveTsSource, typescriptPlugin, terser()],
+};
+
+export default [editorConfig, pluginsConfig, highlightersConfig];

@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 const dist = fileURLToPath(new URL("../dist/", import.meta.url));
 
 const plugins = ["tab", "history", "preserveIndent", "cutLine", "isKey"];
+const highlighters = ["basic", "jitterGlitch", "sliceGlitch", "shimmer"];
 
 // every transform asserts its post-condition: a silent regex miss here would
 // publish wrong declarations that only break in consumer projects
@@ -80,4 +81,47 @@ await writeIndexCts(indexEsm);
 for (const name of plugins) {
   const esm = await fixPluginEsmImport(name);
   await writePluginCts(name, esm);
+}
+
+// highlighters only import their own siblings, so the rewrite is generic:
+// any relative ".ts" specifier becomes ".js" (ESM) / ".cjs" (derived CJS)
+async function fixHighlighterEsmImport(name) {
+  const file = `${dist}highlighters/${name}.d.ts`;
+  const source = await readFile(file, "utf8");
+  const fixed = source.replace(/from "(\.[^"]*)\.ts"/g, 'from "$1.js"');
+  if (/from "\.[^"]*\.ts"/.test(fixed)) {
+    throw new Error(`build-dts: unrewritten .ts import in ${name}.d.ts`);
+  }
+  await writeFile(file, fixed);
+  return fixed;
+}
+
+// a highlighter that exports named types beside its default (basic's
+// BasicRule) needs the same const/namespace merge writeIndexCts builds:
+// `export =` cannot sit next to `export interface`, so the types move into a
+// `declare namespace` that merges with the default value.
+async function writeHighlighterCts(name, esm) {
+  const withCjsImports = esm.replace(/from "(\.[^"]*)\.js"/g, 'from "$1.cjs"');
+  const namedTypes = [
+    ...withCjsImports.matchAll(/^export (?:interface|type) (\w+)/gm),
+  ].map(([, type]) => type);
+  const body = withCjsImports
+    .replace(/^export interface /gm, "interface ")
+    .replace(/^export type /gm, "type ");
+  const merge = namedTypes.length
+    ? `declare namespace $1 {\n    export { ${namedTypes.join(", ")} };\n}\n`
+    : "";
+  const cts = body.replace(/^export default (\w+);/m, `${merge}export = $1;`);
+  if (
+    /^export (default|interface|type) /m.test(cts) ||
+    !/^export = \w+;/m.test(cts)
+  ) {
+    throw new Error(`build-dts: bad derived ${name}.d.cts`);
+  }
+  await writeFile(`${dist}highlighters/${name}.d.cts`, cts);
+}
+
+for (const name of highlighters) {
+  const esm = await fixHighlighterEsmImport(name);
+  await writeHighlighterCts(name, esm);
 }
