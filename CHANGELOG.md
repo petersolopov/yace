@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.8](https://github.com/petersolopov/yace/compare/v0.0.7...v0.0.8) (2026-07-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* the singular `highlighter` option is replaced by a `highlighters` array that composes left to right as an html-aware pipeline ([6df293a](https://github.com/petersolopov/yace/commit/6df293a15e57b5071462a203fea052e9a5366fb0))
+
+### Features
+
+* package bundled highlighters via `yace/highlighters/{basic,sliceGlitch,jitterGlitch,shimmer}` subpaths — `basic` is an extensible tokenizer, slice/jitter/shimmer are decorative ([560abcd](https://github.com/petersolopov/yace/commit/560abcd5e119c3d9195c1870f80483aa4e33ca53))
+* run highlighters as an html-aware pipeline in the core ([6df293a](https://github.com/petersolopov/yace/commit/6df293a15e57b5071462a203fea052e9a5366fb0))
+
+
+### Bug Fixes
+
+* inherit textarea letter-spacing to keep the caret aligned ([5d3b1c4](https://github.com/petersolopov/yace/commit/5d3b1c40120e6df7d340ae90174512d985530855))
+
 ### [0.0.7](https://github.com/petersolopov/yace/compare/v0.0.6...v0.0.7) (2026-07-01)
 
 
