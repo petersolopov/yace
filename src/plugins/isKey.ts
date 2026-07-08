@@ -99,3 +99,4 @@ function isKey(shortcut: string, event: KeyboardEvent): boolean {
 }
 
 export default isKey;
+export { isKey as "module.exports" };

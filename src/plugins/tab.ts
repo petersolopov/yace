@@ -107,3 +107,4 @@ const tab =
   };
 
 export default tab;
+export { tab as "module.exports" };

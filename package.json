@@ -3,60 +3,30 @@
   "version": "0.0.8",
   "description": "tiny text editor with plugins",
   "type": "module",
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "sideEffects": false,
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      }
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./plugins/*": {
-      "import": {
-        "types": "./dist/plugins/*.d.ts",
-        "default": "./dist/plugins/*.js"
-      },
-      "require": {
-        "types": "./dist/plugins/*.d.cts",
-        "default": "./dist/plugins/*.cjs"
-      }
+      "types": "./dist/plugins/*.d.ts",
+      "default": "./dist/plugins/*.js"
     },
     "./highlighters/basic": {
-      "import": {
-        "types": "./dist/highlighters/basic.d.ts",
-        "default": "./dist/highlighters/basic.js"
-      },
-      "require": {
-        "types": "./dist/highlighters/basic.d.cts",
-        "default": "./dist/highlighters/basic.cjs"
-      }
+      "types": "./dist/highlighters/basic.d.ts",
+      "default": "./dist/highlighters/basic.js"
     },
     "./highlighters/sliceGlitch": {
-      "import": {
-        "types": "./dist/highlighters/sliceGlitch.d.ts",
-        "default": "./dist/highlighters/sliceGlitch.js"
-      },
-      "require": {
-        "types": "./dist/highlighters/sliceGlitch.d.cts",
-        "default": "./dist/highlighters/sliceGlitch.cjs"
-      }
+      "types": "./dist/highlighters/sliceGlitch.d.ts",
+      "default": "./dist/highlighters/sliceGlitch.js"
     },
     "./highlighters/shimmer": {
-      "import": {
-        "types": "./dist/highlighters/shimmer.d.ts",
-        "default": "./dist/highlighters/shimmer.js"
-      },
-      "require": {
-        "types": "./dist/highlighters/shimmer.d.cts",
-        "default": "./dist/highlighters/shimmer.cjs"
-      }
+      "types": "./dist/highlighters/shimmer.d.ts",
+      "default": "./dist/highlighters/shimmer.js"
     },
     "./package.json": "./package.json"
   },
@@ -71,7 +41,7 @@
     "test:e2e:headed": "playwright test --headed",
     "report": "c8 report --all --include 'src/**/*.ts' --reporter=text-lcov > coverage.txt",
     "build": "rm -rf ./dist && rollup -c && tsc -p tsconfig.build.json && node scripts/build-dts.js",
-    "attw": "npm run build && attw --pack . --profile node16 --ignore-rules false-export-default",
+    "attw": "npm run build && attw --pack . --profile esm-only",
     "prettier:write": "prettier --write '{src,test,e2e,scripts}/**/*' 'site/**/*.{html,css,js,jsx}' playwright.config.js",
     "prettier:check": "prettier --check '{src,test,e2e,scripts}/**/*' 'site/**/*.{html,css,js,jsx}' playwright.config.js",
     "release": "npx standard-version"

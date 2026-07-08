@@ -356,3 +356,8 @@ function escape(unsafe: string): string {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
+
+// require(esm) returns the module namespace, so the class would sit on `.default`;
+// this string-named export puts it on module.exports so require("yace") yields the
+// callable directly. Same trick on every public subpath entry.
+export { Yace as "module.exports" };

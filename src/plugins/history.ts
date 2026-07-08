@@ -96,3 +96,4 @@ function history(
 }
 
 export default history;
+export { history as "module.exports" };

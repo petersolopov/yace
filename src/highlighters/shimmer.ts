@@ -66,3 +66,4 @@ const shimmer = (
 };
 
 export default shimmer;
+export { shimmer as "module.exports" };

@@ -125,3 +125,4 @@ const sliceGlitch = (
 };
 
 export default sliceGlitch;
+export { sliceGlitch as "module.exports" };

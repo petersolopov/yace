@@ -28,6 +28,8 @@ Or hotlink the ESM build from unpkg, no build tool required:
 import Yace from "https://unpkg.com/yace?module";
 ```
 
+The package is ESM-only. `require("yace")` still returns the callable directly on Node 22+ (which supports `require` of an ESM module); native `import` and bundlers work everywhere. TypeScript CommonJS consumers need `"moduleResolution": "nodenext"` (TS 5.8+) — the `node16` setting models older Node and rejects `require` of ESM. Jest's default CommonJS runtime cannot load ESM — use Vitest or Jest's ESM mode.
+
 ## Usage
 
 `new Yace(target, options)` takes a CSS selector or a DOM `Node` to mount into:

@@ -79,3 +79,4 @@ const cutLine =
   };
 
 export default cutLine;
+export { cutLine as "module.exports" };

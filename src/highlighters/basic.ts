@@ -85,3 +85,4 @@ const basic = (extraRules: BasicRule[] = []) => {
 };
 
 export default basic;
+export { basic as "module.exports" };

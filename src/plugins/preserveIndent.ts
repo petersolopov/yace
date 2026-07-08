@@ -45,3 +45,4 @@ const preserveIndent =
   };
 
 export default preserveIndent;
+export { preserveIndent as "module.exports" };

@@ -57,11 +57,14 @@ is a consumer of it.
   chunks (the `words` scanner, `injectStyles`) stay unexported
 - The exports map is the encapsulation boundary: deep paths like
   `yace/dist/...` are closed, internal dist layout may change freely
-- Current dist ships dual ESM/CJS. Decided direction: 1.0.0 goes
-  ESM-only (drop `.cjs` and `.d.cts`, add
-  `export { X as "module.exports" }` so `require()` keeps returning the
-  callable on Node 22+); adding CJS back later is additive and
-  non-breaking
+- Dist is ESM-only. Every public entry adds a string-named export
+  `export { X as "module.exports" }`, so `require()` returns the callable
+  directly on Node 22+ (`require` of an ESM module) while native `import`
+  is unaffected. Jest's default CJS runtime cannot load ESM — vitest or
+  jest's ESM mode works. Typed CJS consumers need TS `moduleResolution`
+  `nodenext` (5.8+): `node16` models older Node and rejects `require` of
+  ESM with TS1471 (verified against the tarball). Re-adding
+  `.cjs`/`.d.cts` later is additive and non-breaking (a minor)
 - After 1.0.0 the contract is frozen; evolution is additive only (new
   plugin or highlighter = new subpath = minor)
 
@@ -118,18 +121,17 @@ is a consumer of it.
   `scripts/build-dts.js`
 - esbuild was evaluated and rejected: without bundling it does not
   rewrite `.ts` import specifiers (dist would reference nonexistent
-  files), and with bundling it inlines shared modules into every entry;
-  its CJS emit also wraps exports in `.default` interop
+  files), and with bundling it inlines shared modules into every entry
 - Source imports use explicit `.ts` extensions — required because unit
   tests import live `src/` under Node's native type stripping
-- `scripts/build-dts.js` derives `.d.cts` and strips private class slots
-  by text transform; every transform asserts its post-condition, so an
-  export-shape change that breaks a transform fails the build instead of
-  publishing wrong declarations
+- `scripts/build-dts.js` strips private class slots and rewrites the
+  emitted `.ts` import specifiers to `.js` by text transform; every
+  transform asserts its post-condition, so an export-shape change that
+  breaks a transform fails the build instead of publishing wrong
+  declarations
 - A new public subpath is wired by hand — exports map, rollup input, and
-  the `build-dts` list — and a new exported core type is added to the
-  `build-dts` namespace list; there is no highlighters wildcard, so
-  every public subpath is an intentional choice
+  the `build-dts` list; there is no highlighters wildcard, so every
+  public subpath is an intentional choice
 
 ## Browser support
 
@@ -187,11 +189,14 @@ chromium/firefox/webkit. The Pages `deploy` job is gated on the
 - Publishing runs from CI on a `v*` tag push via OIDC trusted
   publishing; a bare `npm publish` targets the `latest` dist-tag, so
   pre-1.0 betas need `--tag next`
-- attw exit code: the npm script pins `--profile node16` (node10
-  resolution is deliberately unsupported — legacy resolvers ignore the
-  exports map) and `--ignore-rules false-export-default` (the dual
-  default export is intentional CJS interop, not a real fault); without
-  those flags attw exits non-zero and reddens CI
+- attw exit code: the npm script pins `--profile esm-only`. For an
+  ESM-only package attw's CJS and node10 resolutions are expected to
+  fail (`require(esm)` shows as "dynamic import only") and the profile
+  ignores them; the ESM and bundler resolutions must stay green. A real
+  fault still reddens CI — a types path pointing at a missing file exits
+  non-zero (verified). Note attw's static check does not model the
+  `require(esm)` runtime that the `"module.exports"` trick relies on, so
+  the require() smoke test in the release checklist is the real proof
 
 ## Conventions
 

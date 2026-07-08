@@ -24,10 +24,7 @@ const typescriptPlugin = typescript({
 
 const editorConfig = {
   input: ["src/index.ts"],
-  output: [
-    { file: "dist/index.js", format: "esm" },
-    { file: "dist/index.cjs", format: "cjs", exports: "default" },
-  ],
+  output: [{ file: "dist/index.js", format: "esm" }],
   plugins: [resolveTsSource, typescriptPlugin, terser()],
 };
 
@@ -46,13 +43,6 @@ const pluginsConfig = {
       entryFileNames: "[name].js",
       chunkFileNames: "[name].js",
     },
-    {
-      format: "cjs",
-      dir: "dist/plugins",
-      entryFileNames: "[name].cjs",
-      chunkFileNames: "[name].cjs",
-      exports: "default",
-    },
   ],
   plugins: [resolveTsSource, typescriptPlugin, terser()],
 };
@@ -69,13 +59,6 @@ const highlightersConfig = {
       dir: "dist/highlighters",
       entryFileNames: "[name].js",
       chunkFileNames: "[name].js",
-    },
-    {
-      format: "cjs",
-      dir: "dist/highlighters",
-      entryFileNames: "[name].cjs",
-      chunkFileNames: "[name].cjs",
-      exports: "default",
     },
   ],
   plugins: [resolveTsSource, typescriptPlugin, terser()],
