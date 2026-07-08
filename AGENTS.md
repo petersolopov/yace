@@ -224,8 +224,12 @@ chromium/firefox/webkit. The Pages `deploy` job is gated on the
 - Publishing runs from CI on a `v*` tag push via OIDC trusted
   publishing; the publish step routes by version: a prerelease suffix
   (`1.0.0-beta.1`) publishes under the `next` dist-tag, a stable version
-  publishes bare and becomes `latest`. A wrong dist-tag is repointed
-  without unpublishing: `npm dist-tag add yace@<version> latest`
+  publishes bare and becomes `latest`. The routing assumes releases move
+  forward: npm repoints `latest` to whatever stable is published last,
+  so a backport below the current latest would drag `latest` backwards —
+  if a maintenance line ever appears, publish it with an explicit
+  `--tag`. A wrong dist-tag is repointed without unpublishing:
+  `npm dist-tag add yace@<version> latest`
 - attw exit code: the npm script pins `--profile esm-only`. For an
   ESM-only package attw's CJS and node10 resolutions are expected to
   fail (`require(esm)` shows as "dynamic import only") and the profile
