@@ -215,3 +215,5 @@ In order:
 - `npm run attw` (includes the build)
 - `npm pack`, install the tarball into a clean project, verify `import`
   and `require` of the core and each plugin return callables
+- external demo and example links resolve (README badges and examples,
+  site links)
