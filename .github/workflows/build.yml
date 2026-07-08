@@ -84,4 +84,11 @@ jobs:
       - run: npm install -g npm@latest
       - run: npm ci
       - run: npm run build
-      - run: npm publish
+      # a bare publish always repoints `latest`; prerelease versions must go
+      # to the `next` dist-tag so `npm i yace` keeps installing the stable one
+      - run: |
+          VERSION=$(node -p "require('./package.json').version")
+          case "$VERSION" in
+            *-*) npm publish --tag next ;;
+            *) npm publish ;;
+          esac

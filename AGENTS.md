@@ -222,8 +222,10 @@ chromium/firefox/webkit. The Pages `deploy` job is gated on the
   shorthands and does not move the caret on value assignment; caret and
   alignment behavior is only provable in e2e
 - Publishing runs from CI on a `v*` tag push via OIDC trusted
-  publishing; a bare `npm publish` targets the `latest` dist-tag, so
-  pre-1.0 betas need `--tag next`
+  publishing; the publish step routes by version: a prerelease suffix
+  (`1.0.0-beta.1`) publishes under the `next` dist-tag, a stable version
+  publishes bare and becomes `latest`. A wrong dist-tag is repointed
+  without unpublishing: `npm dist-tag add yace@<version> latest`
 - attw exit code: the npm script pins `--profile esm-only`. For an
   ESM-only package attw's CJS and node10 resolutions are expected to
   fail (`require(esm)` shows as "dynamic import only") and the profile
