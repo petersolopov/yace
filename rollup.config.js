@@ -60,7 +60,6 @@ const pluginsConfig = {
 const highlightersConfig = {
   input: [
     "src/highlighters/basic.ts",
-    "src/highlighters/jitterGlitch.ts",
     "src/highlighters/sliceGlitch.ts",
     "src/highlighters/shimmer.ts",
   ],

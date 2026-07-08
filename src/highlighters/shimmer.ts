@@ -33,7 +33,7 @@ const shimmer = (
   const { interval = 3400, duration = 1530, words, colors = {} } = options;
 
   // fraction of the cycle spent sweeping; ceiling 100 is a continuous shimmer
-  // (unlike the glitches' 85 — a full-cycle sweep is meaningful here), floor 3
+  // (unlike sliceGlitch's 85 — a full-cycle sweep is meaningful here), floor 3
   // keeps a tiny duration from collapsing into a one-frame flash
   const active = Math.min(100, Math.max(3, (duration / interval) * 100));
   const key = `a${active.toFixed(2).replace(".", "-")}`;

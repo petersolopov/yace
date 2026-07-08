@@ -158,10 +158,9 @@ Chaining is the point of the pipeline: `[basic(), shimmer({ words: ["TODO"] })]`
 
 - `basic(extraRules?)` — an extensible tokenizer. Emits `<span class="yace-tok yace-tok--type">` per token, no colors of its own. Pass `extraRules` (`{ type, pattern }[]`, tried before the built-ins) to add token types; flags on your patterns (`/i`, `/u`, `/s`) are kept.
 - `sliceGlitch(options?)` — decorative glitch that shatters each line into displaced RGB slices. `interval = 3600`, `duration = 900`, `shift = 1`, `fringe = 0.035` (em), `opacity = 0.95`; `duration ≥ interval` clamps to an 85% active fraction, not fully continuous. Colors: `--yace-slice-a` / `--yace-slice-b`.
-- `jitterGlitch(options?)` — same idea, lighter: RGB channels tremble around the text. `interval = 3200`, `duration = 800`, `fringe = 0.02` (em), same `shift` / `opacity` and the same 85% clamp. Colors: `--yace-jitter-a` / `--yace-jitter-b`.
 - `shimmer(options?)` — a light band sweeps across the text, then rests. `interval = 3400`, `duration = 1530`; theme via `--yace-shimmer-base` / `--yace-shimmer-band` or a JS `colors: { base, band }` option.
 
-The decorative highlighters (`sliceGlitch`, `jitterGlitch`, `shimmer`) also take a `words` array to decorate only the matching words inline and leave the rest as plain text.
+The decorative highlighters (`sliceGlitch`, `shimmer`) also take a `words` array to decorate only the matching words inline and leave the rest as plain text.
 
 ## Browser support
 

@@ -38,16 +38,6 @@
         "default": "./dist/highlighters/basic.cjs"
       }
     },
-    "./highlighters/jitterGlitch": {
-      "import": {
-        "types": "./dist/highlighters/jitterGlitch.d.ts",
-        "default": "./dist/highlighters/jitterGlitch.js"
-      },
-      "require": {
-        "types": "./dist/highlighters/jitterGlitch.d.cts",
-        "default": "./dist/highlighters/jitterGlitch.cjs"
-      }
-    },
     "./highlighters/sliceGlitch": {
       "import": {
         "types": "./dist/highlighters/sliceGlitch.d.ts",

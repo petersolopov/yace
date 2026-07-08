@@ -3,7 +3,6 @@ import assert from "node:assert";
 import "undom/register.js";
 
 import basic from "../src/highlighters/basic.ts";
-import jitterGlitch from "../src/highlighters/jitterGlitch.ts";
 import sliceGlitch from "../src/highlighters/sliceGlitch.ts";
 import shimmer from "../src/highlighters/shimmer.ts";
 import injectStyles from "../src/highlighters/injectStyles.ts";
@@ -131,20 +130,6 @@ test("highlighters/sliceGlitch: html context copies prior tags verbatim", () => 
   assert.ok(html.startsWith("<i>"), "the opening tag is copied, not scanned or wrapped");
   assert.ok(html.endsWith("</i>"), "the closing tag is copied verbatim");
   assert.ok(html.includes('data-text="cat"'), "the word inside the tags is still wrapped");
-});
-
-test("highlighters/jitterGlitch: words wraps matches with the distinct -word classes", () => {
-  const html = jitterGlitch({ words: ["cat"] })("cat");
-  assert.deepStrictEqual(
-    html,
-    '<span class="yace-jitter-word yace-jitter-word--b25-00" style="--yjg-dur:3200ms;--yjg-amp:1;--yjg-fringe:0.02em;--yjg-op:0.95" data-text="cat"><span class="yace-jitter-word__ink">cat</span></span>',
-    "the jitter word markup carries its own class so the ~br rule never hides the trailing break",
-  );
-});
-
-test("highlighters/jitterGlitch: words honors the html context", () => {
-  const html = jitterGlitch({ words: ["cat"] })("<i>cat</i>", { html: true });
-  assert.ok(html.startsWith("<i>") && html.endsWith("</i>"), "tags are copied verbatim in html mode");
 });
 
 test("highlighters/shimmer: wraps the whole escaped value in one span", () => {
@@ -285,38 +270,6 @@ test("highlighters/sliceGlitch: the duration fraction is clamped to 3..85", () =
     sliceGlitch({ interval: 1000, duration: 2000 })("x").includes("yace-slice--b85-00"),
     "a duration longer than the interval is clamped down to 85%, a continuous glitch",
   );
-});
-
-test("highlighters/jitterGlitch: wraps a logical line in a block span", () => {
-  const html = jitterGlitch()("ab");
-  assert.deepStrictEqual(
-    html,
-    '<span class="yace-jitter yace-jitter--b25-00" style="--yjg-dur:3200ms;--yjg-amp:1;--yjg-fringe:0.02em;--yjg-op:0.95" data-text="ab"><span class="yace-jitter__main">ab</span></span>',
-    "default jitter glitch wraps the line with data-text and inline vars",
-  );
-});
-
-test("highlighters/jitterGlitch: an empty line renders <br/> inside main", () => {
-  const html = jitterGlitch()("");
-  assert.ok(
-    html.includes('<span class="yace-jitter__main"><br/></span>'),
-    "the empty line keeps its line box with a <br/>",
-  );
-});
-
-test("highlighters/jitterGlitch: options drive the vars and the duration-derived key", () => {
-  const html = jitterGlitch({
-    interval: 5000,
-    duration: 2000,
-    shift: 3,
-    fringe: 0.09,
-    opacity: 0.4,
-  })("x");
-  assert.ok(
-    html.includes('style="--yjg-dur:5000ms;--yjg-amp:3;--yjg-fringe:0.09em;--yjg-op:0.4"'),
-    "the options land in the inline vars",
-  );
-  assert.ok(html.includes("yace-jitter--b40-00"), "a 2000ms flash over a 5000ms interval keys the variant at 40%");
 });
 
 // injectStyles reads the global document; swap it wholesale so the guards can

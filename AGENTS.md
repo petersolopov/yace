@@ -52,7 +52,7 @@ is a consumer of it.
   (camelCase mirrors the import name); `isKey` lives under plugins as
   plugin-authoring tooling
 - Highlighters via subpath:
-  `yace/highlighters/{basic,sliceGlitch,jitterGlitch,shimmer}`. These
+  `yace/highlighters/{basic,sliceGlitch,shimmer}`. These
   are enumerated explicitly, not a wildcard, so the internal shared
   chunks (the `words` scanner, `injectStyles`) stay unexported
 - The exports map is the encapsulation boundary: deep paths like
@@ -93,18 +93,17 @@ is a consumer of it.
 ## Bundled highlighters
 
 - `basic` is a tiny extensible tokenizer; the glitch and shimmer
-  factories are decorative (channel copies that tremble or shatter, or a
-  gradient band that sweeps)
+  factories are decorative (channel copies that shatter, or a gradient
+  band that sweeps)
 - Their timing options are milliseconds; the derived duration/interval
   fraction is silently clamped, raw option values are not validated
   (GIGO) — the deliberate cost of keeping them tiny
 - Colours are a public CSS-variable contract so a consumer themes them
-  without JS: `--yace-slice-a`/`-b`, `--yace-jitter-a`/`-b`, and
-  `--yace-shimmer-base`/`-band` (shimmer's `colors` option just bakes
-  those vars inline)
+  without JS: `--yace-slice-a`/`-b` and `--yace-shimmer-base`/`-band`
+  (shimmer's `colors` option just bakes those vars inline)
 - A `words` option switches a highlighter from whole-line block mode to
-  inline word mode. In the glitches the word markup uses its own `-word`
-  classes on purpose: their block classes carry a `~br { display: none }`
+  inline word mode. In the glitch the word markup uses its own `-word`
+  classes on purpose: its block classes carry a `~br { display: none }`
   rule that would otherwise hide the trailing `<br/>` the editor appends
   and break the last-line caret. Shimmer has no such machinery — one
   `.yace-shimmer` class serves both modes
