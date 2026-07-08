@@ -1,6 +1,6 @@
 {
   "name": "yace",
-  "version": "0.0.8",
+  "version": "1.0.0-beta.1",
   "description": "tiny text editor with plugins",
   "type": "module",
   "main": "./dist/index.js",

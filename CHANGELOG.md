@@ -1,6 +1,27 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+
+## [1.0.0-beta.1](https://github.com/petersolopov/yace/compare/v0.0.8...v1.0.0-beta.1) (2026-07-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* switch the public API to named exports
+* ship ESM-only packaging
+* drop the jitterGlitch highlighter
+
+### Features
+
+* add yace/plugins and yace/highlighters barrel entries ([259b2a2](https://github.com/petersolopov/yace/commit/259b2a2a6f47196368263ff09c5639fc55302764))
+* drop the jitterGlitch highlighter ([e4e90a0](https://github.com/petersolopov/yace/commit/e4e90a00bfc86a9ce29bfce4616feec040ecfd2b))
+* ship ESM-only packaging ([3e5b42c](https://github.com/petersolopov/yace/commit/3e5b42cf3205b1c10cbc5b78074fa49d17ed2ec1))
+* switch the public API to named exports ([80f6d61](https://github.com/petersolopov/yace/commit/80f6d614458d0bc7b0dee1683873845970430c12))
+
+
+### Bug Fixes
+
+* right-align line number digits in the gutter ([8900fbb](https://github.com/petersolopov/yace/commit/8900fbb9297cea4723c8fc9f3397cfdeaccb2c52))
 
 ### [0.0.8](https://github.com/petersolopov/yace/compare/v0.0.7...v0.0.8) (2026-07-07)
 
