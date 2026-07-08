@@ -47,7 +47,7 @@ function toCode(key: string): string | null {
   return PUNCTUATION_CODES[key] || null;
 }
 
-function isKey(shortcut: string, event: KeyboardEvent): boolean {
+export function isKey(shortcut: string, event: KeyboardEvent): boolean {
   const keys = shortcut.split("+").reduce<{
     modifiers: Record<ModifierKey, boolean>;
     key: string | null;
@@ -97,6 +97,3 @@ function isKey(shortcut: string, event: KeyboardEvent): boolean {
 
   return hasModifiers && (matchesKey || matchesCode);
 }
-
-export default isKey;
-export { isKey as "module.exports" };

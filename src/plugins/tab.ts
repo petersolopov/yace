@@ -1,5 +1,5 @@
 import type { Plugin } from "../index.ts";
-import isKey from "./isKey.ts";
+import { isKey } from "./isKey.ts";
 
 // when a selection ends at column 0 the line under that caret is not part of
 // the selection, so the range must end on the previous line
@@ -14,7 +14,7 @@ function lastSelectedLine(
   return value.substring(0, effectiveEnd).split("\n").length - 1;
 }
 
-const tab =
+export const tab =
   (tabCharacter = "  "): Plugin =>
   (textareaProps, event): ReturnType<Plugin> => {
     const { value, selectionStart, selectionEnd } = textareaProps;
@@ -105,6 +105,3 @@ const tab =
       };
     }
   };
-
-export default tab;
-export { tab as "module.exports" };

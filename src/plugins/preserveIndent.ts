@@ -1,7 +1,7 @@
 import type { Plugin } from "../index.ts";
-import isKey from "./isKey.ts";
+import { isKey } from "./isKey.ts";
 
-const preserveIndent =
+export const preserveIndent =
   (): Plugin =>
   (textareaProps, event): ReturnType<Plugin> => {
     const { value, selectionStart, selectionEnd } = textareaProps;
@@ -43,6 +43,3 @@ const preserveIndent =
       selectionEnd: selectionStart + inserted.length,
     };
   };
-
-export default preserveIndent;
-export { preserveIndent as "module.exports" };

@@ -45,26 +45,27 @@ is a consumer of it.
 
 ## Import contract
 
-- `import Yace from "yace"` — default export, core only; plugins and
+- `import { Yace } from "yace"` — named export, core only; plugins and
   highlighters are never re-exported from the root (keeps the core
   bundle tiny)
-- Plugins only via subpath: `import tab from "yace/plugins/tab"`
-  (camelCase mirrors the import name); `isKey` lives under plugins as
-  plugin-authoring tooling
+- Plugins only via subpath: `import { tab } from "yace/plugins/tab"`
+  (the named export mirrors the subpath name); `isKey` lives under
+  plugins as plugin-authoring tooling
 - Highlighters via subpath:
   `yace/highlighters/{basic,sliceGlitch,shimmer}`. These
   are enumerated explicitly, not a wildcard, so the internal shared
   chunks (the `words` scanner, `injectStyles`) stay unexported
 - The exports map is the encapsulation boundary: deep paths like
   `yace/dist/...` are closed, internal dist layout may change freely
-- Dist is ESM-only. Every public entry adds a string-named export
-  `export { X as "module.exports" }`, so `require()` returns the callable
-  directly on Node 22+ (`require` of an ESM module) while native `import`
-  is unaffected. Jest's default CJS runtime cannot load ESM — vitest or
-  jest's ESM mode works. Typed CJS consumers need TS `moduleResolution`
-  `nodenext` (5.8+): `node16` models older Node and rejects `require` of
-  ESM with TS1471 (verified against the tarball). Re-adding
-  `.cjs`/`.d.cts` later is additive and non-breaking (a minor)
+- Dist is ESM-only, exports are named. `require("yace")` on Node 22+
+  (`require` of an ESM module) returns the module namespace, so
+  `const { Yace } = require("yace")` works with no interop shim; native
+  `import` is unaffected. Jest's default CJS runtime cannot load ESM —
+  vitest or jest's ESM mode works. Typed CJS consumers need TS
+  `module` `nodenext` (implies the matching `moduleResolution`, 5.8+):
+  `node16` models older Node and rejects `require` of ESM with TS1471
+  (verified against the tarball).
+  Re-adding `.cjs`/`.d.cts` later is additive and non-breaking (a minor)
 - After 1.0.0 the contract is frozen; evolution is additive only (new
   plugin or highlighter = new subpath = minor)
 
@@ -127,11 +128,12 @@ is a consumer of it.
   files), and with bundling it inlines shared modules into every entry
 - Source imports use explicit `.ts` extensions — required because unit
   tests import live `src/` under Node's native type stripping
-- `scripts/build-dts.js` strips private class slots and rewrites the
-  emitted `.ts` import specifiers to `.js` by text transform; every
-  transform asserts its post-condition, so an export-shape change that
-  breaks a transform fails the build instead of publishing wrong
-  declarations
+- `scripts/build-dts.js` strips private class slots, rewrites the
+  emitted `.ts` import specifiers to `.js`, and asserts each entry's
+  named export; every step checks its post-condition, so a reverted
+  export (`export default` or the old `module.exports` alias), a leaked
+  private slot, or an unrewritten import fails the build instead of
+  publishing wrong declarations
 - A new public subpath is wired by hand — exports map, rollup input, and
   the `build-dts` list; there is no highlighters wildcard, so every
   public subpath is an intentional choice
@@ -198,8 +200,9 @@ chromium/firefox/webkit. The Pages `deploy` job is gated on the
   ignores them; the ESM and bundler resolutions must stay green. A real
   fault still reddens CI — a types path pointing at a missing file exits
   non-zero (verified). Note attw's static check does not model the
-  `require(esm)` runtime that the `"module.exports"` trick relies on, so
-  the require() smoke test in the release checklist is the real proof
+  `require(esm)` runtime on Node 22+, where `require("yace")` returns the
+  live module namespace, so the require() smoke test in the release
+  checklist is the real proof
 
 ## Conventions
 
@@ -220,7 +223,8 @@ In order:
 - `npm run typecheck`
 - `npm run test:e2e`
 - `npm run attw` (includes the build)
-- `npm pack`, install the tarball into a clean project, verify `import`
-  and `require` of the core and each plugin return callables
+- `npm pack`, install the tarball into a clean project, verify each
+  entry's named `import` returns a callable and, on Node 22+,
+  `require("yace").Yace` and the per-entry equivalents are callable
 - external demo and example links resolve (README badges and examples,
   site links)

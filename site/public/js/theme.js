@@ -22,7 +22,7 @@ function applyChoice(choice) {
   } catch (e) {}
 }
 
-export default function initTheme() {
+export function initTheme() {
   const options = document.querySelectorAll(".theme-switch__option");
   if (!options.length) return;
 

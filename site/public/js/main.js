@@ -1,11 +1,11 @@
-import Yace from "yace";
-import tab from "yace/plugins/tab";
-import history from "yace/plugins/history";
-import preserveIndent from "yace/plugins/preserveIndent";
-import basic from "yace/highlighters/basic";
-import sliceGlitch from "yace/highlighters/sliceGlitch";
-import shimmer from "yace/highlighters/shimmer";
-import initTheme from "./theme.js";
+import { Yace } from "yace";
+import { tab } from "yace/plugins/tab";
+import { history } from "yace/plugins/history";
+import { preserveIndent } from "yace/plugins/preserveIndent";
+import { basic } from "yace/highlighters/basic";
+import { sliceGlitch } from "yace/highlighters/sliceGlitch";
+import { shimmer } from "yace/highlighters/shimmer";
+import { initTheme } from "./theme.js";
 
 const BUBBLES = [
   { left: "10%", size: 12, delay: 0, digit: "0" },
@@ -18,15 +18,15 @@ const BUBBLES = [
 ];
 
 const SNIPPET = `// the basic setup behind this editor — it's live, edit it
-import Yace from "yace";
+import { Yace } from "yace";
 
 // core plugins — if you need them: tab key, undo/redo, indentation
-import tab from "yace/plugins/tab";
-import history from "yace/plugins/history";
-import preserveIndent from "yace/plugins/preserveIndent";
+import { tab } from "yace/plugins/tab";
+import { history } from "yace/plugins/history";
+import { preserveIndent } from "yace/plugins/preserveIndent";
 
 // bundled highlighter; any (code) => html function works here
-import basic from "yace/highlighters/basic";
+import { basic } from "yace/highlighters/basic";
 
 const editor = new Yace("#editor", {
   value: "console.log('yace')",

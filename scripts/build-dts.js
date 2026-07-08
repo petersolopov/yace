@@ -48,6 +48,23 @@ async function fixHighlighterImport(name) {
   await writeFile(file, fixed);
 }
 
+// every entry exposes exactly one named binding matching its subpath; guard the
+// shape so a future revert to `export default` or the module.exports alias fails
+// the build instead of shipping a declaration consumers cannot destructure
+async function assertNamedExport(relativePath, name) {
+  const file = `${dist}${relativePath}`;
+  const source = await readFile(file, "utf8");
+  const declared = new RegExp(
+    `export declare (?:const|function|class) ${name}\\b`,
+  ).test(source);
+  if (!declared) {
+    throw new Error(`build-dts: ${relativePath} lacks named export "${name}"`);
+  }
+  if (/export default|as default|"module\.exports"/.test(source)) {
+    throw new Error(`build-dts: stale default export in ${relativePath}`);
+  }
+}
+
 // styles is inlined into index at bundle time; its declaration has no runtime
 // module in dist.
 await rm(`${dist}styles.d.ts`, { force: true });
@@ -60,4 +77,14 @@ for (const name of plugins) {
 
 for (const name of highlighters) {
   await fixHighlighterImport(name);
+}
+
+await assertNamedExport("index.d.ts", "Yace");
+
+for (const name of plugins) {
+  await assertNamedExport(`plugins/${name}.d.ts`, name);
+}
+
+for (const name of highlighters) {
+  await assertNamedExport(`highlighters/${name}.d.ts`, name);
 }

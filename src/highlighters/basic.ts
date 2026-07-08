@@ -32,7 +32,7 @@ function escapeAttr(value: string): string {
 // tiny extensible highlighter: rules are tried in order at every position,
 // extra rules take priority over the built-in ones; classes are `yace-tok yace-tok--*`,
 // colors are the consumer's CSS
-const basic = (extraRules: BasicRule[] = []) => {
+export const basic = (extraRules: BasicRule[] = []) => {
   const rules = [...extraRules, ...DEFAULT_RULES].map(({ type, pattern }) => ({
     type,
     // sticky is required for the position-anchored scan; keep the caller's
@@ -83,6 +83,3 @@ const basic = (extraRules: BasicRule[] = []) => {
     return html;
   };
 };
-
-export default basic;
-export { basic as "module.exports" };

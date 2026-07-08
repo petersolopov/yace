@@ -1,7 +1,7 @@
 import type { Plugin } from "../index.ts";
-import isKey from "./isKey.ts";
+import { isKey } from "./isKey.ts";
 
-const cutLine =
+export const cutLine =
   (predicate?: (event: KeyboardEvent) => boolean): Plugin =>
   (textareaProps, event): ReturnType<Plugin> => {
     if (event.type !== "keydown") {
@@ -77,6 +77,3 @@ const cutLine =
       selectionEnd: caret,
     };
   };
-
-export default cutLine;
-export { cutLine as "module.exports" };

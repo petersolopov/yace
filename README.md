@@ -25,10 +25,10 @@ npm i yace
 Or hotlink the ESM build from unpkg, no build tool required:
 
 ```js
-import Yace from "https://unpkg.com/yace?module";
+import { Yace } from "https://unpkg.com/yace?module";
 ```
 
-The package is ESM-only. `require("yace")` still returns the callable directly on Node 22+ (which supports `require` of an ESM module); native `import` and bundlers work everywhere. TypeScript CommonJS consumers need `"moduleResolution": "nodenext"` (TS 5.8+) — the `node16` setting models older Node and rejects `require` of ESM. Jest's default CommonJS runtime cannot load ESM — use Vitest or Jest's ESM mode.
+The package is ESM-only — native `import` and bundlers work everywhere; `require`, TypeScript, and Jest have small caveats, see Gotchas.
 
 ## Usage
 
@@ -39,7 +39,7 @@ The package is ESM-only. `require("yace")` still returns the callable directly o
 ```
 
 ```js
-import Yace from "yace";
+import { Yace } from "yace";
 
 const editor = new Yace("#editor", {
   value: "your awesome code",
@@ -106,7 +106,7 @@ interface TextareaProps {
 On each `keydown`, `input`, or `compositionend`, yace runs the plugins left to right — each sees the previous one's result — and merges the final `props` back into the textarea.
 
 ```js
-import Yace from "yace";
+import { Yace } from "yace";
 
 const upperCase = ({ value }) => ({ value: value.toUpperCase() });
 
@@ -116,11 +116,11 @@ new Yace("#editor", { plugins: [upperCase] });
 First-party plugins ship as subpath imports:
 
 ```js
-import Yace from "yace";
-import history from "yace/plugins/history";
-import tab from "yace/plugins/tab";
-import preserveIndent from "yace/plugins/preserveIndent";
-import cutLine from "yace/plugins/cutLine";
+import { Yace } from "yace";
+import { history } from "yace/plugins/history";
+import { tab } from "yace/plugins/tab";
+import { preserveIndent } from "yace/plugins/preserveIndent";
+import { cutLine } from "yace/plugins/cutLine";
 
 new Yace("#editor", {
   // history() must come first: it checkpoints state before other plugins mutate it
@@ -145,8 +145,8 @@ A highlighter is a function `(value) => html`. yace assigns the returned HTML to
 Highlighters run as a pipeline: `highlighters: Highlighter[]`. The full signature is `(value, context?) => html`: the first stage is called with `context.html` false (or absent) and must escape the raw value; each later stage is called with `context.html === true`, receives the previous stage's HTML, and must be HTML-aware — copy tags through, do not re-escape. An empty array falls back to the built-in escaping highlighter. Drop in PrismJS, highlight.js, or the bundled `basic`:
 
 ```js
-import Yace from "yace";
-import basic from "yace/highlighters/basic";
+import { Yace } from "yace";
+import { basic } from "yace/highlighters/basic";
 
 new Yace("#editor", {
   value: "const answer = 42;",
@@ -171,6 +171,12 @@ Evergreen Chromium, Firefox, and WebKit, plus current mobile browsers. No IE. ya
 ## Non-goals
 
 Large documents, multicursor, decorations, rich text, and SSR are out of scope by design.
+
+## Gotchas
+
+- `require("yace")` on Node 22+ (which supports `require` of an ESM module) returns the module namespace, so destructure the named export: `const { Yace } = require("yace")`. The same holds for every subpath — `const { tab } = require("yace/plugins/tab")`.
+- TypeScript consumers compiling to CommonJS need `"module": "nodenext"` (which implies the matching `moduleResolution`, TypeScript 5.8+); the older `node16` setting rejects `require` of an ESM package.
+- Jest's default CommonJS runtime cannot load ESM — use Vitest or Jest's ESM mode.
 
 ## License
 

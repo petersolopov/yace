@@ -1,4 +1,4 @@
-import injectStyles from "./injectStyles.ts";
+import { injectStyles } from "./injectStyles.ts";
 import { decorate, escapeHtml, escapeAttr } from "./words.ts";
 
 interface ShimmerOptions {
@@ -27,7 +27,7 @@ function variantCss(key: string, active: number): string {
 // fun highlighter: a light band sweeps across the text every `interval`, then
 // rests; colours via --yace-shimmer-base/-band or `colors`. With `words`, only
 // the matching words shimmer inline and the rest is plain text
-const shimmer = (
+export const shimmer = (
   options: ShimmerOptions = {},
 ): ((value: string, context?: { html: boolean }) => string) => {
   const { interval = 3400, duration = 1530, words, colors = {} } = options;
@@ -64,6 +64,3 @@ const shimmer = (
   return (value: string): string =>
     `<span class="yace-shimmer yace-shimmer--${key}" style="${vars}">${escapeHtml(value)}</span>`;
 };
-
-export default shimmer;
-export { shimmer as "module.exports" };

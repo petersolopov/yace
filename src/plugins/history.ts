@@ -1,7 +1,7 @@
 import type { Plugin, TextareaProps } from "../index.ts";
-import isKey from "./isKey.ts";
+import { isKey } from "./isKey.ts";
 
-function history(
+export function history(
   options: { limit?: number; coalesceMs?: number } = {},
 ): Plugin {
   const limit = Math.max(1, options.limit == null ? 300 : options.limit);
@@ -94,6 +94,3 @@ function history(
     }
   };
 }
-
-export default history;
-export { history as "module.exports" };

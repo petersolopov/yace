@@ -2,10 +2,10 @@ import { test } from "node:test";
 import assert from "node:assert";
 import "undom/register.js";
 
-import basic from "../src/highlighters/basic.ts";
-import sliceGlitch from "../src/highlighters/sliceGlitch.ts";
-import shimmer from "../src/highlighters/shimmer.ts";
-import injectStyles from "../src/highlighters/injectStyles.ts";
+import { basic } from "../src/highlighters/basic.ts";
+import { sliceGlitch } from "../src/highlighters/sliceGlitch.ts";
+import { shimmer } from "../src/highlighters/shimmer.ts";
+import { injectStyles } from "../src/highlighters/injectStyles.ts";
 
 // undom gives document.head but not getElementById; the fun factories call
 // injectStyles, which needs it. stub a real registry so their <style> injects

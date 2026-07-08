@@ -2,12 +2,12 @@ import { test } from "node:test";
 import assert from "node:assert";
 import "undom/register.js";
 
-import Yace from "../src/index.ts";
-import preserveIndent from "../src/plugins/preserveIndent.ts";
-import isKey from "../src/plugins/isKey.ts";
-import tab from "../src/plugins/tab.ts";
-import cutLine from "../src/plugins/cutLine.ts";
-import history from "../src/plugins/history.ts";
+import { Yace } from "../src/index.ts";
+import { preserveIndent } from "../src/plugins/preserveIndent.ts";
+import { isKey } from "../src/plugins/isKey.ts";
+import { tab } from "../src/plugins/tab.ts";
+import { cutLine } from "../src/plugins/cutLine.ts";
+import { history } from "../src/plugins/history.ts";
 
 // mock querySelector for yace and return mocked editor element
 document.querySelector = () => document.createElement("div");

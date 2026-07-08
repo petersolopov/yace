@@ -1,6 +1,6 @@
 // keyframed effects cannot live in inline styles; each highlighter injects its
 // stylesheet once per document, keyed by element id
-const injectStyles = (id: string, css: string): void => {
+export const injectStyles = (id: string, css: string): void => {
   if (typeof document === "undefined" || !document.head) {
     return;
   }
@@ -14,5 +14,3 @@ const injectStyles = (id: string, css: string): void => {
   style.textContent = css;
   document.head.appendChild(style);
 };
-
-export default injectStyles;

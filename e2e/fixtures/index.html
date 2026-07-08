@@ -1,10 +1,10 @@
 <div id="editor"></div>
 <script type="module">
-  import Yace from "../../src/index.js";
-  import history from "../../src/plugins/history.js";
-  import tab from "../../src/plugins/tab.js";
-  import preserveIndent from "../../src/plugins/preserveIndent.js";
-  import cutLine from "../../src/plugins/cutLine.js";
+  import { Yace } from "../../src/index.js";
+  import { history } from "../../src/plugins/history.js";
+  import { tab } from "../../src/plugins/tab.js";
+  import { preserveIndent } from "../../src/plugins/preserveIndent.js";
+  import { cutLine } from "../../src/plugins/cutLine.js";
 
   window.Yace = Yace;
   window.plugins = { history, tab, preserveIndent, cutLine };

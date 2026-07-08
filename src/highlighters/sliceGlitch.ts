@@ -1,4 +1,4 @@
-import injectStyles from "./injectStyles.ts";
+import { injectStyles } from "./injectStyles.ts";
 import { decorate, escapeHtml, escapeAttr } from "./words.ts";
 
 interface SliceGlitchOptions {
@@ -79,7 +79,7 @@ function variantCss(key: string, burstPct: number): string {
 // fun highlighter: periodically shatters each line into displaced slices with
 // RGB channel copies; channel colours are overridable via --yace-slice-a/-b.
 // With `words`, only the matching words glitch inline and the rest is plain text
-const sliceGlitch = (
+export const sliceGlitch = (
   options: SliceGlitchOptions = {},
 ): ((value: string, context?: { html: boolean }) => string) => {
   const {
@@ -123,6 +123,3 @@ const sliceGlitch = (
       )
       .join("");
 };
-
-export default sliceGlitch;
-export { sliceGlitch as "module.exports" };
