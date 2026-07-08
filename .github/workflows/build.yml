@@ -80,8 +80,8 @@ jobs:
         with:
           node-version: 24.x
           registry-url: "https://registry.npmjs.org"
-      # OIDC trusted publishing needs npm >= 11.5.1 (newer than the bundled npm)
-      - run: npm install -g npm@latest
+      # OIDC trusted publishing needs npm >= 11.5.1 — Node 24.18+ bundles newer;
+      # a global npm self-upgrade here corrupted npm's own tree (missing sigstore)
       - run: npm ci
       - run: npm run build
       # a bare publish always repoints `latest`; prerelease versions must go
