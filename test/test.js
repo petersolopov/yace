@@ -392,6 +392,13 @@ test("options.lineNumber", () => {
     "it should be 10 line numbers after update",
   );
   assert.deepStrictEqual(editor.root.style.paddingLeft, "3ch", "root element should have 3ch padding left");
+
+  const firstLineNumber = lineNumbersElement.innerHTML.split("\n")[0];
+  assert.ok(firstLineNumber.includes("text-align: right"), "line numbers should be right-aligned");
+  assert.ok(
+    firstLineNumber.includes("width: 2ch"),
+    "line-number width should reserve the digit columns without the gap ch",
+  );
 });
 
 test("options.highlighters", () => {

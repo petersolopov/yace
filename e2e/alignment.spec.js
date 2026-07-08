@@ -131,6 +131,56 @@ test("line numbers shift both layers by the same padding", async ({ page }) => {
   await expectLayersAligned(page);
 });
 
+test("line numbers right-align their digits inside the gutter", async ({
+  page,
+}) => {
+  await page.evaluate(() =>
+    window.createEditor({
+      value: Array.from({ length: 10 }, (_, i) => "line " + (i + 1)).join("\n"),
+      lineNumbers: true,
+    }),
+  );
+
+  await expectLayersAligned(page);
+
+  const geo = await page.evaluate(() => {
+    const glyphRect = (el) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      return range.getBoundingClientRect();
+    };
+    const gutter = document.querySelectorAll("#editor .yace-line");
+    const one = glyphRect(gutter[0]);
+    const ten = glyphRect(gutter[9]);
+
+    const pre = document.querySelector("#editor pre");
+    const codeStart =
+      pre.getBoundingClientRect().left +
+      (parseFloat(getComputedStyle(pre).paddingLeft) || 0);
+
+    const probe = document.createElement("span");
+    probe.textContent = "0";
+    pre.appendChild(probe);
+    const ch = probe.getBoundingClientRect().width;
+    probe.remove();
+
+    return {
+      oneRight: one.right,
+      oneLeft: one.left,
+      tenRight: ten.right,
+      tenLeft: ten.left,
+      codeStart,
+      ch,
+    };
+  });
+
+  expect(Math.abs(geo.oneRight - geo.tenRight)).toBeLessThan(1);
+  // the one-digit number is pushed right by exactly one glyph — not left-aligned
+  expect(Math.abs(geo.oneLeft - geo.tenLeft - geo.ch)).toBeLessThan(1);
+  // digits stay in the reserved gutter: their right edge clears the code by ~1ch
+  expect(geo.codeStart - geo.tenRight).toBeGreaterThan(geo.ch - 1);
+});
+
 test("a custom font size keeps both layers aligned", async ({ page }) => {
   await page.evaluate(() =>
     window.createEditor({

@@ -272,12 +272,14 @@ export default class Yace {
     const lines = this.value.split("\n");
     const length = lines.length.toString().length;
 
+    // gutter reserves (length + 1)ch; digits take the first `length`ch and
+    // right-align, leaving the trailing 1ch as the gap before the code
     this.root.style.paddingLeft = `${length + 1}ch`;
 
     this.lines.innerHTML = lines
       .map((line, number) => {
         // prettier-ignore
-        const lineNumber = `<span class="yace-line" style="position: absolute; opacity: .3; left: 0">${1 + number}</span>`;
+        const lineNumber = `<span class="yace-line" style="position: absolute; opacity: .3; left: 0; width: ${length}ch; text-align: right">${1 + number}</span>`;
         // prettier-ignore
         const lineText = `<span style="color: transparent; pointer-events: none">${escape(line)}</span>`;
         return `${lineNumber}${lineText}`;
