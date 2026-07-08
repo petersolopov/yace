@@ -12,9 +12,17 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./plugins": {
+      "types": "./dist/plugins/index.d.ts",
+      "default": "./dist/plugins/index.js"
+    },
     "./plugins/*": {
       "types": "./dist/plugins/*.d.ts",
       "default": "./dist/plugins/*.js"
+    },
+    "./highlighters": {
+      "types": "./dist/highlighters/index.d.ts",
+      "default": "./dist/highlighters/index.js"
     },
     "./highlighters/basic": {
       "types": "./dist/highlighters/basic.d.ts",

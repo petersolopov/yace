@@ -6,12 +6,30 @@ import { basic } from "../src/highlighters/basic.ts";
 import { sliceGlitch } from "../src/highlighters/sliceGlitch.ts";
 import { shimmer } from "../src/highlighters/shimmer.ts";
 import { injectStyles } from "../src/highlighters/injectStyles.ts";
+import {
+  basic as basicBarrel,
+  sliceGlitch as sliceGlitchBarrel,
+  shimmer as shimmerBarrel,
+} from "../src/highlighters/index.ts";
 
 // undom gives document.head but not getElementById; the fun factories call
 // injectStyles, which needs it. stub a real registry so their <style> injects
 // once per id instead of throwing (see the injectStyles suite for the isolated
 // contract, and the report note on the undom incompatibility).
 document.getElementById = (id) => document.head.childNodes.find((node) => node.id === id) || null;
+
+test("highlighters barrel re-exports every highlighter, identical to its deep subpath", () => {
+  const pairs = [
+    ["basic", basic, basicBarrel],
+    ["sliceGlitch", sliceGlitch, sliceGlitchBarrel],
+    ["shimmer", shimmer, shimmerBarrel],
+  ];
+
+  for (const [name, deep, barrel] of pairs) {
+    assert.strictEqual(typeof barrel, "function", `${name} barrel export is callable`);
+    assert.strictEqual(barrel, deep, `${name} barrel export === its deep subpath`);
+  }
+});
 
 test("highlighters/basic: escapes HTML metacharacters in token text", () => {
   const html = basic()("&<>");

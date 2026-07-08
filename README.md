@@ -113,14 +113,11 @@ const upperCase = ({ value }) => ({ value: value.toUpperCase() });
 new Yace("#editor", { plugins: [upperCase] });
 ```
 
-First-party plugins ship as subpath imports:
+First-party plugins ship as a `yace/plugins` barrel (import several at once) or one-per-file subpaths (`yace/plugins/tab`):
 
 ```js
 import { Yace } from "yace";
-import { history } from "yace/plugins/history";
-import { tab } from "yace/plugins/tab";
-import { preserveIndent } from "yace/plugins/preserveIndent";
-import { cutLine } from "yace/plugins/cutLine";
+import { history, tab, preserveIndent, cutLine } from "yace/plugins";
 
 new Yace("#editor", {
   // history() must come first: it checkpoints state before other plugins mutate it
@@ -156,7 +153,7 @@ new Yace("#editor", {
 
 Chaining is the point of the pipeline: `[basic(), shimmer({ words: ["TODO"] })]` tokenizes first, then decorates on top. Only the first stage may escape its whole input — a plain tokenizer like `basic()` placed later would double-escape the HTML before it.
 
-**Bundled extras.** yace ships a few optional highlighters as subpath imports. No separate stylesheet is needed — `basic` emits classes only (bring your own colors), while the decorative highlighters inject their animation CSS at runtime and expose classes plus CSS variables you theme.
+**Bundled extras.** yace ships a few optional highlighters as a `yace/highlighters` barrel or one-per-file subpaths (`yace/highlighters/basic`). No separate stylesheet is needed — `basic` emits classes only (bring your own colors), while the decorative highlighters inject their animation CSS at runtime and expose classes plus CSS variables you theme.
 
 - `basic(extraRules?)` — an extensible tokenizer. Emits `<span class="yace-tok yace-tok--type">` per token, no colors of its own. Pass `extraRules` (`{ type, pattern }[]`, tried before the built-ins) to add token types; flags on your patterns (`/i`, `/u`, `/s`) are kept.
 - `sliceGlitch(options?)` — decorative glitch that shatters each line into displaced RGB slices. `interval = 3600`, `duration = 900`, `shift = 1`, `fringe = 0.035` (em), `opacity = 0.95`; `duration ≥ interval` clamps to an 85% active fraction, not fully continuous. Colors: `--yace-slice-a` / `--yace-slice-b`.
@@ -174,6 +171,7 @@ Large documents, multicursor, decorations, rich text, and SSR are out of scope b
 
 ## Gotchas
 
+- The barrels (`yace/plugins`, `yace/highlighters`) are fine with a bundler — tree-shaking keeps only what you import. Loading modules natively (CDN, import maps) prefer the exact paths like `yace/plugins/tab`: with a barrel the browser fetches every sibling module.
 - `require("yace")` on Node 22+ (which supports `require` of an ESM module) returns the module namespace, so destructure the named export: `const { Yace } = require("yace")`. The same holds for every subpath — `const { tab } = require("yace/plugins/tab")`.
 - TypeScript consumers compiling to CommonJS need `"module": "nodenext"` (which implies the matching `moduleResolution`, TypeScript 5.8+); the older `node16` setting rejects `require` of an ESM package.
 - Jest's default CommonJS runtime cannot load ESM — use Vitest or Jest's ESM mode.

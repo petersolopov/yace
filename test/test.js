@@ -8,6 +8,13 @@ import { isKey } from "../src/plugins/isKey.ts";
 import { tab } from "../src/plugins/tab.ts";
 import { cutLine } from "../src/plugins/cutLine.ts";
 import { history } from "../src/plugins/history.ts";
+import {
+  tab as tabBarrel,
+  history as historyBarrel,
+  preserveIndent as preserveIndentBarrel,
+  cutLine as cutLineBarrel,
+  isKey as isKeyBarrel,
+} from "../src/plugins/index.ts";
 
 // mock querySelector for yace and return mocked editor element
 document.querySelector = () => document.createElement("div");
@@ -24,6 +31,21 @@ function pressEnter(editor, value, selectionStart, selectionEnd = selectionStart
   editor.textarea.selectionEnd = selectionEnd;
   editor.textarea.dispatchEvent({ type: "keydown", key: "Enter", preventDefault() {} });
 }
+
+test("plugins barrel re-exports every plugin, identical to its deep subpath", () => {
+  const pairs = [
+    ["tab", tab, tabBarrel],
+    ["history", history, historyBarrel],
+    ["preserveIndent", preserveIndent, preserveIndentBarrel],
+    ["cutLine", cutLine, cutLineBarrel],
+    ["isKey", isKey, isKeyBarrel],
+  ];
+
+  for (const [name, deep, barrel] of pairs) {
+    assert.strictEqual(typeof barrel, "function", `${name} barrel export is callable`);
+    assert.strictEqual(barrel, deep, `${name} barrel export === its deep subpath`);
+  }
+});
 
 test("constructor", () => {
   const editor = new Yace("#editor");

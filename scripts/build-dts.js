@@ -65,6 +65,41 @@ async function assertNamedExport(relativePath, name) {
   }
 }
 
+// a barrel re-exports its siblings, so tsc leaves ".ts" specifiers in its
+// declaration (rewriteRelativeImportExtensions skips declaration output);
+// rewrite them to ".js" like the highlighter entries
+async function fixBarrelImports(dir) {
+  const file = `${dist}${dir}/index.d.ts`;
+  const source = await readFile(file, "utf8");
+  const fixed = source.replace(/from "(\.[^"]*)\.ts"/g, 'from "$1.js"');
+  if (/from "\.[^"]*\.ts"/.test(fixed)) {
+    throw new Error(`build-dts: unrewritten .ts import in ${dir}/index.d.ts`);
+  }
+  await writeFile(file, fixed);
+}
+
+// a barrel is re-export form, which assertNamedExport's `export declare` regex
+// never matches; assert every expected name is re-exported and no default
+// leaked, so a broken barrel shape fails the build
+async function assertBarrelExports(dir, names) {
+  const file = `${dist}${dir}/index.d.ts`;
+  const source = await readFile(file, "utf8");
+  for (const name of names) {
+    // `X as Y` exports Y, so the bare name must not be renamed away
+    const reexported = new RegExp(
+      `export \\{[^}]*\\b${name}\\b(?!\\s+as\\b)[^}]*\\} from`,
+    ).test(source);
+    if (!reexported) {
+      throw new Error(
+        `build-dts: ${dir}/index.d.ts does not re-export "${name}"`,
+      );
+    }
+  }
+  if (/export default|as default|"module\.exports"/.test(source)) {
+    throw new Error(`build-dts: stale default export in ${dir}/index.d.ts`);
+  }
+}
+
 // styles is inlined into index at bundle time; its declaration has no runtime
 // module in dist.
 await rm(`${dist}styles.d.ts`, { force: true });
@@ -79,6 +114,9 @@ for (const name of highlighters) {
   await fixHighlighterImport(name);
 }
 
+await fixBarrelImports("plugins");
+await fixBarrelImports("highlighters");
+
 await assertNamedExport("index.d.ts", "Yace");
 
 for (const name of plugins) {
@@ -88,3 +126,6 @@ for (const name of plugins) {
 for (const name of highlighters) {
   await assertNamedExport(`highlighters/${name}.d.ts`, name);
 }
+
+await assertBarrelExports("plugins", plugins);
+await assertBarrelExports("highlighters", [...highlighters, "BasicRule"]);

@@ -55,6 +55,23 @@ is a consumer of it.
   `yace/highlighters/{basic,sliceGlitch,shimmer}`. These
   are enumerated explicitly, not a wildcard, so the internal shared
   chunks (the `words` scanner, `injectStyles`) stay unexported
+- Barrels re-export the whole set: `import { history, tab } from
+  "yace/plugins"` and `import { basic, shimmer } from "yace/highlighters"`
+  (the highlighters barrel also re-exports the `BasicRule` type). A
+  bundler tree-shakes a pure re-export barrel down to byte-identical
+  deep-import output (probed); a no-bundler consumer (CDN, import map)
+  fetching a barrel pays for every sibling instead (+2158B / +4 requests
+  for plugins, +5940B / +4 for highlighters when one entry is needed).
+  So deep subpaths stay the documented path for CDN/import-map use, and
+  the site/e2e fixtures keep their deep imports on purpose
+- Barrel shaking rests on two facts, it is not free: `sideEffects: false`
+  in package.json AND every re-exported module being free of top-level
+  side effects — the highlighter factories inject their CSS inside the
+  factory call, never at import. rollup emits a bare `import "./words.js"`
+  on the highlighters facade (words is a shared internal chunk); a
+  consumer drops it only because `sideEffects: false` permits it. A
+  module-level side effect anywhere in the set would defeat the shake and
+  pull dead siblings into every consumer bundle
 - The exports map is the encapsulation boundary: deep paths like
   `yace/dist/...` are closed, internal dist layout may change freely
 - Dist is ESM-only, exports are named. `require("yace")` on Node 22+
@@ -130,13 +147,23 @@ is a consumer of it.
   tests import live `src/` under Node's native type stripping
 - `scripts/build-dts.js` strips private class slots, rewrites the
   emitted `.ts` import specifiers to `.js`, and asserts each entry's
-  named export; every step checks its post-condition, so a reverted
-  export (`export default` or the old `module.exports` alias), a leaked
-  private slot, or an unrewritten import fails the build instead of
-  publishing wrong declarations
-- A new public subpath is wired by hand — exports map, rollup input, and
-  the `build-dts` list; there is no highlighters wildcard, so every
-  public subpath is an intentional choice
+  export shape — a named `export declare` for the deep entries, a
+  re-export of every expected name for the barrels (the `export declare`
+  regex never matches a re-export, so barrels get their own assert);
+  every step checks its post-condition, so a reverted export
+  (`export default` or the old `module.exports` alias), a leaked private
+  slot, or an unrewritten import fails the build instead of publishing
+  wrong declarations
+- A new public subpath is wired by hand — rollup input and the
+  `build-dts` list, plus the exports map for highlighters; a barrel
+  entry also needs its re-export module updated and its names added to
+  the `build-dts` barrel assert list. Plugins resolve through the
+  `./plugins/*` wildcard (a new plugin needs no package.json edit), so
+  everything emitted into `dist/plugins/` is public by construction —
+  private shared chunks must not land there (`yace/plugins/index`
+  resolving as a harmless barrel alias is the accepted cost).
+  Highlighters are enumerated explicitly instead because their dir holds
+  private chunks (the `words` scanner, `injectStyles`)
 
 ## Browser support
 
@@ -161,8 +188,11 @@ Invariants:
 
 - Imports resolve through the page's import map — explicit entries for
   `yace` and each plugin/highlighter the page uses, no wildcards — to
-  the live `src`. The prod base is `/yace/`, so root-absolute paths like
-  `/src/...` are forbidden — they break under the project-Pages base
+  the live `src`. These are the deep paths, not the `yace/plugins` /
+  `yace/highlighters` barrels: the page is no-bundler (see the barrel
+  bullet under Import contract). The prod base is `/yace/`, so
+  root-absolute paths like `/src/...` are forbidden — they break under
+  the project-Pages base
 - The page makes zero external requests: fonts are self-hosted, no CDN,
   so site e2e runs offline
 - The hero headline is static markup (CSS-only look). Two live yace

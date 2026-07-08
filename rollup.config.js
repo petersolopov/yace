@@ -30,6 +30,7 @@ const editorConfig = {
 
 const pluginsConfig = {
   input: [
+    "src/plugins/index.ts",
     "src/plugins/tab.ts",
     "src/plugins/history.ts",
     "src/plugins/preserveIndent.ts",
@@ -49,6 +50,7 @@ const pluginsConfig = {
 
 const highlightersConfig = {
   input: [
+    "src/highlighters/index.ts",
     "src/highlighters/basic.ts",
     "src/highlighters/sliceGlitch.ts",
     "src/highlighters/shimmer.ts",
