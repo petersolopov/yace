@@ -119,6 +119,9 @@ is a consumer of it.
 - rollup 4 + `@rollup/plugin-typescript` + `@rollup/plugin-terser`;
   declarations via `tsc -p tsconfig.build.json` plus
   `scripts/build-dts.js`
+- `tslib` stays a devDependency even though `importHelpers` is off and
+  no emitted code uses it: `@rollup/plugin-typescript` preflight-fails
+  the whole build when tslib is not resolvable (probed 2026-07)
 - esbuild was evaluated and rejected: without bundling it does not
   rewrite `.ts` import specifiers (dist would reference nonexistent
   files), and with bundling it inlines shared modules into every entry
