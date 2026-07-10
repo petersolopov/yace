@@ -107,12 +107,13 @@ Live pens on CodePen — start simple:
 - [First-party plugins: undo, tab, indent, cut a line](https://codepen.io/petersolopov/pen/GgrQxjg)
 - [Shimmer & glitch decorations in a pipeline](https://codepen.io/petersolopov/pen/Qwdmjxg)
 - [Using with React](https://codepen.io/petersolopov/pen/XJpZEKq)
+- [Write your own plugin](https://codepen.io/petersolopov/pen/OPWvyOM)
+- [Markdown editor on mdhl](https://codepen.io/petersolopov/pen/NPdyYrR)
+- [Shimmer & glitch decorations in a pipeline](https://codepen.io/petersolopov/pen/Qwdmjxg)
 
 And the advanced ones:
 
 - [Write your own highlighter (~15 lines)](https://codepen.io/petersolopov/pen/dPNmYWr)
-- [Write your own plugin (one line)](https://codepen.io/petersolopov/pen/OPWvyOM)
-- [Markdown editor on mdhl (~1.2KB)](https://codepen.io/petersolopov/pen/NPdyYrR)
 - [Markdown with highlighted code blocks](https://codepen.io/petersolopov/pen/pvRaLbw)
 - [LLM tokenizer — an editable OpenAI-style token view](https://codepen.io/petersolopov/pen/emgMpMr)
 
