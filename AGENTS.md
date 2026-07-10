@@ -197,9 +197,11 @@ Invariants:
   `yace` and each plugin/highlighter the page uses, no wildcards — to
   the live `src`. These are the deep paths, not the `yace/plugins` /
   `yace/highlighters` barrels: the page is no-bundler (see the barrel
-  bullet under Import contract). The prod base is `/yace/`, so
-  root-absolute paths like `/src/...` are forbidden — they break under
-  the project-Pages base
+  bullet under Import contract). Prod serves from the domain root
+  (`https://yace.solopov.dev/`, custom domain since 2026-07-10; the old
+  `petersolopov.github.io/yace/` URLs 301 there). Root-absolute paths
+  like `/src/...` stay forbidden — they break the moment the site is
+  served under a project-Pages base again
 - The page makes zero external requests: fonts are self-hosted, no CDN,
   so site e2e runs offline
 - The hero headline is static markup (CSS-only look). Two live yace
@@ -215,6 +217,11 @@ Invariants:
 - `/examples/` is a redirect stub to the landing
   (`site/public/examples/index.html`); the old `examples/*.html` stands
   are gone
+- `site/public/og.jpg` is the social preview (`og:image`, 1200×630): a
+  screenshot of the dark-theme hero. Regenerate with
+  `node site/og-image.js` — Playwright chromium plus macOS `sips`; it
+  reuses a running dev server or starts its own. The same image serves
+  as the GitHub repo social preview (uploaded manually in Settings)
 - The CodePen example links live in two places: the `## Examples` list
   in `README.md` and the examples section in `site/public/index.html`.
   They must stay in sync — adding, removing, or repointing a pen
