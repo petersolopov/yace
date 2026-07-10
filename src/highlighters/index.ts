@@ -1,3 +1,3 @@
-export { basic, type BasicRule } from "./basic.ts";
+export { code, type CodeRule } from "./code.ts";
 export { sliceGlitch } from "./sliceGlitch.ts";
 export { shimmer } from "./shimmer.ts";

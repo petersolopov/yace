@@ -139,23 +139,23 @@ A highlighter is a function `(value) => html`. yace assigns the returned HTML to
 - Escape HTML in user text — `&`, `<`, `>`, and quotes inside attributes. Returning raw input is an XSS vector.
 - Keep font metrics constant — one monospace font, no bold, no ligatures. Anything that changes glyph widths drifts the highlighted layer out of line with the textarea.
 
-Highlighters run as a pipeline: `highlighters: Highlighter[]`. The full signature is `(value, context?) => html`: the first stage is called with `context.html` false (or absent) and must escape the raw value; each later stage is called with `context.html === true`, receives the previous stage's HTML, and must be HTML-aware — copy tags through, do not re-escape. An empty array falls back to the built-in escaping highlighter. Drop in PrismJS, highlight.js, or the bundled `basic`:
+Highlighters run as a pipeline: `highlighters: Highlighter[]`. The full signature is `(value, context?) => html`: the first stage is called with `context.html` false (or absent) and must escape the raw value; each later stage is called with `context.html === true`, receives the previous stage's HTML, and must be HTML-aware — copy tags through, do not re-escape. An empty array falls back to the built-in escaping highlighter. Drop in PrismJS, highlight.js, or the bundled `code`:
 
 ```js
 import { Yace } from "yace";
-import { basic } from "yace/highlighters/basic";
+import { code } from "yace/highlighters/code";
 
 new Yace("#editor", {
   value: "const answer = 42;",
-  highlighters: [basic()],
+  highlighters: [code()],
 });
 ```
 
-Chaining is the point of the pipeline: `[basic(), shimmer({ words: ["TODO"] })]` tokenizes first, then decorates on top. Only the first stage may escape its whole input — a plain tokenizer like `basic()` placed later would double-escape the HTML before it.
+Chaining is the point of the pipeline: `[code(), shimmer({ words: ["TODO"] })]` tokenizes first, then decorates on top. Only the first stage may escape its whole input — a plain tokenizer like `code()` placed later would double-escape the HTML before it.
 
-**Bundled extras.** yace ships a few optional highlighters as a `yace/highlighters` barrel or one-per-file subpaths (`yace/highlighters/basic`). No separate stylesheet is needed — `basic` emits classes only (bring your own colors), while the decorative highlighters inject their animation CSS at runtime and expose classes plus CSS variables you theme.
+**Bundled extras.** yace ships a few optional highlighters as a `yace/highlighters` barrel or one-per-file subpaths (`yace/highlighters/code`). No separate stylesheet is needed — `code` emits classes only (bring your own colors), while the decorative highlighters inject their animation CSS at runtime and expose classes plus CSS variables you theme.
 
-- `basic(extraRules?)` — an extensible tokenizer. Emits `<span class="yace-tok yace-tok--type">` per token, no colors of its own. Pass `extraRules` (`{ type, pattern }[]`, tried before the built-ins) to add token types; flags on your patterns (`/i`, `/u`, `/s`) are kept.
+- `code(extraRules?)` — an extensible tokenizer. Emits `<span class="yace-tok yace-tok--type">` per token, no colors of its own. Pass `extraRules` (`{ type, pattern }[]`, tried before the built-ins) to add token types; flags on your patterns (`/i`, `/u`, `/s`) are kept.
 - `sliceGlitch(options?)` — decorative glitch that shatters each line into displaced RGB slices. `interval = 3600`, `duration = 900`, `shift = 1`, `fringe = 0.035` (em), `opacity = 0.95`; `duration ≥ interval` clamps to an 85% active fraction, not fully continuous. Colors: `--yace-slice-a` / `--yace-slice-b`.
 - `shimmer(options?)` — a light band sweeps across the text, then rests. `interval = 3400`, `duration = 1530`; theme via `--yace-shimmer-base` / `--yace-shimmer-band` or a JS `colors: { base, band }` option.
 

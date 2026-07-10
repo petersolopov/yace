@@ -1,9 +1,9 @@
-export interface BasicRule {
+export interface CodeRule {
   type: string;
   pattern: RegExp;
 }
 
-const DEFAULT_RULES: BasicRule[] = [
+const DEFAULT_RULES: CodeRule[] = [
   { type: "com", pattern: /\/\/[^\n]*|\/\*[\s\S]*?\*\// },
   {
     type: "str",
@@ -32,7 +32,7 @@ function escapeAttr(value: string): string {
 // tiny extensible highlighter: rules are tried in order at every position,
 // extra rules take priority over the built-in ones; classes are `yace-tok yace-tok--*`,
 // colors are the consumer's CSS
-export const basic = (extraRules: BasicRule[] = []) => {
+export const code = (extraRules: CodeRule[] = []) => {
   const rules = [...extraRules, ...DEFAULT_RULES].map(({ type, pattern }) => ({
     type,
     // sticky is required for the position-anchored scan; keep the caller's

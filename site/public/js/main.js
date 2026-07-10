@@ -2,7 +2,7 @@ import { Yace } from "yace";
 import { tab } from "yace/plugins/tab";
 import { history } from "yace/plugins/history";
 import { preserveIndent } from "yace/plugins/preserveIndent";
-import { basic } from "yace/highlighters/basic";
+import { code } from "yace/highlighters/code";
 import { sliceGlitch } from "yace/highlighters/sliceGlitch";
 import { shimmer } from "yace/highlighters/shimmer";
 import { initTheme } from "./theme.js";
@@ -17,7 +17,7 @@ const BUBBLES = [
   { left: "90%", size: 13, delay: 1.3, digit: "1" },
 ];
 
-const SNIPPET = `// the basic setup behind this editor — it's live, edit it
+const SNIPPET = `// the setup behind this editor — it's live, edit it
 import { Yace } from "yace";
 
 // core plugins — if you need them: tab key, undo/redo, indentation
@@ -26,12 +26,12 @@ import { history } from "yace/plugins/history";
 import { preserveIndent } from "yace/plugins/preserveIndent";
 
 // bundled highlighter; any (code) => html function works here
-import { basic } from "yace/highlighters/basic";
+import { code } from "yace/highlighters/code";
 
 const editor = new Yace("#editor", {
   value: "console.log('yace')",
   lineNumbers: true,
-  highlighters: [basic()],
+  highlighters: [code()],
   plugins: [history(), tab(), preserveIndent()],
 });
 
@@ -111,7 +111,7 @@ function initEditor() {
   const editor = new Yace("#editor", {
     value: SNIPPET,
     lineNumbers: true,
-    highlighters: [basic()],
+    highlighters: [code()],
     plugins: [history(), tab(), preserveIndent()],
     styles: {
       fontFamily: "var(--font-mono)",

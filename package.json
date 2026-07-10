@@ -24,9 +24,9 @@
       "types": "./dist/highlighters/index.d.ts",
       "default": "./dist/highlighters/index.js"
     },
-    "./highlighters/basic": {
-      "types": "./dist/highlighters/basic.d.ts",
-      "default": "./dist/highlighters/basic.js"
+    "./highlighters/code": {
+      "types": "./dist/highlighters/code.d.ts",
+      "default": "./dist/highlighters/code.js"
     },
     "./highlighters/sliceGlitch": {
       "types": "./dist/highlighters/sliceGlitch.d.ts",

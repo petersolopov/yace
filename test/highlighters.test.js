@@ -2,12 +2,12 @@ import { test } from "node:test";
 import assert from "node:assert";
 import "undom/register.js";
 
-import { basic } from "../src/highlighters/basic.ts";
+import { code } from "../src/highlighters/code.ts";
 import { sliceGlitch } from "../src/highlighters/sliceGlitch.ts";
 import { shimmer } from "../src/highlighters/shimmer.ts";
 import { injectStyles } from "../src/highlighters/injectStyles.ts";
 import {
-  basic as basicBarrel,
+  code as codeBarrel,
   sliceGlitch as sliceGlitchBarrel,
   shimmer as shimmerBarrel,
 } from "../src/highlighters/index.ts";
@@ -20,7 +20,7 @@ document.getElementById = (id) => document.head.childNodes.find((node) => node.i
 
 test("highlighters barrel re-exports every highlighter, identical to its deep subpath", () => {
   const pairs = [
-    ["basic", basic, basicBarrel],
+    ["code", code, codeBarrel],
     ["sliceGlitch", sliceGlitch, sliceGlitchBarrel],
     ["shimmer", shimmer, shimmerBarrel],
   ];
@@ -31,21 +31,21 @@ test("highlighters barrel re-exports every highlighter, identical to its deep su
   }
 });
 
-test("highlighters/basic: escapes HTML metacharacters in token text", () => {
-  const html = basic()("&<>");
+test("highlighters/code: escapes HTML metacharacters in token text", () => {
+  const html = code()("&<>");
   assert.ok(html.includes(">&amp;</span>"), "& becomes &amp;");
   assert.ok(html.includes(">&lt;</span>"), "< becomes &lt;");
   assert.ok(html.includes(">&gt;</span>"), "> becomes &gt;");
 });
 
-test("highlighters/basic: an XSS payload cannot inject a tag", () => {
-  const html = basic()("<img src=x onerror=alert(1)>");
+test("highlighters/code: an XSS payload cannot inject a tag", () => {
+  const html = code()("<img src=x onerror=alert(1)>");
   assert.ok(!html.includes("<img"), "the < before img is escaped, not a tag");
   assert.ok(html.includes("&lt;"), "the payload angle brackets are escaped");
 });
 
-test("highlighters/basic: a malicious rule type cannot break out of the class attribute", () => {
-  const html = basic([{ type: 'x"><img src=y onerror=alert(1)>', pattern: /a/ }])("a");
+test("highlighters/code: a malicious rule type cannot break out of the class attribute", () => {
+  const html = code([{ type: 'x"><img src=y onerror=alert(1)>', pattern: /a/ }])("a");
   assert.ok(
     html.includes('yace-tok--x&quot;&gt;&lt;img src=y onerror=alert(1)&gt;"'),
     "the rule type is attr-escaped inside the class attribute",
@@ -54,8 +54,8 @@ test("highlighters/basic: a malicious rule type cannot break out of the class at
   assert.ok(!html.includes('yace-tok--x">'), "the quote cannot close the class attribute");
 });
 
-test("highlighters/basic: extra rules win over the built-ins", () => {
-  const html = basic([{ type: "cls", pattern: /const/ }])("const");
+test("highlighters/code: extra rules win over the built-ins", () => {
+  const html = code([{ type: "cls", pattern: /const/ }])("const");
   assert.deepStrictEqual(
     html,
     '<span class="yace-tok yace-tok--cls">const</span>',
@@ -63,8 +63,8 @@ test("highlighters/basic: extra rules win over the built-ins", () => {
   );
 });
 
-test("highlighters/basic: extra rule flags like /i are preserved", () => {
-  const html = basic([{ type: "cls", pattern: /abc/i }])("ABC");
+test("highlighters/code: extra rule flags like /i are preserved", () => {
+  const html = code([{ type: "cls", pattern: /abc/i }])("ABC");
   assert.deepStrictEqual(
     html,
     '<span class="yace-tok yace-tok--cls">ABC</span>',
@@ -72,8 +72,8 @@ test("highlighters/basic: extra rule flags like /i are preserved", () => {
   );
 });
 
-test("highlighters/basic: plain text between tokens is passed through", () => {
-  const html = basic()("a const b");
+test("highlighters/code: plain text between tokens is passed through", () => {
+  const html = code()("a const b");
   assert.deepStrictEqual(
     html,
     'a <span class="yace-tok yace-tok--kw">const</span> b',
@@ -81,8 +81,8 @@ test("highlighters/basic: plain text between tokens is passed through", () => {
   );
 });
 
-test("highlighters/basic: newlines are preserved for multi-line input", () => {
-  const html = basic()("const\n1");
+test("highlighters/code: newlines are preserved for multi-line input", () => {
+  const html = code()("const\n1");
   assert.deepStrictEqual(
     html,
     '<span class="yace-tok yace-tok--kw">const</span>\n<span class="yace-tok yace-tok--num">1</span>',
@@ -90,10 +90,10 @@ test("highlighters/basic: newlines are preserved for multi-line input", () => {
   );
 });
 
-test("highlighters/basic: a zero-length rule match does not spin the scan", () => {
+test("highlighters/code: a zero-length rule match does not spin the scan", () => {
   // /a*/ matches the empty string wherever there is no `a`; without the guard i
   // never advances and the loop hangs. finishing at all proves the fix.
-  const html = basic([{ type: "z", pattern: /a*/ }])("bbb");
+  const html = code([{ type: "z", pattern: /a*/ }])("bbb");
   assert.deepStrictEqual(html, "bbb", "no token is emitted for the empty matches");
 });
 

@@ -54,12 +54,12 @@ is a consumer of it.
   (the named export mirrors the subpath name); `isKey` lives under
   plugins as plugin-authoring tooling
 - Highlighters via subpath:
-  `yace/highlighters/{basic,sliceGlitch,shimmer}`. These
+  `yace/highlighters/{code,sliceGlitch,shimmer}`. These
   are enumerated explicitly, not a wildcard, so the internal shared
   chunks (the `words` scanner, `injectStyles`) stay unexported
 - Barrels re-export the whole set: `import { history, tab } from
-  "yace/plugins"` and `import { basic, shimmer } from "yace/highlighters"`
-  (the highlighters barrel also re-exports the `BasicRule` type). A
+  "yace/plugins"` and `import { code, shimmer } from "yace/highlighters"`
+  (the highlighters barrel also re-exports the `CodeRule` type). A
   bundler tree-shakes a pure re-export barrel down to byte-identical
   deep-import output (probed); a no-bundler consumer (CDN, import map)
   fetching a barrel pays for every sibling instead (+2158B / +4 requests
@@ -115,7 +115,7 @@ is a consumer of it.
 
 ## Bundled highlighters
 
-- `basic` is a tiny extensible tokenizer; the glitch and shimmer
+- `code` is a tiny extensible tokenizer; the glitch and shimmer
   factories are decorative (channel copies that shatter, or a gradient
   band that sweeps)
 - Their timing options are milliseconds; the derived duration/interval
@@ -203,7 +203,7 @@ Invariants:
   that dogfoods the pipeline (a site stage-0 escaper, then `shimmer` and
   `sliceGlitch` in `words` mode) with the site palette bridged in
   through the `--yace-*` vars; the getting-started `#editor` is the
-  interactive one on `basic()`. Their containers reserve `min-height` so
+  interactive one on `code()`. Their containers reserve `min-height` so
   mounting does not shift layout
 - The highlighter contract still holds; the getting-started alignment
   spec guards it

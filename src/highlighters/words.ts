@@ -16,7 +16,7 @@ export function escapeAttr(value: string): string {
   return escapeHtml(value).replace(/"/g, "&quot;");
 }
 
-// mirror basic()'s extraRules: strings match literally (regex-escaped,
+// mirror code()'s extraRules: strings match literally (regex-escaped,
 // case-sensitive, every occurrence); RegExp keeps the author's i/u/s and drops
 // g/y for the sticky scan
 function compile(words: Array<string | RegExp>): RegExp[] {
