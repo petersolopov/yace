@@ -215,6 +215,11 @@ Invariants:
 - `/examples/` is a redirect stub to the landing
   (`site/public/examples/index.html`); the old `examples/*.html` stands
   are gone
+- The CodePen example links live in two places: the `## Examples` list
+  in `README.md` and the examples section in `site/public/index.html`.
+  They must stay in sync — adding, removing, or repointing a pen
+  updates both; the `site-smoke` e2e pins the landing link count, so
+  it changes together with the list
 
 Two servers exist on purpose: `site/server.js` (:5714, `site/public` as
 web root) and `e2e/server.js` (:5715, repo root, library fixtures at

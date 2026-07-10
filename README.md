@@ -109,7 +109,6 @@ Live pens on CodePen — start simple:
 - [Using with React](https://codepen.io/petersolopov/pen/XJpZEKq)
 - [Write your own plugin](https://codepen.io/petersolopov/pen/OPWvyOM)
 - [Markdown editor on mdhl](https://codepen.io/petersolopov/pen/NPdyYrR)
-- [Shimmer & glitch decorations in a pipeline](https://codepen.io/petersolopov/pen/Qwdmjxg)
 
 And the advanced ones:
 
