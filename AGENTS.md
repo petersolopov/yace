@@ -65,7 +65,10 @@ is a consumer of it.
   fetching a barrel pays for every sibling instead (+2158B / +4 requests
   for plugins, +5940B / +4 for highlighters when one entry is needed).
   So deep subpaths stay the documented path for CDN/import-map use, and
-  the site/e2e fixtures keep their deep imports on purpose
+  the e2e fixtures keep their deep imports on purpose. The landing is
+  the one deliberate exception: its plugins come through the
+  `yace/plugins` barrel to mirror the README quick start, eating the
+  sibling cost (its highlighters stay deep)
 - Barrel shaking rests on two facts, it is not free: `sideEffects: false`
   in package.json AND every re-exported module being free of top-level
   side effects — the highlighter factories inject their CSS inside the
@@ -193,11 +196,13 @@ which is the point — site e2e exercises the real prod layout.
 
 Invariants:
 
-- Imports resolve through the page's import map — explicit entries for
-  `yace` and each plugin/highlighter the page uses, no wildcards — to
-  the live `src`. These are the deep paths, not the `yace/plugins` /
-  `yace/highlighters` barrels: the page is no-bundler (see the barrel
-  bullet under Import contract). Prod serves from the domain root
+- Imports resolve through the page's import map — explicit entries, no
+  wildcards — to the live `src`. Plugins come through the
+  `yace/plugins` barrel on purpose: the getting-started snippet shows
+  the README one-liner and must be the real setup, so the page eats the
+  sibling fetches. Highlighters keep deep entries — their barrel would
+  pull all decorative siblings for nothing (see the barrel bullet under
+  Import contract). Prod serves from the domain root
   (`https://yace.solopov.dev/`, custom domain since 2026-07-10; the old
   `petersolopov.github.io/yace/` URLs 301 there). Root-absolute paths
   like `/src/...` stay forbidden — they break the moment the site is

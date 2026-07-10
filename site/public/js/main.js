@@ -1,7 +1,5 @@
 import { Yace } from "yace";
-import { tab } from "yace/plugins/tab";
-import { history } from "yace/plugins/history";
-import { preserveIndent } from "yace/plugins/preserveIndent";
+import { history, tab, preserveIndent } from "yace/plugins";
 import { code } from "yace/highlighters/code";
 import { sliceGlitch } from "yace/highlighters/sliceGlitch";
 import { shimmer } from "yace/highlighters/shimmer";
@@ -20,10 +18,8 @@ const BUBBLES = [
 const SNIPPET = `// the setup behind this editor — it's live, edit it
 import { Yace } from "yace";
 
-// core plugins — if you need them: tab key, undo/redo, indentation
-import { tab } from "yace/plugins/tab";
-import { history } from "yace/plugins/history";
-import { preserveIndent } from "yace/plugins/preserveIndent";
+// core plugins — if you need them: undo/redo, tab key, indentation
+import { history, tab, preserveIndent } from "yace/plugins";
 
 // bundled highlighter; any (code) => html function works here
 import { code } from "yace/highlighters/code";
