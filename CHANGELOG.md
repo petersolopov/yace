@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.0.0-beta.2](https://github.com/petersolopov/yace/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2026-07-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename the basic highlighter to code
+
+### Features
+
+* rename the basic highlighter to code ([ddd3d73](https://github.com/petersolopov/yace/commit/ddd3d7353b803558f3c5499fc4109947cb8aa365))
+
 ## [1.0.0-beta.1](https://github.com/petersolopov/yace/compare/v0.0.8...v1.0.0-beta.1) (2026-07-08)
 
 
