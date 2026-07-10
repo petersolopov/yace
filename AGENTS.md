@@ -21,7 +21,9 @@ is a consumer of it.
   groups)
 - `npm run dev` — the landing on `http://localhost:5714`,
   live-transpiles `src/*.ts`
-- `npm run build`
+- `npm run build` — ends with a size gate: fails when `dist/index.js`
+  gzip reaches 2000 B, so the public "under 2KB" claim stays enforced;
+  `npm run size` re-runs the gate on an existing dist
 - `npm run attw` — packaging check; its flags are load-bearing, see
   Gotchas
 - `npm run prettier:check` — prettier 3 defaults; `test/.prettierrc`
