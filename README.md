@@ -1,6 +1,6 @@
 # Y A C E
 
-[![build](https://github.com/petersolopov/yace/workflows/build/badge.svg)](https://github.com/petersolopov/yace/actions?query=workflow%3Abuild) [![npm](https://badgen.net/npm/v/yace/?cache=300)](https://www.npmjs.com/package/yace) [![Coverage Status](https://coveralls.io/repos/github/petersolopov/yace/badge.svg)](https://coveralls.io/github/petersolopov/yace) [![bundlephobia](https://badgen.net/bundlephobia/minzip/yace?label=size)](https://bundlephobia.com/result?p=yace)
+[![npm](https://badgen.net/npm/v/yace/?cache=300)](https://www.npmjs.com/package/yace) [![Coverage Status](https://coveralls.io/repos/github/petersolopov/yace/badge.svg)](https://coveralls.io/github/petersolopov/yace) [![bundlephobia](https://badgen.net/bundlephobia/minzip/yace?label=size)](https://bundlephobia.com/result?p=yace)
 
 Yet another code editor — tiny, framework-agnostic, yours to extend.
 
@@ -9,6 +9,25 @@ Yet another code editor — tiny, framework-agnostic, yours to extend.
 - Bring any highlighter — PrismJS, highlight.js — or chain several as a pipeline.
 - Add behavior with plugins — tab, undo/redo, auto-indent — or write your own in a few lines.
 - Framework-agnostic: hand it a DOM node and it drops into React or anything else.
+
+<table>
+  <tr>
+    <td width="50%">
+      <video src="https://github.com/user-attachments/assets/701a4455-c987-4f47-a123-a6dca124f4f1"></video>
+    </td>
+    <td width="50%">
+      <video src="https://github.com/user-attachments/assets/e200786f-d4ea-42d3-b50d-3cbf638219c4"></video>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <a href="https://codepen.io/petersolopov/pen/Qwdmjxg">shimmer & glitch playground</a>
+    </td>
+    <td width="50%" align="center">
+      <a href="https://codepen.io/petersolopov/pen/emgMpMr">LLM tokenizer playground</a>
+    </td>
+  </tr>
+</table>
 
 ## How it works
 
@@ -86,6 +105,7 @@ Live pens on CodePen — start simple:
 - [highlight.js as the highlighter](https://codepen.io/petersolopov/pen/dPNddwg)
 - [PrismJS as the highlighter](https://codepen.io/petersolopov/pen/RNKQMaX)
 - [First-party plugins: undo, tab, indent, cut a line](https://codepen.io/petersolopov/pen/GgrQxjg)
+- [Shimmer & glitch decorations in a pipeline](https://codepen.io/petersolopov/pen/Qwdmjxg)
 - [Using with React](https://codepen.io/petersolopov/pen/XJpZEKq)
 
 And the advanced ones:
@@ -94,7 +114,6 @@ And the advanced ones:
 - [Write your own plugin (one line)](https://codepen.io/petersolopov/pen/OPWvyOM)
 - [Markdown editor on mdhl (~1.2KB)](https://codepen.io/petersolopov/pen/NPdyYrR)
 - [Markdown with highlighted code blocks](https://codepen.io/petersolopov/pen/pvRaLbw)
-- [Shimmer & glitch decorations in a pipeline](https://codepen.io/petersolopov/pen/Qwdmjxg)
 - [LLM tokenizer — an editable OpenAI-style token view](https://codepen.io/petersolopov/pen/emgMpMr)
 
 ## Plugins
