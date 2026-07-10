@@ -287,4 +287,8 @@ In order:
   entry's named `import` returns a callable and, on Node 22+,
   `require("yace").Yace` and the per-entry equivalents are callable
 - external demo and example links resolve (README badges and examples,
-  site links)
+  site links). CodePen cannot be machine-checked: its Cloudflare wall
+  403s curl, headless browsers and even the oEmbed API (probed
+  2026-07-10), so a 403 there is the wall, not a dead pen — the pens
+  are verified by a human in a normal browser, no automated
+  workaround known yet
