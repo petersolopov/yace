@@ -54,9 +54,9 @@ test("the examples section links out to the codepen demos", async ({
   await page.goto("/");
 
   const links = page.locator(".examples__link");
-  await expect(links).toHaveCount(8);
+  await expect(links).toHaveCount(11);
 
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 11; i++) {
     await expect(links.nth(i)).toBeVisible();
     expect(await links.nth(i).getAttribute("href")).toContain(
       "codepen.io/petersolopov/pen/",
