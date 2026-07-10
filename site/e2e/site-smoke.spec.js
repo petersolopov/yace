@@ -48,18 +48,18 @@ test("getting started editor accepts input and highlights it", async ({
   await expect(page.locator(selectors.pre).first()).toContainText("xyzzy42");
 });
 
-test("the examples section links out to the codesandbox demos", async ({
+test("the examples section links out to the codepen demos", async ({
   page,
 }) => {
   await page.goto("/");
 
   const links = page.locator(".examples__link");
-  await expect(links).toHaveCount(6);
+  await expect(links).toHaveCount(8);
 
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 8; i++) {
     await expect(links.nth(i)).toBeVisible();
     expect(await links.nth(i).getAttribute("href")).toContain(
-      "codesandbox.io/s/yace-",
+      "codepen.io/petersolopov/pen/",
     );
   }
 });

@@ -9,7 +9,7 @@ test("key sections are visible at 390px", async ({ page }) => {
   await expect(page.locator(".hero__title")).toBeVisible();
   await expect(page.locator(".getting-started__window")).toBeVisible();
   await expect(page.locator(".features__card")).toHaveCount(4);
-  await expect(page.locator(".examples__link")).toHaveCount(6);
+  await expect(page.locator(".examples__link")).toHaveCount(8);
   await expect(page.locator(".examples__link").first()).toBeVisible();
   await expect(page.locator(".footer__note")).toBeVisible();
 });

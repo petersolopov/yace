@@ -80,14 +80,22 @@ The DOM yace built, and the methods to drive it:
 
 ## Examples
 
-Live demos on CodeSandbox:
+Live pens on CodePen — start simple:
 
-- [Using highlight.js as highlighter](https://codesandbox.io/s/yace-highlightjs-jvqp0)
-- [Using PrismJS as highlighter](https://codesandbox.io/s/yace-prismjs-gnjty)
-- [Building a tiny ~2KB markdown editor](https://codesandbox.io/s/yace-mdhl-ftdr4)
-- [Markdown editor with highlighted code blocks](https://codesandbox.io/s/yace-mdhl-highlightjs-xocgf)
-- [Using plugins](https://codesandbox.io/s/yace-plugins-m3uzv)
-- [Using with React](https://codesandbox.io/s/yace-react-4cwly)
+- [Getting started — the bundled `code` highlighter](https://codepen.io/petersolopov/pen/JoELdOr)
+- [highlight.js as the highlighter](https://codepen.io/petersolopov/pen/dPNddwg)
+- [PrismJS as the highlighter](https://codepen.io/petersolopov/pen/RNKQMaX)
+- [First-party plugins: undo, tab, indent, cut a line](https://codepen.io/petersolopov/pen/GgrQxjg)
+- [Using with React](https://codepen.io/petersolopov/pen/XJpZEKq)
+
+And the advanced ones:
+
+- [Write your own highlighter (~15 lines)](https://codepen.io/petersolopov/pen/dPNmYWr)
+- [Write your own plugin (one line)](https://codepen.io/petersolopov/pen/OPWvyOM)
+- [Markdown editor on mdhl (~1.2KB)](https://codepen.io/petersolopov/pen/NPdyYrR)
+- [Markdown with highlighted code blocks](https://codepen.io/petersolopov/pen/pvRaLbw)
+- [Shimmer & glitch decorations in a pipeline](https://codepen.io/petersolopov/pen/Qwdmjxg)
+- [LLM tokenizer — an editable OpenAI-style token view](https://codepen.io/petersolopov/pen/emgMpMr)
 
 ## Plugins
 
