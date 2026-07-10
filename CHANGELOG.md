@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.0.0](https://github.com/petersolopov/yace/compare/v0.0.8...v1.0.0) (2026-07-10)
+
+The first stable release. The core stays under 2KB gzip — enforced: the build fails if it ever reaches the limit.
+
+The import contract is frozen; evolution is additive — a new plugin or highlighter is a new subpath and a minor version, existing entries never move.
+
+* `import { Yace } from "yace"` — the root is the core alone, plugins and highlighters never bloat it
+* plugins per subpath — `import { tab } from "yace/plugins/tab"` — or the whole set in one line through the `yace/plugins` barrel
+* bundled highlighters under `yace/highlighters/*`: `code`, a tiny extensible tokenizer, plus the decorative `sliceGlitch` and `shimmer`
+* ESM-only packaging with named exports and types on every entry
+
+### Upgrading from 0.0.x
+
+* no `.cjs` files ship anymore. `require("yace")` still works on Node 22+: `const { Yace } = require("yace")`; jest needs ESM mode (or vitest), typed CJS needs TS `module: nodenext`
+* all exports are named, defaults are gone: `import { Yace } from "yace"`
+* the singular `highlighter` option became the `highlighters` array — a pipeline where stage 0 escapes the raw value and later stages transform HTML
+* the `basic` highlighter is named `code` now; `jitterGlitch` is dropped
+
 ## [1.0.0-beta.2](https://github.com/petersolopov/yace/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2026-07-10)
 
 
