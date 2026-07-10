@@ -64,7 +64,7 @@ test("the first tagline paragraph stays static", async ({ page }) => {
   await page.goto("/");
 
   const spec = page.locator("p.hero__tagline");
-  await expect(spec).toContainText("~1.7KB");
+  await expect(spec).toContainText("under 2KB");
   await expect(spec).toContainText("<textarea>");
 });
 

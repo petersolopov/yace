@@ -4,7 +4,7 @@
 
 Yet another code editor — tiny, framework-agnostic, yours to extend.
 
-- ~1.7KB gzipped, zero dependencies.
+- under 2KB gzipped, zero dependencies.
 - A real `<textarea>` underneath — native caret, IME, mobile input, and accessibility come for free.
 - Bring any highlighter — PrismJS, highlight.js — or chain several as a pipeline.
 - Add behavior with plugins — tab, undo/redo, auto-indent — or write your own in a few lines.

@@ -4,7 +4,7 @@ Instructions for coding agents and humans working on yace.
 
 ## What this is
 
-yace is a tiny (~1.7KB gzip core, zero dependencies) framework-agnostic
+yace is a tiny (under 2KB gzip core, zero dependencies) framework-agnostic
 browser code editor: a transparent `textarea` stacked over a `pre`. The
 `textarea` owns input, caret, IME, and accessibility; the `pre` renders
 highlighted HTML produced by a highlighter function. Plugins transform
