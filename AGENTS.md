@@ -97,8 +97,13 @@ is a consumer of it.
   re-escape. An empty `highlighters` array falls back to the escaping
   default rather than passing the raw value through; a bare function is
   tolerated at runtime but the typed option is an array
-- Highlighters MUST NOT change font metrics — bold or ligatures in a
-  non-strictly-monospace font misalign the textarea and pre layers
+- Highlighters MUST NOT change glyph advance widths. Probed 2026-07-10:
+  on a strictly monospace font bold/italic are safe — every face keeps
+  the same advance (Menlo/Monaco/Courier New: identical line widths at
+  400/700/italic), glyphs change stroke shape only, which the
+  transparent textarea never shows. Drift comes from proportional fonts
+  or a font-stack fallback to one: a wider bold face shifts every glyph
+  after it and caret/selection land off the letters
 - Never rely on UA defaults for styles the alignment depends on
   (`overflowWrap`, `caretColor`, `letterSpacing` are set explicitly —
   see the comments in `src/styles.ts`); form controls in particular do

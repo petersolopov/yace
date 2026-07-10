@@ -137,7 +137,7 @@ For your own shortcut checks, `yace/plugins/isKey` matches a shortcut against a 
 A highlighter is a function `(value) => html`. yace assigns the returned HTML to `innerHTML`, so it must:
 
 - Escape HTML in user text — `&`, `<`, `>`, and quotes inside attributes. Returning raw input is an XSS vector.
-- Keep font metrics constant — one monospace font, no bold, no ligatures. Anything that changes glyph widths drifts the highlighted layer out of line with the textarea.
+- Keep glyph advance widths constant. Anything that changes them drifts the highlighted layer — and the caret — out of line with the textarea. Bold and italic are safe on a strictly monospace font, see Gotchas.
 
 Highlighters run as a pipeline: `highlighters: Highlighter[]`. The full signature is `(value, context?) => html`: the first stage is called with `context.html` false (or absent) and must escape the raw value; each later stage is called with `context.html === true`, receives the previous stage's HTML, and must be HTML-aware — copy tags through, do not re-escape. An empty array falls back to the built-in escaping highlighter. Drop in PrismJS, highlight.js, or the bundled `code`:
 
@@ -175,6 +175,7 @@ Large documents, multicursor, decorations, rich text, and SSR are out of scope b
 - `require("yace")` on Node 22+ (which supports `require` of an ESM module) returns the module namespace, so destructure the named export: `const { Yace } = require("yace")`. The same holds for every subpath — `const { tab } = require("yace/plugins/tab")`.
 - TypeScript consumers compiling to CommonJS need `"module": "nodenext"` (which implies the matching `moduleResolution`, TypeScript 5.8+); the older `node16` setting rejects `require` of an ESM package.
 - Jest's default CommonJS runtime cannot load ESM — use Vitest or Jest's ESM mode.
+- Styling highlighter tokens `bold` or `italic` is safe while the editor font is strictly monospace: every face shares one advance width, so glyphs change stroke shape but not position (verified — Menlo, Monaco, Courier New render identical line widths in 400/700/italic). The trap is a proportional font or a font-stack fallback to one: there a bold run is wider, every glyph after it shifts, and the caret lands off the letters. When unsure, keep token classes at `font-weight`/`font-style` normal.
 
 ## License
 
