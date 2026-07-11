@@ -292,3 +292,8 @@ In order:
   2026-07-10), so a 403 there is the wall, not a dead pen — the pens
   are verified by a human in a normal browser, no automated
   workaround known yet
+- after the tag push has published to npm, create the GitHub release
+  (the agent runs this by hand, there is no CI step):
+  `gh release create vX.Y.Z --verify-tag --title vX.Y.Z` with the top
+  `CHANGELOG.md` section as notes plus a compare link. Pre-1.0 tags
+  stay without releases
