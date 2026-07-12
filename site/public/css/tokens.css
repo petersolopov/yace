@@ -44,7 +44,6 @@
   --tok-kw: light-dark(#c8005f, #ff2e97);
   --tok-num: light-dark(#a06a00, #ffd166);
   --tok-punc: light-dark(#6a6482, #9a9ac0);
-  --scanline: light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.12));
   --fish-big: light-dark(#d6006e, #ff2f97);
   --fish-small: light-dark(#6a4cc0, #8a7cff);
   --hero-title-fill: light-dark(#a9c3dc, var(--fg));
