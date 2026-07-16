@@ -9,6 +9,7 @@ const plugins = [
   "preserveIndent",
   "cutLine",
   "autoClose",
+  "toggleComment",
   "isKey",
 ];
 const highlighters = ["code", "sliceGlitch", "shimmer"];

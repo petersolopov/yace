@@ -36,6 +36,7 @@ const pluginsConfig = {
     "src/plugins/preserveIndent.ts",
     "src/plugins/cutLine.ts",
     "src/plugins/autoClose.ts",
+    "src/plugins/toggleComment.ts",
     "src/plugins/isKey.ts",
   ],
   output: [

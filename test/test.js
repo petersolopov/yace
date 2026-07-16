@@ -8,6 +8,7 @@ import { isKey } from "../src/plugins/isKey.ts";
 import { tab } from "../src/plugins/tab.ts";
 import { cutLine } from "../src/plugins/cutLine.ts";
 import { autoClose } from "../src/plugins/autoClose.ts";
+import { toggleComment } from "../src/plugins/toggleComment.ts";
 import { history } from "../src/plugins/history.ts";
 import {
   tab as tabBarrel,
@@ -15,6 +16,7 @@ import {
   preserveIndent as preserveIndentBarrel,
   cutLine as cutLineBarrel,
   autoClose as autoCloseBarrel,
+  toggleComment as toggleCommentBarrel,
   isKey as isKeyBarrel,
 } from "../src/plugins/index.ts";
 
@@ -41,6 +43,7 @@ test("plugins barrel re-exports every plugin, identical to its deep subpath", ()
     ["preserveIndent", preserveIndent, preserveIndentBarrel],
     ["cutLine", cutLine, cutLineBarrel],
     ["autoClose", autoClose, autoCloseBarrel],
+    ["toggleComment", toggleComment, toggleCommentBarrel],
     ["isKey", isKey, isKeyBarrel],
   ];
 
@@ -1414,4 +1417,348 @@ test("plugins/autoClose: a pair insertion is a single undo step with history()",
 
   editor.textarea.dispatchEvent({ type: "keydown", key: "z", ctrlKey: true, timeStamp: 2000, preventDefault() {} });
   assert.deepStrictEqual(editor.textarea.value, "", "one undo removes both inserted characters");
+});
+
+const slashKey = (mods = {}) => {
+  const event = {
+    type: "keydown",
+    key: "/",
+    ctrlKey: true,
+    metaKey: false,
+    altKey: false,
+    shiftKey: false,
+    defaultPrevented: false,
+    preventDefault() {
+      event.defaultPrevented = true;
+    },
+    ...mods,
+  };
+  return event;
+};
+
+test("plugins/toggleComment: comments and uncomments a single line", () => {
+  const plugin = toggleComment();
+
+  const comment = slashKey();
+  assert.deepStrictEqual(
+    plugin(props("const x = 1;"), comment),
+    { value: "// const x = 1;", selectionStart: 15, selectionEnd: 15 },
+    "toggling a line inserts the prefix and shifts the caret past it",
+  );
+  assert.ok(comment.defaultPrevented, "a matched toggle suppresses the browser default");
+
+  assert.deepStrictEqual(
+    plugin(props("// const x = 1;"), slashKey()),
+    { value: "const x = 1;", selectionStart: 12, selectionEnd: 12 },
+    "toggling a commented line removes the prefix",
+  );
+});
+
+test("plugins/toggleComment: comments every line a selection touches", () => {
+  const plugin = toggleComment();
+
+  assert.deepStrictEqual(
+    plugin(sel("a\nb\nc", 0, 5), slashKey()),
+    { value: "// a\n// b\n// c", selectionStart: 3, selectionEnd: 14 },
+    "a full selection comments all lines uniformly",
+  );
+
+  assert.deepStrictEqual(
+    plugin(sel("a\nb\nc", 0, 2), slashKey()),
+    { value: "// a\nb\nc", selectionStart: 3, selectionEnd: 5 },
+    "a selection ending at column 0 excludes that line but the end still shifts",
+  );
+});
+
+test("plugins/toggleComment: uncomments every line of a fully-commented selection", () => {
+  const plugin = toggleComment();
+
+  assert.deepStrictEqual(
+    plugin(sel("// a\n// b", 0, 8), slashKey()),
+    { value: "a\nb", selectionStart: 0, selectionEnd: 2 },
+    "a range where every non-blank line is commented uncomments all of them",
+  );
+});
+
+test("plugins/toggleComment: a mixed range comments all lines, doubling the commented one", () => {
+  const plugin = toggleComment();
+
+  assert.deepStrictEqual(
+    plugin(sel("// a\nb", 0, 6), slashKey()),
+    { value: "// // a\n// b", selectionStart: 3, selectionEnd: 12 },
+    "a mixed range comments uniformly; the already-commented line gets a second prefix",
+  );
+
+  assert.deepStrictEqual(
+    plugin(sel("// // a\n// b", 3, 12), slashKey()),
+    { value: "// a\nb", selectionStart: 0, selectionEnd: 6 },
+    "toggling the doubled range back round-trips to the original text and selection",
+  );
+});
+
+test("plugins/toggleComment: uncomment is tolerant of a missing space after the prefix", () => {
+  const plugin = toggleComment();
+
+  assert.deepStrictEqual(
+    plugin(props("//x"), slashKey()),
+    { value: "x", selectionStart: 1, selectionEnd: 1 },
+    "'//x' counts as commented and uncomments cleanly",
+  );
+});
+
+test("plugins/toggleComment: blank and whitespace-only lines are skipped", () => {
+  const plugin = toggleComment();
+
+  assert.deepStrictEqual(
+    plugin(sel("a\n\n  \nb", 0, 7), slashKey()),
+    { value: "// a\n\n  \n// b", selectionStart: 3, selectionEnd: 13 },
+    "only non-blank lines get the prefix; empty and whitespace-only lines are untouched",
+  );
+});
+
+test("plugins/toggleComment: an all-blank range is a no-op but still preventDefaults", () => {
+  const plugin = toggleComment();
+
+  const event = slashKey();
+  assert.deepStrictEqual(plugin(sel("\n  \n", 0, 4), event), undefined, "a range with no non-blank line makes no edit");
+  assert.ok(event.defaultPrevented, "the matched hotkey still suppresses the browser default");
+});
+
+test("plugins/toggleComment: preserves indentation, inserting after leading whitespace", () => {
+  const plugin = toggleComment();
+
+  assert.deepStrictEqual(
+    plugin(props("    code"), slashKey()),
+    { value: "    // code", selectionStart: 11, selectionEnd: 11 },
+    "the prefix goes before the first non-whitespace char, keeping spaces",
+  );
+
+  assert.deepStrictEqual(
+    plugin(props("\t\tcode"), slashKey()),
+    { value: "\t\t// code", selectionStart: 9, selectionEnd: 9 },
+    "tab indentation is preserved too",
+  );
+});
+
+test("plugins/toggleComment: honors a custom prefix", () => {
+  const plugin = toggleComment("# ");
+
+  assert.deepStrictEqual(
+    plugin(props("x = 1"), slashKey()),
+    { value: "# x = 1", selectionStart: 7, selectionEnd: 7 },
+    "a custom prefix is inserted",
+  );
+
+  assert.deepStrictEqual(
+    plugin(props("# x = 1"), slashKey()),
+    { value: "x = 1", selectionStart: 5, selectionEnd: 5 },
+    "and removed on toggle",
+  );
+});
+
+test("plugins/toggleComment: a predicate overrides the default trigger", () => {
+  const plugin = toggleComment("// ", (event) => event.key === "k");
+
+  const kEvent = {
+    type: "keydown",
+    key: "k",
+    defaultPrevented: false,
+    preventDefault() {
+      kEvent.defaultPrevented = true;
+    },
+  };
+  assert.deepStrictEqual(
+    plugin(props("a"), kEvent),
+    { value: "// a", selectionStart: 4, selectionEnd: 4 },
+    "the custom predicate fires the toggle on its own key",
+  );
+
+  const slash = slashKey();
+  assert.deepStrictEqual(
+    plugin(props("a"), slash),
+    undefined,
+    "with a predicate the default ctrl/cmd+/ no longer triggers",
+  );
+  assert.ok(!slash.defaultPrevented, "a non-matching event is left to the browser");
+});
+
+test("plugins/toggleComment: caret in the indent stays before the inserted prefix", () => {
+  const plugin = toggleComment();
+
+  assert.deepStrictEqual(
+    plugin(props("  code", 1), slashKey()),
+    { value: "  // code", selectionStart: 1, selectionEnd: 1 },
+    "an edge before the insertion point does not move",
+  );
+});
+
+test("plugins/toggleComment: caret inside a removed prefix clamps to the prefix start", () => {
+  const plugin = toggleComment();
+
+  assert.deepStrictEqual(
+    plugin(props("  // code", 4), slashKey()),
+    { value: "  code", selectionStart: 2, selectionEnd: 2 },
+    "an edge inside the removed prefix clamps to where the prefix began",
+  );
+});
+
+test("plugins/toggleComment: matches ctrl/cmd+/ via the physical Slash code", () => {
+  const plugin = toggleComment();
+
+  const event = {
+    type: "keydown",
+    key: "7",
+    code: "Slash",
+    ctrlKey: true,
+    defaultPrevented: false,
+    preventDefault() {
+      event.defaultPrevented = true;
+    },
+  };
+  assert.deepStrictEqual(
+    plugin(props("a"), event),
+    { value: "// a", selectionStart: 4, selectionEnd: 4 },
+    "a layout where '/' is not the base key still triggers via event.code",
+  );
+});
+
+test("plugins/toggleComment: ignores non-keydown and non-matching events", () => {
+  const plugin = toggleComment();
+
+  assert.deepStrictEqual(
+    plugin(props("a"), { type: "input", key: "/", ctrlKey: true }),
+    undefined,
+    "an input event is a no-op",
+  );
+
+  assert.deepStrictEqual(
+    plugin(props("a"), slashKey({ key: "a", ctrlKey: false })),
+    undefined,
+    "a keydown that is not ctrl/cmd+/ is a no-op",
+  );
+});
+
+test("plugins/toggleComment: a readonly textarea is never edited", () => {
+  const plugin = toggleComment();
+
+  const event = slashKey({ target: { readOnly: true } });
+  assert.deepStrictEqual(plugin(props("a"), event), undefined, "no edit on a readonly field");
+  assert.ok(!event.defaultPrevented, "a readonly textarea leaves the event to the browser");
+});
+
+test("plugins/toggleComment: strips only one trailing space from the tolerant prefix", () => {
+  const plugin = toggleComment("//  ");
+
+  assert.deepStrictEqual(
+    plugin(props("//x"), slashKey()),
+    { value: "//  //x", selectionStart: 7, selectionEnd: 7 },
+    "with a two-space prefix the tolerant form is '// ', so '//x' is not commented and gets the prefix",
+  );
+
+  assert.deepStrictEqual(
+    plugin(props("// x"), slashKey()),
+    { value: "x", selectionStart: 1, selectionEnd: 1 },
+    "the tolerant form is the prefix minus exactly one trailing space",
+  );
+});
+
+test("plugins/toggleComment: a prefix without a trailing space has no separate tolerant form", () => {
+  const plugin = toggleComment("//");
+
+  assert.deepStrictEqual(
+    plugin(props("x"), slashKey()),
+    { value: "//x", selectionStart: 3, selectionEnd: 3 },
+    "the prefix inserts with no trailing space",
+  );
+
+  assert.deepStrictEqual(
+    plugin(props("//x"), slashKey()),
+    { value: "x", selectionStart: 1, selectionEnd: 1 },
+    "and uncomments, with the tolerant form equal to the prefix itself",
+  );
+});
+
+test("plugins/toggleComment: comments the caret line with the caret at column 0", () => {
+  const plugin = toggleComment();
+
+  assert.deepStrictEqual(
+    plugin(props("a\nb\nc", 0), slashKey()),
+    { value: "// a\nb\nc", selectionStart: 3, selectionEnd: 3 },
+    "caret at column 0 of the first line comments only that line",
+  );
+
+  assert.deepStrictEqual(
+    plugin(props("a\nb\nc", 4), slashKey()),
+    { value: "a\nb\n// c", selectionStart: 7, selectionEnd: 7 },
+    "caret at column 0 of the last line comments only that line",
+  );
+});
+
+test("plugins/toggleComment: caret inside the tolerant no-space prefix clamps on removal", () => {
+  const plugin = toggleComment();
+
+  assert.deepStrictEqual(
+    plugin(props("//x", 1), slashKey()),
+    { value: "x", selectionStart: 0, selectionEnd: 0 },
+    "a caret between the two slashes clamps to the prefix start when removed",
+  );
+});
+
+test("plugins/toggleComment: an uncomment ending at column 0 excludes that line but still shifts", () => {
+  const plugin = toggleComment();
+
+  assert.deepStrictEqual(
+    plugin(sel("// a\n// b", 0, 5), slashKey()),
+    { value: "a\n// b", selectionStart: 0, selectionEnd: 2 },
+    "the end at column 0 of line 2 is excluded from the uncomment but shifts by line 1's removal",
+  );
+});
+
+test("plugins/toggleComment: treats a regex-metacharacter prefix literally", () => {
+  const plugin = toggleComment("* ");
+
+  assert.deepStrictEqual(
+    plugin(props("x"), slashKey()),
+    { value: "* x", selectionStart: 3, selectionEnd: 3 },
+    "a prefix with regex metacharacters is matched as a literal string",
+  );
+
+  assert.deepStrictEqual(
+    plugin(props("* x"), slashKey()),
+    { value: "x", selectionStart: 1, selectionEnd: 1 },
+    "and removed literally on toggle",
+  );
+});
+
+test("plugins/toggleComment: preserves CRLF line endings through a toggle", () => {
+  const plugin = toggleComment();
+
+  const commented = plugin(sel("a\r\nb", 0, 4), slashKey());
+  assert.deepStrictEqual(commented.value, "// a\r\n// b", "carriage returns are kept when commenting CRLF content");
+
+  assert.deepStrictEqual(
+    plugin(sel(commented.value, 0, commented.value.length), slashKey()).value,
+    "a\r\nb",
+    "and restored when uncommenting",
+  );
+});
+
+test("plugins/toggleComment: toggles a whole-line single-line selection", () => {
+  const plugin = toggleComment();
+
+  assert.deepStrictEqual(
+    plugin(sel("abc", 0, 3), slashKey()),
+    { value: "// abc", selectionStart: 3, selectionEnd: 6 },
+    "a full single-line selection comments the line and keeps the text selected",
+  );
+});
+
+test("plugins/toggleComment: maps the selection correctly with tab indentation", () => {
+  const plugin = toggleComment();
+
+  assert.deepStrictEqual(
+    plugin(sel("\tab\n\tcd", 0, 6), slashKey()),
+    { value: "\t// ab\n\t// cd", selectionStart: 0, selectionEnd: 12 },
+    "an edge before the tab indent stays put; a later edge shifts past both prefixes",
+  );
 });

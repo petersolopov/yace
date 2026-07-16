@@ -6,9 +6,17 @@
   import { preserveIndent } from "../../src/plugins/preserveIndent.js";
   import { cutLine } from "../../src/plugins/cutLine.js";
   import { autoClose } from "../../src/plugins/autoClose.js";
+  import { toggleComment } from "../../src/plugins/toggleComment.js";
 
   window.Yace = Yace;
-  window.plugins = { history, tab, preserveIndent, cutLine, autoClose };
+  window.plugins = {
+    history,
+    tab,
+    preserveIndent,
+    cutLine,
+    autoClose,
+    toggleComment,
+  };
 
   const build = (spec) => {
     const name = typeof spec === "string" ? spec : spec.name;
@@ -19,6 +27,7 @@
     if (name === "preserveIndent") return preserveIndent();
     if (name === "cutLine") return cutLine();
     if (name === "autoClose") return autoClose(options);
+    if (name === "toggleComment") return toggleComment(options);
     throw new Error(`unknown plugin: ${name}`);
   };
 
