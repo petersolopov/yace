@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.1.0](https://github.com/petersolopov/yace/compare/v1.0.0...v1.1.0) (2026-07-16)
+
+Two editing plugins and a markdown highlighter, each a new subpath. The README covers the details and options.
+
+* `yace/plugins/autoClose` — bracket pairs close as you type ([d4323a7](https://github.com/petersolopov/yace/commit/d4323a7))
+* `yace/plugins/toggleComment` — ctrl/cmd + / toggles line comments ([d2328fd](https://github.com/petersolopov/yace/commit/d2328fd))
+* `yace/highlighters/markdown` — whole-document markdown highlighting ([d1d0293](https://github.com/petersolopov/yace/commit/d1d0293))
+* fix: plugins no longer edit a readonly textarea ([28d8546](https://github.com/petersolopov/yace/commit/28d8546))
+
 ## [1.0.0](https://github.com/petersolopov/yace/compare/v0.0.8...v1.0.0) (2026-07-10)
 
 The first stable release. The core stays under 2KB gzip — enforced: the build fails if it ever reaches the limit.
