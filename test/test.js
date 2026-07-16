@@ -570,6 +570,24 @@ test("options.plugins", () => {
   );
 });
 
+test("readonly textarea skips the keydown plugin pipeline", () => {
+  let called = false;
+  const plugin = () => {
+    called = true;
+    return { value: "changed" };
+  };
+  const editor = new Yace("#editor", {
+    value: "original",
+    plugins: [plugin],
+  });
+  editor.textarea.readOnly = true;
+
+  editor.textarea.dispatchEvent({ type: "keydown", key: "a" });
+
+  assert.ok(!called, "readonly keydown should not reach plugins");
+  assert.deepStrictEqual(editor.textarea.value, "original", "readonly keydown should not change the value");
+});
+
 test("plugins pipeline: each plugin receives the previous one's output", () => {
   const editor = new Yace("#editor");
 
@@ -1398,10 +1416,13 @@ test("plugins/autoClose: quotes are opt-in via the option, not in the default pa
 });
 
 test("plugins/autoClose: a readonly textarea is never edited", () => {
-  const plugin = autoClose();
-  const event = bracketKey("(", { target: { readOnly: true } });
+  const editor = new Yace("#editor", { plugins: [autoClose()] });
+  editor.textarea.readOnly = true;
+  const event = bracketKey("(");
 
-  assert.deepStrictEqual(plugin(props("", 0), event), undefined, "typing into a readonly textarea inserts nothing");
+  editor.textarea.dispatchEvent(event);
+
+  assert.deepStrictEqual(editor.textarea.value, "", "typing into a readonly textarea inserts nothing");
   assert.ok(!event.defaultPrevented, "a readonly textarea leaves the event to the browser");
 });
 
@@ -1639,10 +1660,16 @@ test("plugins/toggleComment: ignores non-keydown and non-matching events", () =>
 });
 
 test("plugins/toggleComment: a readonly textarea is never edited", () => {
-  const plugin = toggleComment();
+  const editor = new Yace("#editor", {
+    value: "a",
+    plugins: [toggleComment()],
+  });
+  editor.textarea.readOnly = true;
+  const event = slashKey();
 
-  const event = slashKey({ target: { readOnly: true } });
-  assert.deepStrictEqual(plugin(props("a"), event), undefined, "no edit on a readonly field");
+  editor.textarea.dispatchEvent(event);
+
+  assert.deepStrictEqual(editor.textarea.value, "a", "a readonly textarea keeps its value");
   assert.ok(!event.defaultPrevented, "a readonly textarea leaves the event to the browser");
 });
 

@@ -21,13 +21,6 @@ export const toggleComment =
       return;
     }
 
-    // keydown fires before the browser suppresses input on a readonly textarea,
-    // so without this the toggle would still rewrite a field that rejects typing
-    const target = event.target as HTMLTextAreaElement | null;
-    if (target != null && target.readOnly) {
-      return;
-    }
-
     const triggered = predicate
       ? predicate
       : (keyEvent: KeyboardEvent) => isKey("ctrl/cmd+/", keyEvent);

@@ -37,6 +37,18 @@ test("onUpdate reports the value after each keystroke", async ({ page }) => {
     .toEqual(["h", "hi"]);
 });
 
+test("a readonly textarea skips keydown plugins", async ({ page }) => {
+  await page.evaluate(() => {
+    window.createEditor({ plugins: ["autoClose"] });
+    window.editor.textarea.readOnly = true;
+  });
+  const textarea = page.locator(selectors.textarea);
+
+  await textarea.pressSequentially("(");
+
+  await expect(textarea).toHaveValue("");
+});
+
 test("initial value renders through the highlighter on load", async ({
   page,
 }) => {

@@ -10,14 +10,6 @@ export const autoClose = (
       return;
     }
 
-    // keydown fires before the browser suppresses input on a readonly textarea,
-    // so without this the pair would still be written into a field that rejects
-    // native typing
-    const target = event.target as HTMLTextAreaElement | null;
-    if (target != null && target.readOnly) {
-      return;
-    }
-
     const keyEvent = event as KeyboardEvent;
 
     // the pipeline sees every non-IME keydown, chords included: cmd+[ is

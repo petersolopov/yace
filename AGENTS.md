@@ -115,6 +115,9 @@ is a consumer of it.
 - IME guard: input/keydown handlers bail on `event.isComposing ||
   event.keyCode === 229`; the plugin pipeline runs on `compositionend`
   instead — writing `textarea.value` mid-composition corrupts CJK input
+- The core skips the whole keydown plugin pipeline when the textarea is
+  `readOnly`: readonly blocks native edits, not programmatic plugin writes.
+  Keep this policy out of individual plugins so every transformer follows it
 - `destroy()` is a full teardown: removes nodes via their actual parent
   (a framework may have detached them already), restores the pre-init
   style snapshot; `update()` after `destroy()` is a deliberate silent

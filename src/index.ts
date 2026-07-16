@@ -146,6 +146,13 @@ export class Yace {
 
   private addTextareaEvents(): void {
     this.handleEvent = (event) => {
+      // readonly blocks native edits, not plugin writes triggered by keydown
+      const isReadOnlyKeydown =
+        event.type === "keydown" && this.textarea.readOnly;
+      if (isReadOnlyKeydown) {
+        return;
+      }
+
       const keyEvent = event as KeyboardEvent;
       if (keyEvent.isComposing || keyEvent.keyCode === 229) {
         return;
