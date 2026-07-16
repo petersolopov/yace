@@ -54,21 +54,23 @@ is a consumer of it.
   (the named export mirrors the subpath name); `isKey` lives under
   plugins as plugin-authoring tooling
 - Highlighters via subpath:
-  `yace/highlighters/{code,sliceGlitch,shimmer}`. These
+  `yace/highlighters/{code,sliceGlitch,shimmer,markdown}`. These
   are enumerated explicitly, not a wildcard, so the internal shared
-  chunks (the `words` scanner, `injectStyles`) stay unexported
+  chunks (the `words` scanner, `injectStyles`, the inlined mdhl) stay
+  unexported
 - Barrels re-export the whole set: `import { history, tab } from
   "yace/plugins"` and `import { code, shimmer } from "yace/highlighters"`
   (the highlighters barrel also re-exports the `CodeRule` type). A
   bundler tree-shakes a pure re-export barrel down to byte-identical
   deep-import output (probed); a no-bundler consumer (CDN, import map)
-  fetching a barrel pays for every sibling instead (+2158B / +4 requests
-  for plugins, +5940B / +4 for highlighters when one entry is needed).
-  So deep subpaths stay the documented path for CDN/import-map use, and
-  the e2e fixtures keep their deep imports on purpose. The landing is
-  the one deliberate exception: its plugins come through the
+  fetching a barrel pays for every sibling instead, so deep subpaths
+  stay the documented path for CDN/import-map use and the e2e fixtures
+  keep their deep imports on purpose. Against live `src` the
+  highlighters barrel does not just cost extra — it fails to load
+  without an import-map entry for `mdhl` (see `## mdhl vendoring`). The
+  landing is the one deliberate exception: its plugins come through the
   `yace/plugins` barrel to mirror the README quick start, eating the
-  sibling cost (its highlighters stay deep)
+  sibling cost; its highlighters stay deep — required, see `## site`
 - Barrel shaking rests on two facts, it is not free: `sideEffects: false`
   in package.json AND every re-exported module being free of top-level
   side effects — the highlighter factories inject their CSS inside the
@@ -129,6 +131,14 @@ is a consumer of it.
 - `code` is a tiny extensible tokenizer; the glitch and shimmer
   factories are decorative (channel copies that shatter, or a gradient
   band that sweeps)
+- `markdown` is a whole-document highlighter with mdhl's source inlined
+  at build time (see `## mdhl vendoring`). It is stage-0 only: it
+  escapes the whole raw value and is not HTML-aware, so it must be the
+  first (or only) stage, never after `code()` or a decorator. If mdhl
+  throws, the factory returns the escaped plain value — render stays
+  alive and XSS-safe. It emits `mdhl-*` classes only (colors are the
+  consumer's) and never calls `injectStyles`; mdhl ships a default
+  `mdhl.css` that yace does not use
 - Their timing options are milliseconds; the derived duration/interval
   fraction is silently clamped, raw option values are not validated
   (GIGO) — the deliberate cost of keeping them tiny
@@ -145,6 +155,35 @@ is a consumer of it.
   stage 0) only in `words` mode; block mode escapes the whole value and
   belongs in stage 0 only
 
+## mdhl vendoring
+
+`markdown.ts` has one external import — `import "mdhl"` — and yace
+ships with zero dependencies, so the build inlines mdhl's source into
+`dist/highlighters/markdown.js`. That one line resolves differently in
+every place yace code runs; each place carries one rule:
+
+- consumer install: mdhl is absent, the inlined copy is all there is.
+  The devDependency pin is exact (`0.0.7`, no range) — the source is
+  baked into dist, so an update must be deliberate; a range would ship
+  unreviewed mdhl code in the next yace build
+- build: the highlighters rollup config is the only one with
+  node-resolve, scoped `resolveOnly: ["mdhl"]` — inline mdhl, nothing
+  else; vendoring a package into another config means wiring
+  node-resolve there too. Any other bare import stays external silently
+  (no `UNRESOLVED_IMPORT` fires). That is a deliberate non-guard: the
+  only realistic leak, a transitive dep in mdhl, cannot occur — mdhl is
+  zero-dep by design — and the lib e2e fail on any unmapped bare import
+  anyway
+- lib e2e: the browser loads live `src`, so the fixture's import map
+  maps `"mdhl"` to the installed ESM build; the map exists only for this
+- site: node_modules is not deployed and there is no markdown demo, so
+  the page's import map has no `mdhl` entry. The `yace/highlighters`
+  barrel re-exports `markdown.ts` and would fail to load there — the
+  site imports highlighters deep, per file
+- release: bumping the pin is a source change, not a dependency update —
+  rebuild and re-run the markdown alignment + XSS e2e, which mdhl
+  output drives
+
 ## Build toolchain
 
 - rollup 4 + `@rollup/plugin-typescript` + `@rollup/plugin-terser`;
@@ -156,6 +195,9 @@ is a consumer of it.
 - esbuild was evaluated and rejected: without bundling it does not
   rewrite `.ts` import specifiers (dist would reference nonexistent
   files), and with bundling it inlines shared modules into every entry
+- the highlighters config also inlines mdhl via node-resolve — the whole
+  story, including why there is no external-import guard, is under
+  `## mdhl vendoring`
 - Source imports use explicit `.ts` extensions — required because unit
   tests import live `src/` under Node's native type stripping
 - `scripts/build-dts.js` strips private class slots, rewrites the
@@ -176,7 +218,10 @@ is a consumer of it.
   private shared chunks must not land there (`yace/plugins/index`
   resolving as a harmless barrel alias is the accepted cost).
   Highlighters are enumerated explicitly instead because their dir holds
-  private chunks (the `words` scanner, `injectStyles`)
+  private chunks (the `words` scanner, `injectStyles`, the inlined mdhl).
+  A highlighter that inlines an external package (markdown → mdhl) also
+  extends `resolveOnly` in the highlighters rollup config (see
+  `## mdhl vendoring`)
 
 ## Browser support
 
@@ -203,9 +248,10 @@ Invariants:
   wildcards — to the live `src`. Plugins come through the
   `yace/plugins` barrel on purpose: the getting-started snippet shows
   the README one-liner and must be the real setup, so the page eats the
-  sibling fetches. Highlighters keep deep entries — their barrel would
-  pull all decorative siblings for nothing (see the barrel bullet under
-  Import contract). Prod serves from the domain root
+  sibling fetches. Highlighters keep deep entries — mandatory, not
+  thrift: the import map has no `mdhl` entry, so the highlighters
+  barrel would fail to load (see `## mdhl vendoring`). Prod serves
+  from the domain root
   (`https://yace.solopov.dev/`, custom domain since 2026-07-10; the old
   `petersolopov.github.io/yace/` URLs 301 there). Root-absolute paths
   like `/src/...` stay forbidden — they break the moment the site is
@@ -248,6 +294,8 @@ chromium/firefox/webkit. The Pages `deploy` job is gated on the
 - undom (unit-test DOM) is not a browser: it does not expand style
   shorthands and does not move the caret on value assignment; caret and
   alignment behavior is only provable in e2e
+- an mdhl pin bump is a source change, not a dependency update (see
+  `## mdhl vendoring`)
 - Publishing runs from CI on a `v*` tag push via OIDC trusted
   publishing; the publish step routes by version: a prerelease suffix
   (`1.0.0-beta.1`) publishes under the `next` dist-tag, a stable version
@@ -284,6 +332,7 @@ In order:
 
 - `npm test`
 - `npm run typecheck`
+- `npm run prettier:check`
 - `npm run test:e2e`
 - `npm run attw` (includes the build)
 - `npm pack`, install the tarball into a clean project, verify each
@@ -297,6 +346,6 @@ In order:
   workaround known yet
 - after the tag push has published to npm, create the GitHub release
   (the agent runs this by hand, there is no CI step):
-  `gh release create vX.Y.Z --verify-tag --title vX.Y.Z` with the top
-  `CHANGELOG.md` section as notes plus a compare link. Pre-1.0 tags
-  stay without releases
+  `gh release create vX.Y.Z --verify-tag --title vX.Y.Z --notes-file <file>`
+  with the top `CHANGELOG.md` section as notes plus a compare link. Pre-1.0
+  tags stay without releases

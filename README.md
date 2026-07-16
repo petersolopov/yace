@@ -182,7 +182,7 @@ new Yace("#editor", {
 
 Chaining is the point of the pipeline: `[code(), shimmer({ words: ["TODO"] })]` tokenizes first, then decorates on top. Only the first stage may escape its whole input — a plain tokenizer like `code()` placed later would double-escape the HTML before it.
 
-**Bundled extras.** yace ships a few optional highlighters as a `yace/highlighters` barrel or one-per-file subpaths (`yace/highlighters/code`). No separate stylesheet is needed — `code` emits classes only (bring your own colors), while the decorative highlighters inject their animation CSS at runtime and expose classes plus CSS variables you theme.
+**Bundled extras.** yace ships a few optional highlighters as a `yace/highlighters` barrel or one-per-file subpaths (`yace/highlighters/code`). No separate stylesheet is needed — `code` and `markdown` emit classes only (bring your own colors), while the decorative highlighters inject their animation CSS at runtime and expose classes plus CSS variables you theme.
 
 - `code(extraRules?)` — an extensible tokenizer. Emits `<span class="yace-tok yace-tok--type">` per token, no colors of its own. Pass `extraRules` (`{ type, pattern }[]`, tried before the built-ins) to add token types; flags on your patterns (`/i`, `/u`, `/s`) are kept.
 - `markdown()` — a markdown highlighter powered by the vendored [mdhl](https://github.com/petersolopov/mdhl). No options; emits `mdhl-*` classes only, so bring your own colors. Stage-0 only: it escapes the whole value, so place it first (or alone) in the pipeline — never after `code()` or a decorator.
