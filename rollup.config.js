@@ -2,10 +2,10 @@ import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import typescript from "@rollup/plugin-typescript";
 import terser from "@rollup/plugin-terser";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
 
-// tsconfig sets rewriteRelativeImportExtensions, so the plugin transpiles the
-// source ".ts" specifiers to ".js"; map those back to the on-disk ".ts" files
-// so rollup can resolve them (final chunk names carry the right extension).
+// tsconfig's rewriteRelativeImportExtensions turns the source ".ts" specifiers
+// into ".js" at transpile; map them back to the on-disk ".ts" files for rollup
 const resolveTsSource = {
   name: "resolve-ts-source",
   resolveId(source, importer) {
@@ -56,6 +56,7 @@ const highlightersConfig = {
     "src/highlighters/code.ts",
     "src/highlighters/sliceGlitch.ts",
     "src/highlighters/shimmer.ts",
+    "src/highlighters/markdown.ts",
   ],
   output: [
     {
@@ -65,7 +66,13 @@ const highlightersConfig = {
       chunkFileNames: "[name].js",
     },
   ],
-  plugins: [resolveTsSource, typescriptPlugin, terser()],
+  // markdown vendors mdhl; resolveOnly keeps node-resolve off everything else
+  plugins: [
+    resolveTsSource,
+    nodeResolve({ resolveOnly: ["mdhl"] }),
+    typescriptPlugin,
+    terser(),
+  ],
 };
 
 export default [editorConfig, pluginsConfig, highlightersConfig];

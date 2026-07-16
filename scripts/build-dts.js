@@ -12,7 +12,7 @@ const plugins = [
   "toggleComment",
   "isKey",
 ];
-const highlighters = ["code", "sliceGlitch", "shimmer"];
+const highlighters = ["code", "sliceGlitch", "shimmer", "markdown"];
 
 // every transform asserts its post-condition: a silent regex miss here would
 // publish wrong declarations that only break in consumer projects

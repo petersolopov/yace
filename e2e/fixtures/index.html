@@ -1,3 +1,13 @@
+<!-- markdown.ts imports the bare "mdhl" specifier; the e2e server serves the
+     repo root, so map it to the installed ESM build (also exercises mdhl's
+     module field, complementing the CJS-interop unit tests) -->
+<script type="importmap">
+  {
+    "imports": {
+      "mdhl": "/node_modules/mdhl/dist/mdhl.esm.js"
+    }
+  }
+</script>
 <div id="editor"></div>
 <script type="module">
   import { Yace } from "../../src/index.js";
@@ -7,6 +17,7 @@
   import { cutLine } from "../../src/plugins/cutLine.js";
   import { autoClose } from "../../src/plugins/autoClose.js";
   import { toggleComment } from "../../src/plugins/toggleComment.js";
+  import { markdown } from "../../src/highlighters/markdown.js";
 
   window.Yace = Yace;
   window.plugins = {
@@ -17,6 +28,7 @@
     autoClose,
     toggleComment,
   };
+  window.highlighters = { markdown };
 
   const build = (spec) => {
     const name = typeof spec === "string" ? spec : spec.name;
@@ -31,6 +43,11 @@
     throw new Error(`unknown plugin: ${name}`);
   };
 
+  const buildHighlighter = (name) => {
+    if (name === "markdown") return markdown();
+    throw new Error(`unknown highlighter: ${name}`);
+  };
+
   // #editor exposes the div as window.editor via named-element access, so the
   // live instance is tracked separately to guard destroy across re-creates
   let current = null;
@@ -40,9 +57,13 @@
       current.destroy();
     }
 
-    const { plugins = [], ...rest } = options;
+    const { plugins = [], highlighters, ...rest } = options;
     window.updates = [];
-    current = new Yace("#editor", { ...rest, plugins: plugins.map(build) });
+    current = new Yace("#editor", {
+      ...rest,
+      plugins: plugins.map(build),
+      ...(highlighters ? { highlighters: highlighters.map(buildHighlighter) } : {}),
+    });
     current.onUpdate((value) => window.updates.push(value));
     window.editor = current;
   };

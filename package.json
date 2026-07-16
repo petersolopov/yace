@@ -36,6 +36,10 @@
       "types": "./dist/highlighters/shimmer.d.ts",
       "default": "./dist/highlighters/shimmer.js"
     },
+    "./highlighters/markdown": {
+      "types": "./dist/highlighters/markdown.d.ts",
+      "default": "./dist/highlighters/markdown.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -44,7 +48,7 @@
   "scripts": {
     "dev": "node site/server.js",
     "typecheck": "tsc --noEmit",
-    "test": "c8 --all --include 'src/**/*.ts' --check-coverage --lines 100 --functions 100 --branches 99 node --test test/test.js test/highlighters.test.js",
+    "test": "c8 --all --include 'src/**/*.ts' --check-coverage --lines 100 --functions 100 --branches 99 node --test test/test.js test/highlighters.test.js test/build-guard.test.js",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "report": "c8 report --all --include 'src/**/*.ts' --reporter=text-lcov > coverage.txt",
@@ -65,7 +69,8 @@
     "zero-dependencies",
     "prism",
     "react",
-    "framework-agnostic"
+    "framework-agnostic",
+    "markdown"
   ],
   "author": "Peter Solopov <peter@solopov.dev>",
   "homepage": "https://github.com/petersolopov/yace",
@@ -78,10 +83,12 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.4",
     "@playwright/test": "^1.61.1",
+    "@rollup/plugin-node-resolve": "16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
     "@rollup/plugin-typescript": "^12.3.0",
     "c8": "^11.0.0",
     "commit-and-tag-version": "^12.7.3",
+    "mdhl": "0.0.7",
     "prettier": "^3.9.4",
     "rollup": "^4.62.2",
     "tslib": "^2.8.1",

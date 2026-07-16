@@ -2,14 +2,17 @@ import { test } from "node:test";
 import assert from "node:assert";
 import "undom/register.js";
 
+import { defaultRenderers } from "mdhl";
 import { code } from "../src/highlighters/code.ts";
 import { sliceGlitch } from "../src/highlighters/sliceGlitch.ts";
 import { shimmer } from "../src/highlighters/shimmer.ts";
+import { markdown } from "../src/highlighters/markdown.ts";
 import { injectStyles } from "../src/highlighters/injectStyles.ts";
 import {
   code as codeBarrel,
   sliceGlitch as sliceGlitchBarrel,
   shimmer as shimmerBarrel,
+  markdown as markdownBarrel,
 } from "../src/highlighters/index.ts";
 
 // undom gives document.head but not getElementById; the fun factories call
@@ -23,6 +26,7 @@ test("highlighters barrel re-exports every highlighter, identical to its deep su
     ["code", code, codeBarrel],
     ["sliceGlitch", sliceGlitch, sliceGlitchBarrel],
     ["shimmer", shimmer, shimmerBarrel],
+    ["markdown", markdown, markdownBarrel],
   ];
 
   for (const [name, deep, barrel] of pairs) {
@@ -288,6 +292,64 @@ test("highlighters/sliceGlitch: the duration fraction is clamped to 3..85", () =
     sliceGlitch({ interval: 1000, duration: 2000 })("x").includes("yace-slice--b85-00"),
     "a duration longer than the interval is clamped down to 85%, a continuous glitch",
   );
+});
+
+// reverse mdhl's output back to source text: <br/> is its rendered newline, tags carry
+// no advance, entities decode to their char — equality with the input proves markdown
+// preserves every character
+function toText(html) {
+  return html
+    .replace(/<br\/>/g, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&amp;/g, "&");
+}
+
+test("highlighters/markdown: a raw HTML payload in the value is escaped", () => {
+  const html = markdown()("<img src=x onerror=alert(1)>");
+  assert.ok(!html.includes("<img"), "the tag is escaped, not passed through as markup");
+  assert.ok(html.includes("&lt;img src=x onerror=alert(1)&gt;"), "the angle brackets become entities");
+});
+
+test("highlighters/markdown: headings, strong, em and fences emit mdhl-* classes", () => {
+  assert.ok(markdown()("# Title").includes('class="mdhl-heading"'), "heading");
+  assert.ok(markdown()("**bold**").includes('class="mdhl-strong"'), "strong");
+  assert.ok(markdown()("*italic*").includes('class="mdhl-em"'), "em");
+  assert.ok(markdown()("```\ncode\n```").includes('class="mdhl-codeInFences"'), "fenced code");
+});
+
+test("highlighters/markdown: a space-only line keeps its spaces (mdhl 0.0.7 fix)", () => {
+  const input = "a\n   \nb";
+  assert.deepStrictEqual(toText(markdown()(input)), input, "the whitespace-only line survives the lexer");
+});
+
+test("highlighters/markdown: an indented code fence keeps its leading indent (mdhl 0.0.7 fix)", () => {
+  const input = "   ```\ncode\n```";
+  assert.deepStrictEqual(toText(markdown()(input)), input, "the fence's leading spaces are preserved");
+});
+
+test("highlighters/markdown: a newline renders as <br/>", () => {
+  assert.ok(markdown()("a\nb").includes("<br/>"), "the line break becomes a <br/>");
+});
+
+test("highlighters/markdown: a throwing renderer falls back to the escaped value", () => {
+  // drive the catch branch without a mock: highlight()'s default renderers
+  // argument binds defaultRenderers at call time, so mutating it here is visible.
+  // a plain paragraph routes through the paragraph renderer; restore in finally.
+  const original = defaultRenderers.paragraph;
+  defaultRenderers.paragraph = () => {
+    throw new Error("boom");
+  };
+  try {
+    const html = markdown()("a & b");
+    assert.deepStrictEqual(html, "a &amp; b", "the raw value comes back escaped, not highlighted");
+    assert.ok(!html.includes("mdhl-"), "no highlighter markup leaked — the fallback ran");
+  } finally {
+    defaultRenderers.paragraph = original;
+  }
 });
 
 // injectStyles reads the global document; swap it wholesale so the guards can
