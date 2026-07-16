@@ -7,12 +7,14 @@ import { preserveIndent } from "../src/plugins/preserveIndent.ts";
 import { isKey } from "../src/plugins/isKey.ts";
 import { tab } from "../src/plugins/tab.ts";
 import { cutLine } from "../src/plugins/cutLine.ts";
+import { autoClose } from "../src/plugins/autoClose.ts";
 import { history } from "../src/plugins/history.ts";
 import {
   tab as tabBarrel,
   history as historyBarrel,
   preserveIndent as preserveIndentBarrel,
   cutLine as cutLineBarrel,
+  autoClose as autoCloseBarrel,
   isKey as isKeyBarrel,
 } from "../src/plugins/index.ts";
 
@@ -38,6 +40,7 @@ test("plugins barrel re-exports every plugin, identical to its deep subpath", ()
     ["history", history, historyBarrel],
     ["preserveIndent", preserveIndent, preserveIndentBarrel],
     ["cutLine", cutLine, cutLineBarrel],
+    ["autoClose", autoClose, autoCloseBarrel],
     ["isKey", isKey, isKeyBarrel],
   ];
 
@@ -1214,4 +1217,201 @@ test("plugins/history: integration through the editor", () => {
 
   dispatchHistoryKey(true);
   assert.deepStrictEqual(editor.textarea.value, "a", "redo re-applies the change");
+});
+
+const sel = (value, selectionStart, selectionEnd) => ({ value, selectionStart, selectionEnd });
+
+const bracketKey = (key, mods = {}) => {
+  const event = {
+    type: "keydown",
+    key,
+    ctrlKey: false,
+    metaKey: false,
+    altKey: false,
+    shiftKey: false,
+    defaultPrevented: false,
+    preventDefault() {
+      event.defaultPrevented = true;
+    },
+    ...mods,
+  };
+  return event;
+};
+
+test("plugins/autoClose: inserts a matching pair with the caret inside", () => {
+  const plugin = autoClose();
+
+  assert.deepStrictEqual(
+    plugin(props("", 0), bracketKey("(")),
+    { value: "()", selectionStart: 1, selectionEnd: 1 },
+    "an opening paren inserts its close with the caret between",
+  );
+
+  assert.deepStrictEqual(
+    plugin(props("ab", 1), bracketKey("[")),
+    { value: "a[]b", selectionStart: 2, selectionEnd: 2 },
+    "a bracket inserts mid-value and keeps the caret inside",
+  );
+
+  assert.deepStrictEqual(
+    plugin(props("", 0), bracketKey("{")),
+    { value: "{}", selectionStart: 1, selectionEnd: 1 },
+    "a brace inserts its close too",
+  );
+
+  const insert = bracketKey("(");
+  plugin(props("", 0), insert);
+  assert.ok(insert.defaultPrevented, "insert should preventDefault so the browser does not double-type");
+});
+
+test("plugins/autoClose: wrapping a selection keeps it selected", () => {
+  const plugin = autoClose();
+
+  assert.deepStrictEqual(
+    plugin(sel("abc", 0, 3), bracketKey("(")),
+    { value: "(abc)", selectionStart: 1, selectionEnd: 4 },
+    "typing an open char around a selection wraps it and keeps it selected",
+  );
+});
+
+test("plugins/autoClose: skip-over steps past a typed closing char", () => {
+  const plugin = autoClose();
+
+  const skip = bracketKey(")");
+  assert.deepStrictEqual(
+    plugin(props("()", 1), skip),
+    { value: "()", selectionStart: 2, selectionEnd: 2 },
+    "typing the close char right before its match advances the caret without inserting",
+  );
+  assert.ok(skip.defaultPrevented, "skip-over should preventDefault so the browser does not insert the char");
+
+  assert.deepStrictEqual(
+    plugin(props("()", 2), bracketKey(")")),
+    undefined,
+    "a close char with no matching char ahead is left to the browser",
+  );
+
+  const overSelection = bracketKey(")");
+  assert.deepStrictEqual(
+    plugin(sel("(ab)", 1, 3), overSelection),
+    undefined,
+    "a close char typed over a selection is not skip-over handled",
+  );
+  assert.ok(!overSelection.defaultPrevented, "a close char over a selection is left to the browser");
+});
+
+test("plugins/autoClose: backspace inside an empty pair deletes both", () => {
+  const plugin = autoClose();
+
+  const back = bracketKey("Backspace");
+  assert.deepStrictEqual(
+    plugin(props("()", 1), back),
+    { value: "", selectionStart: 0, selectionEnd: 0 },
+    "backspace between an empty pair removes both characters",
+  );
+  assert.ok(back.defaultPrevented, "backspace-pair should preventDefault");
+
+  assert.deepStrictEqual(
+    plugin(props("()", 0), bracketKey("Backspace")),
+    undefined,
+    "backspace at position 0 has no pair to remove",
+  );
+
+  assert.deepStrictEqual(
+    plugin(props("ab", 1), bracketKey("Backspace")),
+    undefined,
+    "backspace after a non-open char is left to the browser",
+  );
+
+  assert.deepStrictEqual(
+    plugin(props("(x", 1), bracketKey("Backspace")),
+    undefined,
+    "backspace after an open char whose close is missing is left to the browser",
+  );
+
+  assert.deepStrictEqual(
+    plugin(sel("()", 0, 2), bracketKey("Backspace")),
+    undefined,
+    "backspace with a selection deletes it natively, not the pair",
+  );
+});
+
+test("plugins/autoClose: foreign keys and non-keydown events are ignored", () => {
+  const plugin = autoClose();
+
+  assert.deepStrictEqual(plugin(props("ab", 1), bracketKey("a")), undefined, "a non-pair key is left untouched");
+
+  assert.deepStrictEqual(
+    plugin(props("", 0), { type: "input", key: "(" }),
+    undefined,
+    "autoClose only runs on keydown",
+  );
+});
+
+test("plugins/autoClose: command and control chords are not hijacked", () => {
+  const plugin = autoClose();
+
+  const cmdBracket = bracketKey("[", { metaKey: true });
+  assert.deepStrictEqual(plugin(props("", 0), cmdBracket), undefined, "cmd+[ (browser back) must not auto-close");
+  assert.ok(!cmdBracket.defaultPrevented, "cmd+[ is left to the browser");
+
+  const ctrlShift9 = bracketKey("(", { ctrlKey: true, shiftKey: true });
+  assert.deepStrictEqual(
+    plugin(props("", 0), ctrlShift9),
+    undefined,
+    "ctrl+shift+9 types '(' but the chord must not auto-close",
+  );
+  assert.ok(!ctrlShift9.defaultPrevented, "ctrl+shift+9 is left to the browser");
+
+  assert.deepStrictEqual(
+    plugin(props("", 0), bracketKey("[", { ctrlKey: true, altKey: true })),
+    { value: "[]", selectionStart: 1, selectionEnd: 1 },
+    "AltGr reports ctrl+alt while typing a bracket and must still auto-close",
+  );
+});
+
+test("plugins/autoClose: quotes are opt-in via the option, not in the default pairs", () => {
+  const plugin = autoClose();
+  const quote = bracketKey('"');
+  assert.deepStrictEqual(
+    plugin(props("", 0), quote),
+    undefined,
+    "typing a quote with the default config inserts nothing",
+  );
+  assert.ok(!quote.defaultPrevented, "a quote with the default config is left to the browser");
+
+  const quotes = autoClose({ '"': '"' });
+  assert.deepStrictEqual(
+    quotes(props("", 0), bracketKey('"')),
+    { value: '""', selectionStart: 1, selectionEnd: 1 },
+    "a symmetric pair added via the option inserts once with the caret inside",
+  );
+
+  assert.deepStrictEqual(
+    quotes(props('""', 1), bracketKey('"')),
+    { value: '""', selectionStart: 2, selectionEnd: 2 },
+    "typing the same char before its match steps over instead of inserting again",
+  );
+});
+
+test("plugins/autoClose: a readonly textarea is never edited", () => {
+  const plugin = autoClose();
+  const event = bracketKey("(", { target: { readOnly: true } });
+
+  assert.deepStrictEqual(plugin(props("", 0), event), undefined, "typing into a readonly textarea inserts nothing");
+  assert.ok(!event.defaultPrevented, "a readonly textarea leaves the event to the browser");
+});
+
+test("plugins/autoClose: a pair insertion is a single undo step with history()", () => {
+  const editor = new Yace("#editor", { plugins: [history(), autoClose()] });
+
+  editor.textarea.value = "";
+  editor.textarea.selectionStart = 0;
+  editor.textarea.selectionEnd = 0;
+  editor.textarea.dispatchEvent({ type: "keydown", key: "(", timeStamp: 1000, preventDefault() {} });
+
+  assert.deepStrictEqual(editor.textarea.value, "()", "typing '(' inserts the pair on keydown");
+
+  editor.textarea.dispatchEvent({ type: "keydown", key: "z", ctrlKey: true, timeStamp: 2000, preventDefault() {} });
+  assert.deepStrictEqual(editor.textarea.value, "", "one undo removes both inserted characters");
 });

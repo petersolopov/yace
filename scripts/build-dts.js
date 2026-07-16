@@ -3,7 +3,14 @@ import { fileURLToPath } from "node:url";
 
 const dist = fileURLToPath(new URL("../dist/", import.meta.url));
 
-const plugins = ["tab", "history", "preserveIndent", "cutLine", "isKey"];
+const plugins = [
+  "tab",
+  "history",
+  "preserveIndent",
+  "cutLine",
+  "autoClose",
+  "isKey",
+];
 const highlighters = ["code", "sliceGlitch", "shimmer"];
 
 // every transform asserts its post-condition: a silent regex miss here would

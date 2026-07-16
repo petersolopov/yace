@@ -35,6 +35,7 @@ const pluginsConfig = {
     "src/plugins/history.ts",
     "src/plugins/preserveIndent.ts",
     "src/plugins/cutLine.ts",
+    "src/plugins/autoClose.ts",
     "src/plugins/isKey.ts",
   ],
   output: [

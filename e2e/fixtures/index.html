@@ -5,9 +5,10 @@
   import { tab } from "../../src/plugins/tab.js";
   import { preserveIndent } from "../../src/plugins/preserveIndent.js";
   import { cutLine } from "../../src/plugins/cutLine.js";
+  import { autoClose } from "../../src/plugins/autoClose.js";
 
   window.Yace = Yace;
-  window.plugins = { history, tab, preserveIndent, cutLine };
+  window.plugins = { history, tab, preserveIndent, cutLine, autoClose };
 
   const build = (spec) => {
     const name = typeof spec === "string" ? spec : spec.name;
@@ -17,6 +18,7 @@
     if (name === "tab") return tab(options);
     if (name === "preserveIndent") return preserveIndent();
     if (name === "cutLine") return cutLine();
+    if (name === "autoClose") return autoClose(options);
     throw new Error(`unknown plugin: ${name}`);
   };
 

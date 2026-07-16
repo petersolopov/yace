@@ -156,6 +156,7 @@ new Yace("#editor", {
 - `tab(tabCharacter = "  ")` — indent and outdent the selection with tab and shift + tab.
 - `preserveIndent()` — keep the current line's indentation on enter.
 - `cutLine(predicate?)` — cut the selection or current line to the clipboard on ctrl/cmd + x; `predicate` overrides the trigger. No-ops without `navigator.clipboard`, leaving the native cut in place.
+- `autoClose(pairs?)` — type an opening bracket to insert its closing one with the caret between, wrap a selection and keep it selected, step over a closing char you type right before its match, and delete both on backspace inside an empty pair. Each side of a pair is a single character. `pairs` defaults to `{ "(": ")", "[": "]", "{": "}" }`; passing your own replaces that default instead of extending it, so repeat any brackets you want to keep. For example, to keep the brackets and add symmetric quote pairs (open equal to close): `{ "(": ")", "[": "]", "{": "}", '"': '"', "'": "'" }`.
 
 For your own shortcut checks, `yace/plugins/isKey` matches a shortcut against a `KeyboardEvent` — `isKey("ctrl/cmd+z", event)` — with ctrl/cmd normalization and a physical-code fallback that survives non-Latin layouts.
 
