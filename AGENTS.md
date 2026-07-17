@@ -102,7 +102,7 @@ is a consumer of it.
   re-escape. An empty `highlighters` array falls back to the escaping
   default rather than passing the raw value through; a bare function is
   tolerated at runtime but the typed option is an array
-- Highlighters MUST NOT change glyph advance widths. Probed 2026-07-10:
+- Highlighters MUST NOT change glyph advance widths. Probed:
   on a strictly monospace font bold/italic are safe — every face keeps
   the same advance (Menlo/Monaco/Courier New: identical line widths at
   400/700/italic), glyphs change stroke shape only, which the
@@ -191,7 +191,7 @@ every place yace code runs; each place carries one rule:
   `scripts/build-dts.js`
 - `tslib` stays a devDependency even though `importHelpers` is off and
   no emitted code uses it: `@rollup/plugin-typescript` preflight-fails
-  the whole build when tslib is not resolvable (probed 2026-07)
+  the whole build when tslib is not resolvable (probed)
 - esbuild was evaluated and rejected: without bundling it does not
   rewrite `.ts` import specifiers (dist would reference nonexistent
   files), and with bundling it inlines shared modules into every entry
@@ -251,9 +251,7 @@ Invariants:
   sibling fetches. Highlighters keep deep entries — mandatory, not
   thrift: the import map has no `mdhl` entry, so the highlighters
   barrel would fail to load (see `## mdhl vendoring`). Prod serves
-  from the domain root
-  (`https://yace.solopov.dev/`, custom domain since 2026-07-10; the old
-  `petersolopov.github.io/yace/` URLs 301 there). Root-absolute paths
+  from the domain root (`https://yace.solopov.dev/`). Root-absolute paths
   like `/src/...` stay forbidden — they break the moment the site is
   served under a project-Pages base again
 - The page makes zero external requests: fonts are self-hosted, no CDN,
@@ -340,8 +338,8 @@ In order:
   `require("yace").Yace` and the per-entry equivalents are callable
 - external demo and example links resolve (README badges and examples,
   site links). CodePen cannot be machine-checked: its Cloudflare wall
-  403s curl, headless browsers and even the oEmbed API (probed
-  2026-07-10), so a 403 there is the wall, not a dead pen — the pens
+  403s curl, headless browsers and even the oEmbed API (probed), so a
+  403 there is the wall, not a dead pen — the pens
   are verified by a human in a normal browser, no automated
   workaround known yet
 - after the tag push has published to npm, create the GitHub release
