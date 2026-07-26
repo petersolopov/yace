@@ -3,21 +3,10 @@
 [![npm](https://badgen.net/npm/v/yace/?cache=300)](https://www.npmjs.com/package/yace) [![Coverage Status](https://coveralls.io/repos/github/petersolopov/yace/badge.svg)](https://coveralls.io/github/petersolopov/yace) [![bundlephobia](https://badgen.net/bundlephobia/minzip/yace?label=size)](https://bundlephobia.com/result?p=yace)
 
 Yace is a tiny, extensible code editor component for cases where a plain
-`<textarea>` is not enough and Monaco or CodeMirror would be overkill.
+`<textarea>` is not enough and Monaco or CodeMirror would be overkill. Under
+2KB gzipped. Zero dependencies. Framework agnostic.
 
-<img width="1688" height="769" alt="280ac357e6610df818a4177b84b5892fd41fa5b56e69428ca597854a0d8c4a55" src="https://github.com/user-attachments/assets/45598a8d-7b5a-4b74-9b9e-2775e51d6345" />
-
-
-Under 2KB gzipped. Zero dependencies. Framework agnostic.
-
-- Input stays in a real `<textarea>`, preserving native caret behavior, IME,
-  mobile input, selection, and accessibility
-- Plugins add only the editing behavior you need: history, indentation,
-  bracket pairing, shortcuts, or your own transformations
-- Highlighters control what appears as you type: code, Markdown, tokens,
-  animations, or your own renderer
-- The editor mounts into a DOM node and works with React, Vue, vanilla JS, or
-  anything else
+<img width="1688" height="769" alt="Three yace editors: the quick start snippet with line numbers, an LLM token visualizer with colored word chips, and a React example" src="https://github.com/user-attachments/assets/45598a8d-7b5a-4b74-9b9e-2775e51d6345" />
 
 [See live examples](#examples)
 
@@ -28,9 +17,10 @@ inputs, prompt editors, token visualizers, and custom text experiences. It
 gives you syntax highlighting and editing hooks without bringing an IDE into
 the page.
 
-If you need large-document virtualization, multicursor editing, rich text, or
-a full language-tooling platform, use Monaco or CodeMirror. Yace deliberately
-stays smaller and gives you the pieces to build the editor you actually need.
+Large documents, multicursor editing, rich text, decorations, and SSR are out
+of scope by design: they need a document model rather than a textarea overlay.
+Yace deliberately stays smaller and gives you the pieces to build the editor
+you actually need.
 
 ## Quick start
 
@@ -92,22 +82,17 @@ native textarea and add only what the editor needs.
 
 ## Examples
 
-Start with the editor itself:
-
 - [Getting started with the bundled code highlighter](https://codepen.io/petersolopov/pen/JoELdOr)
 - [Use highlight.js as the highlighter](https://codepen.io/petersolopov/pen/dPNddwg)
 - [Use PrismJS as the highlighter](https://codepen.io/petersolopov/pen/RNKQMaX)
-- [Add undo, tab, indentation, and cut-line plugins](https://codepen.io/petersolopov/pen/GgrQxjg)
-- [Use Yace with React](https://codepen.io/petersolopov/pen/XJpZEKq)
-- [Build a Markdown editor](https://codepen.io/petersolopov/pen/NPdyYrR)
-
-Push the same pipelines further:
-
-- [Write a plugin](https://codepen.io/petersolopov/pen/OPWvyOM)
 - [Write a highlighter in about 15 lines](https://codepen.io/petersolopov/pen/dPNmYWr)
+- [Build a Markdown editor](https://codepen.io/petersolopov/pen/NPdyYrR)
 - [Highlight Markdown and fenced code blocks](https://codepen.io/petersolopov/pen/pvRaLbw)
-- [Visualize LLM tokens in an editable OpenAI-style view](https://codepen.io/petersolopov/pen/emgMpMr)
+- [Add undo, tab, indentation, and cut-line plugins](https://codepen.io/petersolopov/pen/GgrQxjg)
+- [Write a plugin](https://codepen.io/petersolopov/pen/OPWvyOM)
 - [Layer shimmer and glitch effects over selected words](https://codepen.io/petersolopov/pen/Qwdmjxg)
+- [Visualize LLM tokens in an editable OpenAI-style view](https://codepen.io/petersolopov/pen/emgMpMr)
+- [Use Yace with React](https://codepen.io/petersolopov/pen/XJpZEKq)
 
 ## Constructor options
 
@@ -126,7 +111,7 @@ new Yace(target, {
 
 ## Instance API
 
-The DOM yace built, and the methods to drive it:
+The DOM Yace built, and the methods to drive it:
 
 - `editor.value` holds the current text
 - `editor.textarea` exposes the real `<textarea>` for focus, `readOnly`,
@@ -238,11 +223,6 @@ matching words. They inject their animation CSS at runtime; `code` and
 
 Yace supports evergreen Chromium, Firefox, WebKit, and current mobile
 browsers. It is client-only and needs the DOM. IE and SSR are not supported.
-
-## Non-goals
-
-Large documents, multicursor editing, rich text, decorations, and SSR are out
-of scope by design. They need a document model rather than a textarea overlay.
 
 ## Gotchas
 
