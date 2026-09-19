@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.1.1](https://github.com/petersolopov/yace/compare/v1.1.0...v1.1.1) (2026-09-19)
+
+Fix `code()` string highlighting leaking onto later lines after quotes inside
+regex character classes such as `/[&<>'"]/g`. Ordinary quoted strings now stop
+at LF or CR, while Python-style triple-quoted strings remain multiline.
+JavaScript template literals and Go raw strings are unchanged.
+
+Regex literals still have no dedicated rule: a triple-quote sequence inside
+one can miscolor text through the next matching triple-quote sequence.
+
 ## [1.1.0](https://github.com/petersolopov/yace/compare/v1.0.0...v1.1.0) (2026-07-16)
 
 Two editing plugins and a markdown highlighter, each a new subpath. The README covers the details and options.
