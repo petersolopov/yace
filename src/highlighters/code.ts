@@ -7,7 +7,10 @@ const DEFAULT_RULES: CodeRule[] = [
   { type: "com", pattern: /\/\/[^\n]*|\/\*[\s\S]*?\*\// },
   {
     type: "str",
-    pattern: /`(?:\\.|[^`\\])*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/,
+    // triple quotes must precede ordinary strings so their opener is not
+    // consumed as an empty string
+    pattern:
+      /"""(?:\\[\s\S]|[^\\])*?"""|'''(?:\\[\s\S]|[^\\])*?'''|`(?:\\.|[^`\\])*`|"(?:\\.|[^"\\\n\r])*"|'(?:\\.|[^'\\\n\r])*'/,
   },
   {
     type: "kw",

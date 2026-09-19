@@ -206,7 +206,8 @@ First-party highlighters are available from `yace/highlighters` or individual
 subpaths such as `yace/highlighters/code`:
 
 - `code(extraRules?)` is an extensible tokenizer that emits `yace-tok` classes
-  without imposing colors; custom rules run before built-ins
+  without imposing colors. Provides approximate highlighting, without a language parser.
+  For language-specific highlighting, see the highlight.js and PrismJS [examples](#examples).
 - `markdown()` highlights Markdown with the vendored
   [mdhl](https://github.com/petersolopov/mdhl) and emits `mdhl-*` classes;
   place it first or use it alone

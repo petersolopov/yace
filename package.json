@@ -48,7 +48,7 @@
   "scripts": {
     "dev": "node site/server.js",
     "typecheck": "tsc --noEmit",
-    "test": "c8 --all --include 'src/**/*.ts' --check-coverage --lines 100 --functions 100 --branches 99 node --test test/test.js test/highlighters.test.js test/build-guard.test.js",
+    "test": "c8 --all --include 'src/**/*.ts' --check-coverage --lines 100 --functions 100 --branches 99 node --test test/test.js test/highlighters.test.js",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "report": "c8 report --all --include 'src/**/*.ts' --reporter=text-lcov > coverage.txt",

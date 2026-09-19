@@ -101,6 +101,86 @@ test("highlighters/code: a zero-length rule match does not spin the scan", () =>
   assert.deepStrictEqual(html, "bbb", "no token is emitted for the empty matches");
 });
 
+// the string rule is the whole reason a stray quote used to repaint a file, so
+// these read the emitted string tokens rather than the pattern itself
+const strings = (html) =>
+  [...html.matchAll(/class="yace-tok yace-tok--str">([\s\S]*?)<\/span>/g)].map((match) => match[1]);
+
+test("highlighters/code: a quote inside a regex class no longer paints the lines below", () => {
+  const html = code()(`s.replace(/[&<>'"]/g, m);\nconst name = 'peter';\nconst title = "sandbox";`);
+
+  assert.deepStrictEqual(
+    strings(html),
+    ["'peter'", '"sandbox"'],
+    "the class quote opens nothing; both later strings paint on their own",
+  );
+});
+
+test("highlighters/code: a carriage return bounds a quoted string too", () => {
+  const cases = [
+    ["line feed", `x = /[&<>'"]/g;\nconst a = 'fine';`],
+    ["carriage return", `x = /[&<>'"]/g;\rconst a = 'fine';`],
+    ["both", `x = /[&<>'"]/g;\r\nconst a = 'fine';`],
+  ];
+
+  for (const [name, source] of cases) {
+    assert.deepStrictEqual(strings(code()(source)), ["'fine'"], `a string does not cross a ${name}`);
+  }
+});
+
+test("highlighters/code: an unclosed quote stays on its own line", () => {
+  const html = code()(`const a = "oops\nconst b = 'ok';`);
+
+  assert.deepStrictEqual(strings(html), ["'ok'"], "the unclosed quote paints nothing and the next line is intact");
+});
+
+test("highlighters/code: a template literal still spans lines", () => {
+  const html = code()("const t = `a\nb`;\nconst s = 'x';");
+
+  assert.deepStrictEqual(
+    strings(html),
+    ["`a\nb`", "'x'"],
+    "backticks are multi-line in JavaScript, so the rule leaves them alone",
+  );
+});
+
+test("highlighters/code: an escaped quote keeps its string together", () => {
+  const html = code()('const a = "esc\\"aped";');
+
+  assert.deepStrictEqual(strings(html), ['"esc\\"aped"'], "the escape is part of the string, not its end");
+});
+
+test("highlighters/code: a triple-quoted block paints across lines", () => {
+  const doubles = code()(`T = """\nline one\nline two\n"""\nN = 'peter'`);
+  const singles = code()("T = '''\nline one\n'''\nN = 'peter'");
+
+  assert.deepStrictEqual(
+    strings(doubles),
+    ['"""\nline one\nline two\n"""', "'peter'"],
+    "the whole triple-quoted block is one string",
+  );
+  assert.deepStrictEqual(strings(singles)[0], "'''\nline one\n'''", "both delimiters behave the same");
+});
+
+test("highlighters/code: an unclosed triple quote falls back to plain tokenization", () => {
+  const html = code()(`T = """\nline one\nN = 'peter'`);
+
+  assert.deepStrictEqual(
+    strings(html),
+    ['""', "'peter'"],
+    "the opener degrades to an empty string, nothing crosses a line, the rest survives",
+  );
+});
+
+test("highlighters/code: three quotes inside a regex class can still open a string", () => {
+  // the accepted cost of painting triple-quoted blocks: a JS file holding two
+  // such classes paints between them, so this limitation is intentional
+  const html = code()(`const a = /["""]/;\nconst b = /["""]/;\nconst c = 'after';`);
+
+  assert.deepStrictEqual(strings(html).length, 2, "the false block and the later string");
+  assert.ok(strings(html)[0].includes("\n"), "the false block crosses lines, as decided");
+});
+
 test("highlighters/sliceGlitch: an empty words array keeps the block mode", () => {
   assert.deepStrictEqual(
     sliceGlitch({ words: [] })("ab"),
